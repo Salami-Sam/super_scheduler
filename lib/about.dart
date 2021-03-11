@@ -6,7 +6,7 @@ import 'main.dart';
  */
 
 class AboutWidget extends StatelessWidget {
-  final double rightLeftMargin = 16.0;
+  final double margin = 16.0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,10 +14,7 @@ class AboutWidget extends StatelessWidget {
         title: Text('About'),
       ),
       body: Container(
-        padding: EdgeInsets.only(
-          right: rightLeftMargin,
-          left: rightLeftMargin,
-        ),
+        padding: EdgeInsets.all(margin),
         child: Column(
           children: [
             Text('test'),
