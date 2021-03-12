@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
+import 'password_textfield.dart';
 import 'sign_in.dart';
 
 class SignUpWidget extends StatefulWidget {
