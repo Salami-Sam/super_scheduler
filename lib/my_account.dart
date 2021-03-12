@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:super_scheduler/change_account_info.dart';
 
 class MyAccountWidget extends StatefulWidget {
   final padding = 16.0;
@@ -7,6 +8,25 @@ class MyAccountWidget extends StatefulWidget {
 }
 
 class _MyAccountWidgetState extends State<MyAccountWidget> {
+  void _goToChangeNamePage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ChangeNameWidget()),
+    );
+  }
+
+  void _goToChangeEmailPage() {
+    // TODO
+  }
+
+  void _goToChangePasswordPage() {
+    // TODO
+  }
+
+  void _goToDeleteAccountPage() {
+    // TODO
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: pull user's name, email,
@@ -33,9 +53,10 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
             ),
           ),
           ElevatedButton(
-            onPressed: null,
+            onPressed: _goToChangeNamePage,
             child: Text('Change Name'),
           ),
+          Divider(),
           Center(
             child: TextFormField(
               readOnly: true,
@@ -46,17 +67,18 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
             ),
           ),
           ElevatedButton(
-            onPressed: null,
+            onPressed: _goToChangeEmailPage,
             child: Text('Change Email'),
           ),
           Divider(),
           ElevatedButton(
-            onPressed: null,
+            onPressed: _goToChangePasswordPage,
             child: Text('Change Password'),
           ),
+          Divider(),
           ElevatedButton(
             //style: ButtonStyle(), //TODO: make background red
-            onPressed: null,
+            onPressed: _goToDeleteAccountPage,
             child: Text('Deactivate Account'),
           ),
         ],
