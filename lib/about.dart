@@ -16,9 +16,26 @@ class AboutWidget extends StatelessWidget {
       body: Container(
         padding: EdgeInsets.all(margin),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('test'),
-            Text('test'),
+            Card(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ListTile(
+                    title: Text('Privacy Policy'),
+                    subtitle: Text(
+                        'We are unethical. You have no privacy. muahahaha'),
+                  ),
+                  ListTile(
+                    title: Text('Copyright Info'),
+                    subtitle: Text(
+                        'This app was created by:\nJames Chartaw\nRajesh Dhirar\nRudy Fisher\nDylan Schulz\nMike Schommer'),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
