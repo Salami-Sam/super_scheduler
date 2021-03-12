@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:super_scheduler/about.dart';
 import 'package:super_scheduler/my_account.dart';
+import 'package:super_scheduler/notifications.dart';
 
 import 'drawer.dart';
 import 'forgot_password.dart';
@@ -85,6 +86,13 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
     });
   }
 
+  void _goToNotificationScreen() {
+    setState(() {
+      currentBodyWidget = NotificationsWidget();
+      title = 'Notifications';
+    });
+  }
+
   ///Sets the initial screen of the app based on whether
   ///the user is signed in or not. If [userIsSignedIn]
   ///then the screen will be the [MyGroupsWidget],
@@ -119,17 +127,16 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
         DrawerButtonWidget(
           buttonLabel: 'Notifications',
           pushToWidget: null,
-          navigationCallBack: null,
+          navigationCallBack: _goToNotificationScreen,
         ),
         DrawerButtonWidget(
-          buttonLabel: 'Account',
+          buttonLabel: 'My Account',
           pushToWidget: null,
           navigationCallBack: _goToMyAccountScreen,
         ),
         DrawerButtonWidget(
           buttonLabel: 'About',
           pushToWidget: AboutWidget(),
-          navigationCallBack: null,
         ),
         DrawerButtonWidget(
           buttonLabel: 'Logout',

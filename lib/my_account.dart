@@ -18,16 +18,4 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
   }
 }
 
-class ChangeInfoWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Text('Are you sure? / Delete Account placeholder');
-  }
-}
 
-class DeleteAccountWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Text('Are you sure? / Delete Account placeholder');
-  }
-}
