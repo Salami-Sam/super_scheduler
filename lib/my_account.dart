@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:super_scheduler/change_account_info.dart';
+import 'package:super_scheduler/delete_account.dart';
 
 class MyAccountWidget extends StatefulWidget {
   final padding = 16.0;
@@ -16,15 +17,24 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
   }
 
   void _goToChangeEmailPage() {
-    // TODO
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ChangeEmailWidget()),
+    );
   }
 
   void _goToChangePasswordPage() {
-    // TODO
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ChangePasswordWidget()),
+    );
   }
 
   void _goToDeleteAccountPage() {
-    // TODO
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DeleteAccountWidget()),
+    );
   }
 
   @override

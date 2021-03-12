@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 ///be obscured or not using an eye icon in the suffix of
 ///the text field.
 class PasswordFieldWidget extends StatefulWidget {
+  final String textLabel;
+
+  PasswordFieldWidget({this.textLabel = 'Password'});
+
   @override
   _PasswordFieldWidgetState createState() => _PasswordFieldWidgetState();
 }
@@ -36,7 +40,7 @@ class _PasswordFieldWidgetState extends State<PasswordFieldWidget> {
               onTap: _toggleObscurePassword,
               child: passwordEyeSuffix,
             ),
-            labelText: 'Password',
+            labelText: widget.textLabel,
             hintText: 'e.g. Krustykrabpi22a1sthepizz@foryou@ndme',
           ),
           obscureText: _obscurePassword,
