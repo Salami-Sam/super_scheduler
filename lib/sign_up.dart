@@ -27,7 +27,8 @@ class _SignUpWidgetState extends State<SignUpWidget> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SignUpFormWidget(),
+          SignUpFormWidget(
+              signUpButtonOnPressedCallBack: widget.signUpButtonCallBack),
           ElevatedButton(
             child: Text('Sign In'),
             onPressed: widget.signInButtonCallBack,
@@ -58,6 +59,18 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          TextFormField(
+            decoration: InputDecoration(
+              labelText: 'Name',
+              hintText: 'e.g. Spongebob Squarepants',
+            ),
+            validator: (value) {
+              if (value.isNotEmpty) {
+                // TODO: return a string to somewhere
+              }
+              return null;
+            },
+          ),
           TextFormField(
             decoration: InputDecoration(
               labelText: 'Email',

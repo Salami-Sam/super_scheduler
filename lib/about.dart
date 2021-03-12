@@ -24,11 +24,13 @@ class AboutWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   ListTile(
+                    leading: Icon(Icons.privacy_tip_rounded),
                     title: Text('Privacy Policy'),
                     subtitle: Text(
                         'We are unethical. You have no privacy. muahahaha'),
                   ),
                   ListTile(
+                    leading: Icon(Icons.copyright_rounded),
                     title: Text('Copyright Info'),
                     subtitle: Text(
                         'This app was created by:\nJames Chartaw\nRajesh Dhirar\nRudy Fisher\nDylan Schulz\nMike Schommer'),
