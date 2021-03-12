@@ -4,10 +4,9 @@ import 'password_textfield.dart';
 
 ///TODO: Coordinates between both password fields' obscurity toggling
 class MultiPasswordWidget extends StatefulWidget {
-  final String textLabel;
   final List<PasswordFieldWidget> passwordFields;
 
-  MultiPasswordWidget({this.textLabel, this.passwordFields});
+  MultiPasswordWidget({this.passwordFields});
 
   @override
   _MultiPasswordWidgetState createState() => _MultiPasswordWidgetState();

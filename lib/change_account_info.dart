@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:super_scheduler/multipasswordfield.dart';
+import 'package:super_scheduler/password_textfield.dart';
 
 class ChangeNameWidget extends StatelessWidget {
   @override
@@ -62,6 +63,7 @@ class ChangeEmailWidget extends StatelessWidget {
 }
 
 class ChangePasswordWidget extends StatelessWidget {
+  final String textLabel = 'New Password';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,7 +76,12 @@ class ChangePasswordWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              MultiPasswordWidget(),
+              MultiPasswordWidget(
+                passwordFields: [
+                  PasswordFieldWidget(textLabel: textLabel),
+                  PasswordFieldWidget(textLabel: textLabel),
+                ],
+              ),
               ElevatedButton(
                 onPressed: null,
                 child: Text('confirm'),

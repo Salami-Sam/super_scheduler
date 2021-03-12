@@ -14,29 +14,33 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
       appBar: AppBar(
         title: Text('Forgot Password'),
       ),
-      body: Form(
-        key: widget._formKey,
-        child: Column(
-          children: [
-            TextFormField(
-              decoration: InputDecoration(
-                labelText: 'Email',
-                hintText: 'e.g. spongebob@thekrustykrab.com',
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: widget._formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  hintText: 'e.g. spongebob@thekrustykrab.com',
+                ),
+                validator: (value) {
+                  if (value.isNotEmpty) {
+                    // TODO: return a string to somewhere
+                  }
+                  return null;
+                },
               ),
-              validator: (value) {
-                if (value.isNotEmpty) {
-                  // TODO: return a string to somewhere
-                }
-                return null;
-              },
-            ),
-            ElevatedButton(
-              onPressed: () {
-                //TODO: submit the form
-              },
-              child: Text('Send Temperary Password'),
-            ),
-          ],
+              ElevatedButton(
+                onPressed: () {
+                  //TODO: submit the form
+                },
+                child: Text('Send Temperary Password'),
+              ),
+            ],
+          ),
         ),
       ),
     );
