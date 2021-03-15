@@ -27,6 +27,23 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
   bool userIsSignedIn = false;
   String title = 'Sign In';
 
+  ///Sets the initial screen of the app based on whether
+  ///the user is signed in or not. If [userIsSignedIn]
+  ///then the screen will be the [MyGroupsWidget],
+  ///otherwise it will show [SignInWidget].
+  ///(This is a constructor.)
+  _SuperSchedulerAppState({this.userIsSignedIn}) {
+    if (userIsSignedIn) {
+      currentBodyWidget = MyGroupsWidget();
+    } else {
+      currentBodyWidget = SignInWidget(
+        signUpButtonOnPressdCallback: _goToSignUpScreen,
+        signInButtonOnPressdCallback: _goToMyGroupsScreen,
+        forgotPasswordButtonOnPressdCallback: _goToForgotPasswordScreen,
+      );
+    }
+  }
+
   ///Rebuilds this state's widget tree with a [SignUpWidget] assigned to its
   ///[Scaffold]'s body.
   //////This method can be given to children widgets as
@@ -93,23 +110,6 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
       currentBodyWidget = NotificationsWidget();
       title = 'Notifications';
     });
-  }
-
-  ///Sets the initial screen of the app based on whether
-  ///the user is signed in or not. If [userIsSignedIn]
-  ///then the screen will be the [MyGroupsWidget],
-  ///otherwise it will show [SignInWidget].
-  ///(This is a constructor.)
-  _SuperSchedulerAppState({this.userIsSignedIn}) {
-    if (userIsSignedIn) {
-      currentBodyWidget = MyGroupsWidget();
-    } else {
-      currentBodyWidget = SignInWidget(
-        signUpButtonOnPressdCallback: _goToSignUpScreen,
-        signInButtonOnPressdCallback: _goToMyGroupsScreen,
-        forgotPasswordButtonOnPressdCallback: _goToForgotPasswordScreen,
-      );
-    }
   }
 
   ///Defines this app's drawer menu used for easy navigation.
