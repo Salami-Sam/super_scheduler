@@ -9,7 +9,7 @@ import 'group_management.dart';
 import 'sign_in.dart';
 import 'sign_up.dart';
 
-///The app's home widget, placed just under the app's root in the tree
+///The app's main/home widget, placed just under the app's root in the tree
 ///@author: Rudy Fisher
 class SuperSchedulerApp extends StatefulWidget {
   @override
