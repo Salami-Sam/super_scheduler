@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'drawer.dart';
 
 /* Screens:
  * Main Schedule
+ * 
+ * Author: Dylan Schulz
  */
 
 class MainScheduleWidget extends StatelessWidget {
@@ -12,7 +13,6 @@ class MainScheduleWidget extends StatelessWidget {
       appBar: AppBar(
         title: Text('Main Schedule: The Krusty Crew'),
       ),
-      drawer: getUnifiedDrawerWidget(),
       body: Text('Placeholder'),
     );
   }

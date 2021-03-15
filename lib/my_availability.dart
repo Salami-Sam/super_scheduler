@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'drawer.dart';
 
 /* Screens:
  * My Availability
+ * 
+ * Author: Dylan Schulz
  */
 
 class MyAvailabilityWidget extends StatelessWidget {
@@ -12,7 +13,6 @@ class MyAvailabilityWidget extends StatelessWidget {
       appBar: AppBar(
         title: Text('My Availability: The Krusty Crew'),
       ),
-      drawer: getUnifiedDrawerWidget(),
       body: Text('Placeholder'),
     );
   }
