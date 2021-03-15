@@ -3,6 +3,8 @@ import 'main.dart';
 import 'password_textfield.dart';
 import 'sign_in.dart';
 
+///Defines a screen for the user to sign up for an account with the app
+///@author: Rudy Fisher
 class SignUpWidget extends StatefulWidget {
   final Function() signUpButtonCallBack;
   final Function() signInButtonCallBack;
@@ -42,6 +44,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
 
 ///Defines a form for the user to sign up/make an account
 ///with the app.
+///@author: Rudy Fisher
 class SignUpFormWidget extends StatefulWidget {
   final _formKey = GlobalKey<FormState>();
   final Function() signUpButtonOnPressedCallBack;

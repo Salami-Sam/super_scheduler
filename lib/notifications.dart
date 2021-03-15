@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+///Defines the app's notifications screen
+///@author: Rudy Fisher
 class NotificationsWidget extends StatefulWidget {
   @override
   _NotificationsWidgetState createState() => _NotificationsWidgetState();

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:super_scheduler/multipasswordfield.dart';
 import 'package:super_scheduler/password_textfield.dart';
 
+///Defines a screen that allows the user to change their name
+///@author: Rudy Fisher
 class ChangeNameWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -32,6 +34,8 @@ class ChangeNameWidget extends StatelessWidget {
   }
 }
 
+///Defines a screen that allows the user to change their email
+///@author: Rudy Fisher
 class ChangeEmailWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -62,6 +66,8 @@ class ChangeEmailWidget extends StatelessWidget {
   }
 }
 
+///Defines a screen that allows the user to change their password
+///@author: Rudy Fisher
 class ChangePasswordWidget extends StatelessWidget {
   final String textLabel = 'New Password';
   @override

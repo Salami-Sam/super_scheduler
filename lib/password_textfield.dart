@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 ///Allows user to toggle whether the password should
 ///be obscured or not using an eye icon in the suffix of
 ///the text field.
+///@author: Rudy Fisher
 class PasswordFieldWidget extends StatefulWidget {
   final String textLabel;
 

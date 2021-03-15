@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+///Defines a screen that allows the user to request a temporary password
+///be sent to the provided email when they forgot their password
+///@author: Rudy Fisher
 class ForgotPasswordWidget extends StatefulWidget {
   final _formKey = GlobalKey<FormState>();
 

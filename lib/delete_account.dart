@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+///Defines a screen that allows the user to delete/deactivate their account
+///@author: Rudy Fisher
 class DeleteAccountWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

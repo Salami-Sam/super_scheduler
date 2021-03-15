@@ -7,6 +7,7 @@ import 'password_textfield.dart';
 ///[signInButtonOnPressdCallback] and
 ///[forgotPasswordButtonOnPressdCallback] are callbacks
 ///for this widget's button children's [onPressed].
+///@author: Rudy Fisher
 class SignInWidget extends StatefulWidget {
   final Function() signUpButtonOnPressdCallback;
   final Function() signInButtonOnPressdCallback;
@@ -23,6 +24,7 @@ class SignInWidget extends StatefulWidget {
 }
 
 ///The state of the [SignInWidget] widgets of this app.
+///@author: Rudy Fisher
 class _SignInWidgetState extends State<SignInWidget> {
   @override
   Widget build(BuildContext context) {
@@ -53,6 +55,7 @@ class _SignInWidgetState extends State<SignInWidget> {
 }
 
 ///Defines a form for the user to sign in to their account.
+///@author: Rudy Fisher
 class SignInFormWidget extends StatefulWidget {
   final _formKey = GlobalKey<FormState>();
   // ignore: non_constant_identifier_names

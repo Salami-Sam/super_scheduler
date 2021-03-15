@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 ///If [userIsSignedIn] is true, the full menu will display,
 ///otherwise, only a button to the app's "About" screen
 ///will be available. For now, default is true.
+///@author: Rudy Fisher
 Drawer getUnifiedDrawerWidget() {
   List<DrawerButtonWidget> drawerButtons;
   drawerButtons = [
@@ -54,6 +55,7 @@ Drawer getUnifiedDrawerWidget() {
 ///[pushToWidget].
 ///The [buttonLabel] should be the name of the
 ///[pushToWidget] that the user would understand.
+///@author: Rudy Fisher
 class DrawerButtonWidget extends StatelessWidget {
   final String buttonLabel;
   final Function() navigationCallBack;

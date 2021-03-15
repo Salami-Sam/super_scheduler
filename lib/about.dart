@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'main.dart';
 
-/* Screens:
- * About
- */
-
+///Defines the app's about screen
+///@author: Rudy Fisher
 class AboutWidget extends StatelessWidget {
   final double margin = 16.0;
   @override

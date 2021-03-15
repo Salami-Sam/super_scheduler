@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'home_widget.dart';
 
+///The intry point of the app
 void main() {
   runApp(ChangeNotifierProvider(
     child: RootWidget(),
@@ -9,6 +10,7 @@ void main() {
   ));
 }
 
+///The root of the app
 class RootWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

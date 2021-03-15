@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:super_scheduler/change_account_info.dart';
 import 'package:super_scheduler/delete_account.dart';
 
+///Defines a screen that displays the user's account info
+///@author: Rudy Fisher
 class MyAccountWidget extends StatefulWidget {
   final padding = 16.0;
   @override
