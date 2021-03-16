@@ -14,27 +14,30 @@ class _JoinGroupWidgetState extends State<JoinGroupWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          title: Text('Join Group'),
+        ),
         body: Center(
             child: Column(children: <Widget>[
-      Container(
-          margin: EdgeInsets.all(20),
-          child: TextField(
-            controller: codeController,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Group Code',
-            ),
-            onChanged: (text) {
-              setState(() {
-                groupCode = text;
-              });
-            },
-          )),
-      ElevatedButton(
-          onPressed: () {
-            //TODO: submit the form
-          },
-          child: Text('Join Group')),
-    ])));
+          Container(
+              margin: EdgeInsets.all(20),
+              child: TextField(
+                controller: codeController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Group Code',
+                ),
+                onChanged: (text) {
+                  setState(() {
+                    groupCode = text;
+                  });
+                },
+              )),
+          ElevatedButton(
+              onPressed: () {
+                //TODO: submit the form
+              },
+              child: Text('Join Group')),
+        ])));
   }
 }

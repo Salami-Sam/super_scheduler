@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'create_group.dart';
 import 'drawer.dart';
+import 'group_home.dart';
+import 'group_home_ADMIN.dart';
+import 'group_home_Manager.dart';
 import 'join_group.dart';
 
 /* Screens:
@@ -22,7 +25,7 @@ class MyGroupsWidget extends StatelessWidget {
           margin: EdgeInsets.all(20),
           child: ElevatedButton(
               onPressed: () {
-                Navigator.of(context).push(
+                Navigator.push(context,
                     MaterialPageRoute(builder: (context) => JoinGroupWidget()));
               },
               child: Text('Join Group'))),
@@ -33,10 +36,14 @@ class MyGroupsWidget extends StatelessWidget {
         },
         child: Text('Create Group'),
       ),
+      Container(
+        child: Column(
+          children: <Widget>[Text("Your Groups:")],
+        ),
+      ),
       Flexible(
         child: Container(
           decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-          margin: EdgeInsets.all(20),
           child: _showGroupList(),
         ),
       )
@@ -46,23 +53,45 @@ class MyGroupsWidget extends StatelessWidget {
 
 Widget _showGroupList() {
   return ListView.builder(
-      itemCount: 15,
+      itemCount: 1,
       itemBuilder: (BuildContext context, int index) {
         return Container(
           child: Column(
             children: <Widget>[
-              SizedBox(
-                height: 15,
-              ),
-              Text("Group 1"),
-              SizedBox(
-                height: 15,
-              ),
-              Text("Group 2"),
-              SizedBox(
-                height: 15,
-              ),
-              Text("Group 3"),
+              ElevatedButton(
+                  onPressed: () {
+                    //TODO: Go to a group home page
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => GroupHomeWidget()));
+                  },
+                  child: Text('Group Home (Member)')),
+              ElevatedButton(
+                  onPressed: () {
+                    //TODO: Go to a group home (Admin) page
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => GroupHomeAdminWidget()));
+                  },
+                  child: Text('Group Home (Admin)')),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => GroupHomeManagerWidget()));
+                  },
+                  child: Text('Group Home (Manager)')),
+              ElevatedButton(onPressed: () {}, child: Text('Group 4')),
+              ElevatedButton(onPressed: () {}, child: Text('Group 5')),
+              ElevatedButton(onPressed: () {}, child: Text('Group 6')),
+              ElevatedButton(onPressed: () {}, child: Text('Group 7')),
+              ElevatedButton(onPressed: () {}, child: Text('Group 8')),
+              ElevatedButton(onPressed: () {}, child: Text('Group 9')),
+              ElevatedButton(onPressed: () {}, child: Text('Group 10')),
+              ElevatedButton(onPressed: () {}, child: Text('Group 11')),
             ],
           ),
         );
@@ -94,16 +123,19 @@ Widget _showGroupList() {
     );
   }
 }  */
+class EditGroupWidget extends StatefulWidget {
+  @override
+  _EditGroupWidgetState createState() => _EditGroupWidgetState();
+}
 
-/* class EditGroupWidget extends StatelessWidget {
+class _EditGroupWidgetState extends State<EditGroupWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Group: The Krusty Crew'),
       ),
-      drawer: getUnifiedDrawerWidget(),
       body: Text('Placeholder'),
     );
   }
-} */
+}

@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-import 'drawer.dart';
+
+import 'group_management.dart';
 import 'main_schedule.dart';
 import 'member_management.dart';
 import 'my_availability.dart';
 import 'my_schedule.dart';
+import 'scheduler.dart';
 
-/* Screens:
- * Group Home Page
+/*
+ * Group Home Admin Page
  */
 ///@author: James Chartraw
-class GroupHomeWidget extends StatelessWidget {
+class GroupHomeAdminWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Group Home (Member)'),
+          title: Text('Group Home (Admin)'),
         ),
         body: Center(
             child: Column(
@@ -50,10 +52,25 @@ class GroupHomeWidget extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ViewMembersWidget()));
-                    //TODO: submit the form
+                            builder: (context) => PrimarySchedulerWidget()));
                   },
-                  child: Text('View Members'))
+                  child: Text('Scheduler')),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EditMemberWidget()));
+                  },
+                  child: Text('Edit Members')),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EditGroupWidget()));
+                  },
+                  child: Text('Edit Group'))
             ])));
   }
 }
