@@ -15,7 +15,7 @@ class GroupHomeManagerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Group Home (Admin)'),
+          title: Text('Group Home (Manager)'),
         ),
         body: Center(
             child: Column(
