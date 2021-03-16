@@ -5,7 +5,7 @@ import 'main_schedule.dart';
 import 'member_management.dart';
 import 'my_availability.dart';
 import 'my_schedule.dart';
-import 'scheduler.dart';
+import 'primary_scheduler.dart';
 
 /*
  * Group Home Admin Page
