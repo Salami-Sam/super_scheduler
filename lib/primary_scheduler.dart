@@ -119,8 +119,10 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
   }
 }
 
+// A widget for adding shifts to the schedule
+// Still needs some work
 class AddShiftWidget extends StatelessWidget {
-  List<String> roles = ['GM', 'Busboy', 'Cashier', 'Fry Cook'];
+  static const List<String> roles = ['GM', 'Busboy', 'Cashier', 'Fry Cook'];
 
   @override
   Widget build(BuildContext context) {
@@ -130,11 +132,11 @@ class AddShiftWidget extends StatelessWidget {
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Text(
             'Start Time',
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 18),
           ),
           Row(
             children: [
@@ -159,7 +161,7 @@ class AddShiftWidget extends StatelessWidget {
           ),
           Text(
             'End Time',
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 18),
           ),
           Row(
             children: [
@@ -184,7 +186,7 @@ class AddShiftWidget extends StatelessWidget {
           ),
           Text(
             'Roles Needed',
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 18),
           ),
           Expanded(
             child: ListView.builder(
@@ -198,7 +200,7 @@ class AddShiftWidget extends StatelessWidget {
                   title: Text(roles[index]),
                   subtitle: Text('1'),
                   trailing: IconButton(
-                    icon: Icon(Icons.arrow_left),
+                    icon: Icon(Icons.arrow_right),
                     onPressed: null,
                   ),
                 );
