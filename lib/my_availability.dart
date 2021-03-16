@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'reusable_schedule_items.dart';
 
 /* Screens:
  * My Availability
@@ -6,14 +7,61 @@ import 'package:flutter/material.dart';
  * Author: Dylan Schulz
  */
 
-class MyAvailabilityWidget extends StatelessWidget {
+class MyAvailabilityWidget extends StatefulWidget {
+  @override
+  _MyAvailabilityWidgetState createState() => _MyAvailabilityWidgetState();
+}
+
+class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
+  // Gets the tab with a particular day's information
+  Widget getIndividualTab(int day) {
+    return Container(
+      margin: EdgeInsets.all(5),
+      child: ListView.builder(
+        itemCount: 2, //Placeholder
+        itemBuilder: (context, index) {
+          return CheckboxListTile(
+            value: false,
+            title: Text('${getRandomTime()} - ${getRandomTime()}'),
+            onChanged: null,
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('My Availability: The Krusty Crew'),
+    return DefaultTabController(
+      length: numDaysInWeek,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('My Availability: The Krusty Crew'),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: 'Su'),
+              Tab(text: 'M'),
+              Tab(text: 'T'),
+              Tab(text: 'W'),
+              Tab(text: 'Th'),
+              Tab(text: 'F'),
+              Tab(text: 'Sa'),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            getIndividualTab(0),
+            getIndividualTab(1),
+            getIndividualTab(2),
+            getIndividualTab(3),
+            getIndividualTab(4),
+            getIndividualTab(5),
+            getIndividualTab(6),
+          ],
+        ),
+        bottomNavigationBar: DateNavigationRow(),
       ),
-      body: Text('Placeholder'),
     );
   }
 }

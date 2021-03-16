@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'reusable_schedule_items.dart';
 
 /* Screens:
  * My Schedule
@@ -6,6 +7,11 @@ import 'package:flutter/material.dart';
  * Author: Dylan Schulz
  */
 
+/*
+ * Widget for displaying the My Schedule screen,
+ * which displays weekly schedules for a particular group
+ * for the logged in user.
+ */
 class MyScheduleWidget extends StatefulWidget {
   @override
   _MyScheduleWidgetState createState() => _MyScheduleWidgetState();
@@ -40,22 +46,10 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
               'Spongebob\'s Schedule',
               style: TextStyle(fontSize: 26),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_left),
-                  onPressed: null,
-                ),
-                Text(
-                  'For the week 3/14/21 to 3/20/21',
-                  style: TextStyle(fontSize: 16),
-                ),
-                IconButton(
-                  icon: Icon(Icons.arrow_right),
-                  onPressed: null,
-                ),
-              ],
+            Divider(
+              color: Colors.black,
+              thickness: 2.0,
+              height: 30.0,
             ),
             Expanded(
               child: ListView.separated(
@@ -77,6 +71,7 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
           ],
         ),
       ),
+      bottomNavigationBar: DateNavigationRow(),
     );
   }
 }
