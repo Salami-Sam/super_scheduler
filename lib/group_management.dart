@@ -129,13 +129,51 @@ class EditGroupWidget extends StatefulWidget {
 }
 
 class _EditGroupWidgetState extends State<EditGroupWidget> {
+  TextEditingController groupController = TextEditingController();
+  String groupName = '';
+  String groupDescription = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Edit Group: The Krusty Crew'),
-      ),
-      body: Text('Placeholder'),
-    );
+        appBar: AppBar(
+          title: Text('Edit Group'),
+        ),
+        body: Center(
+            child: Column(children: <Widget>[
+          Container(
+              margin: EdgeInsets.all(20),
+              child: TextField(
+                controller: groupController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Group Name',
+                ),
+                onChanged: (text) {
+                  setState(() {
+                    groupName = text;
+                  });
+                },
+              )),
+          Container(
+              margin: EdgeInsets.all(20),
+              child: TextField(
+                controller: groupController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Group Description',
+                ),
+                onChanged: (text) {
+                  setState(() {
+                    groupDescription = text;
+                  });
+                },
+              )),
+          ElevatedButton(
+              onPressed: () {
+                //TODO: submit the form
+              },
+              child: Text('Save Changes')),
+        ])));
   }
 }
