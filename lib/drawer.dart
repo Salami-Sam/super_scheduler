@@ -72,8 +72,10 @@ class DrawerButtonWidget extends StatelessWidget {
     return ElevatedButton(
       onPressed: () {
         if (navigationCallBack != null) {
+          Navigator.pop(context);
           navigationCallBack();
         } else if (pushToWidget != null) {
+          Navigator.pop(context);
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => pushToWidget),
