@@ -50,7 +50,11 @@ Drawer getUnifiedDrawerWidget() {
 }
 
 ///Defines the buttons used in this app's drawer menu.
-///When one of these are pressed, and [pushToWidget]
+///When one of these are pressed, and [navigationCallBack]
+///is valid and not null, it will use [navigationCallBack]
+///to navigate to the next screen, depending on the
+///callback's implementation.
+///When [navigationCallBack] is null and [pushToWidget]
 ///is valid and not null, it will navigate to
 ///[pushToWidget].
 ///The [buttonLabel] should be the name of the
