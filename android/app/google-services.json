@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "804539057346",
+    "project_id": "superscheduler-7bac5",
+    "storage_bucket": "superscheduler-7bac5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:804539057346:android:94f8361d8caf3e14dba75b",
+        "android_client_info": {
+          "package_name": "com.team1.super_scheduler"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "804539057346-nuj43dmgfsij2c2s061jr2sa9t24qsd1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaT8phrVOrlhT2WdFkDmOkCclvq3CT7OU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "804539057346-nuj43dmgfsij2c2s061jr2sa9t24qsd1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
