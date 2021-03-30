@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'password_textfield.dart';
@@ -60,6 +61,8 @@ class SignInFormWidget extends StatefulWidget {
   final _formKey = GlobalKey<FormState>();
   // ignore: non_constant_identifier_names
   final Function() signInButtonOnPressdCallback;
+  final CollectionReference usersReference =
+      FirebaseFirestore.instance.collection('users');
 
   SignInFormWidget({this.signInButtonOnPressdCallback});
 
@@ -68,6 +71,16 @@ class SignInFormWidget extends StatefulWidget {
 }
 
 class _SignInFormWidgetState extends State<SignInFormWidget> {
+  bool _validateEmail(String enteredEmail) {
+    //TODO: RUDY -- validate email on sign in
+    return false;
+  }
+
+  bool _validatePassword(String enteredPassword) {
+    //TODO: RUDY -- validate password on sign in
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -78,11 +91,12 @@ class _SignInFormWidgetState extends State<SignInFormWidget> {
           TextFormField(
             decoration: InputDecoration(
               labelText: 'Email',
-              hintText: 'e.g. spongebob@thekrustykrab.com',
+              hintText: 'e.g. spongebob@thekrustykrab.net',
             ),
             validator: (value) {
               if (value.isNotEmpty) {
-                // TODO: return a string to somewhere
+                _validateEmail(value);
+                return value;
               }
               return null;
             },

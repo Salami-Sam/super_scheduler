@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'main.dart';
 import 'password_textfield.dart';
-import 'sign_in.dart';
 
 ///Defines a screen for the user to sign up for an account with the app
 ///@author: Rudy Fisher
@@ -70,7 +68,7 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
             ),
             validator: (value) {
               if (value.isNotEmpty) {
-                // TODO: return a string to somewhere
+                // TODO: RUDY -- return a string to somewhere
               }
               return null;
             },
@@ -82,7 +80,7 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
             ),
             validator: (value) {
               if (value.isNotEmpty) {
-                // TODO: return a string to somewhere
+                // TODO: RUDY -- return a string to somewhere
               }
               return null;
             },

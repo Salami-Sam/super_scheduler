@@ -8,7 +8,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:super_scheduler/main.dart';
 import 'package:super_scheduler/home_widget.dart';
 
 void main() {

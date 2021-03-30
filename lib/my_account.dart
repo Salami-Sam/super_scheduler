@@ -41,7 +41,7 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: pull user's name, email,
+    // TODO: RUDY -- pull user's name, email,
     // and maybe passwoard from database
     String userName = 'Spongebob Squarepants';
     String userEmail = 'spongebob@thekrustykrabs.net';
@@ -89,7 +89,7 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
           ),
           Divider(),
           ElevatedButton(
-            //style: ButtonStyle(), //TODO: make background red
+            //style: ButtonStyle(), //TODO: RUDY -- make background red
             onPressed: _goToDeleteAccountPage,
             child: Text('Deactivate Account'),
           ),

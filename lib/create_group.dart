@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'drawer.dart';
 
 ///A screen where a users can create their own group.
 ///They give their group a name and description and then it is created.

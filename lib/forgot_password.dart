@@ -31,14 +31,14 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                 ),
                 validator: (value) {
                   if (value.isNotEmpty) {
-                    // TODO: return a string to somewhere
+                    // TODO: RUDY -- return a string to somewhere
                   }
                   return null;
                 },
               ),
               ElevatedButton(
                 onPressed: () {
-                  //TODO: submit the form
+                  //TODO: RUDY -- submit the form
                 },
                 child: Text('Send Temperary Password'),
               ),
