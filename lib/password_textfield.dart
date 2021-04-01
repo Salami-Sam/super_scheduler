@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'entered_user_info.dart';
 
 ///Defines a text field specifically for passwords.
 ///Allows user to toggle whether the password should
@@ -7,8 +8,9 @@ import 'package:flutter/material.dart';
 ///@author: Rudy Fisher
 class PasswordFieldWidget extends StatefulWidget {
   final String textLabel;
+  final EnteredSignInInfo enteredUserInfo;
 
-  PasswordFieldWidget({this.textLabel = 'Password'});
+  PasswordFieldWidget({this.textLabel = 'Password', this.enteredUserInfo});
 
   @override
   _PasswordFieldWidgetState createState() => _PasswordFieldWidgetState();
@@ -45,11 +47,8 @@ class _PasswordFieldWidgetState extends State<PasswordFieldWidget> {
             hintText: 'e.g. Krustykrabpi22a1sthepizz@foryou@ndme',
           ),
           obscureText: _obscurePassword,
-          validator: (value) {
-            if (value.isNotEmpty) {
-              // TODO: RUDY -- return a string to somewhere
-            }
-            return null;
+          onChanged: (value) {
+            widget.enteredUserInfo.enteredPassword = value;
           },
         ),
       ],

@@ -30,13 +30,13 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
   ///Sets the initial screen of the app based on whether
   ///the user is signed in or not. If [userIsSignedIn]
   ///then the screen will be the [MyGroupsWidget],
-  ///otherwise it will show [SignInWidget].
+  ///otherwise it will show [SignInScreenWidget].
   ///(This is a constructor.)
   _SuperSchedulerAppState({this.userIsSignedIn}) {
     if (userIsSignedIn) {
       currentBodyWidget = MyGroupsWidget();
     } else {
-      currentBodyWidget = SignInWidget(
+      currentBodyWidget = SignInScreenWidget(
         signUpButtonOnPressdCallback: _goToSignUpScreen,
         signInButtonOnPressdCallback: _goToMyGroupsScreen,
         forgotPasswordButtonOnPressdCallback: _goToForgotPasswordScreen,
@@ -59,14 +59,14 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
     });
   }
 
-  ///Rebuilds this state's widget tree with a [SignInWidget] assigned to its
+  ///Rebuilds this state's widget tree with a [SignInScreenWidget] assigned to its
   ///[Scaffold]'s body. This also sets [userIsSignedIn] to true.
   ///This method can be given to children widgets as
   ///callbacks to navigate to the Sign In page without having push/pop
   ///capabilities, when it makes sense to do so.
   void _goToSignInScreen() {
     setState(() {
-      currentBodyWidget = SignInWidget(
+      currentBodyWidget = SignInScreenWidget(
         signInButtonOnPressdCallback: _goToMyGroupsScreen,
         signUpButtonOnPressdCallback: _goToSignUpScreen,
         forgotPasswordButtonOnPressdCallback: _goToForgotPasswordScreen,

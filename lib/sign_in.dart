@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'entered_user_info.dart';
 import 'password_textfield.dart';
 
 ///Defines the Sign In screen for the app.
@@ -9,24 +9,24 @@ import 'password_textfield.dart';
 ///[forgotPasswordButtonOnPressdCallback] are callbacks
 ///for this widget's button children's [onPressed].
 ///@author: Rudy Fisher
-class SignInWidget extends StatefulWidget {
+class SignInScreenWidget extends StatefulWidget {
   final Function() signUpButtonOnPressdCallback;
   final Function() signInButtonOnPressdCallback;
   final Function() forgotPasswordButtonOnPressdCallback;
 
-  SignInWidget({
+  SignInScreenWidget({
     this.signUpButtonOnPressdCallback,
     this.signInButtonOnPressdCallback,
     this.forgotPasswordButtonOnPressdCallback,
   });
 
   @override
-  _SignInWidgetState createState() => _SignInWidgetState();
+  _SignInScreenWidgetState createState() => _SignInScreenWidgetState();
 }
 
-///The state of the [SignInWidget] widgets of this app.
+///The state of the [SignInScreenWidget] widgets of this app.
 ///@author: Rudy Fisher
-class _SignInWidgetState extends State<SignInWidget> {
+class _SignInScreenWidgetState extends State<SignInScreenWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -38,7 +38,7 @@ class _SignInWidgetState extends State<SignInWidget> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SignInFormWidget(
+          SignInWidget(
             signInButtonOnPressdCallback: widget.signInButtonOnPressdCallback,
           ),
           ElevatedButton(
@@ -57,57 +57,77 @@ class _SignInWidgetState extends State<SignInWidget> {
 
 ///Defines a form for the user to sign in to their account.
 ///@author: Rudy Fisher
-class SignInFormWidget extends StatefulWidget {
-  final _formKey = GlobalKey<FormState>();
-  // ignore: non_constant_identifier_names
+class SignInWidget extends StatefulWidget {
   final Function() signInButtonOnPressdCallback;
-  final CollectionReference usersReference =
-      FirebaseFirestore.instance.collection('users');
+  final EnteredSignInInfo enteredUserInfo = EnteredSignInInfo();
 
-  SignInFormWidget({this.signInButtonOnPressdCallback});
+  SignInWidget({this.signInButtonOnPressdCallback});
 
   @override
-  _SignInFormWidgetState createState() => _SignInFormWidgetState();
+  _SignInWidgetState createState() => _SignInWidgetState();
 }
 
-class _SignInFormWidgetState extends State<SignInFormWidget> {
-  bool _validateEmail(String enteredEmail) {
-    //TODO: RUDY -- validate email on sign in
-    return false;
+class _SignInWidgetState extends State<SignInWidget> {
+  PasswordFieldWidget passwordFieldWidget;
+
+  void showSnackBar({String message}) {
+    SnackBar snackbar = SnackBar(content: Text(message));
+    ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
-  bool _validatePassword(String enteredPassword) {
-    //TODO: RUDY -- validate password on sign in
-    return false;
+  void signIn() async {
+    print('sign in');
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: widget.enteredUserInfo.enteredEmail,
+        password: widget.enteredUserInfo.enteredPassword,
+      );
+      if (userCredential.user.emailVerified) {
+        widget.signInButtonOnPressdCallback();
+        showSnackBar(message: 'Welcome');
+      } else {
+        await FirebaseAuth.instance.currentUser.sendEmailVerification();
+
+        showSnackBar(message: 'Please check your email for verification');
+      }
+    } on FirebaseAuthException catch (e) {
+      print(e.toString());
+      if (e.code == 'user-not-found') {
+        showSnackBar(message: 'No user found with that email');
+      } else if (e.code == 'wrong-password') {
+        showSnackBar(message: 'Incorrect password provided for that email');
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: widget._formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextFormField(
-            decoration: InputDecoration(
-              labelText: 'Email',
-              hintText: 'e.g. spongebob@thekrustykrab.net',
-            ),
-            validator: (value) {
-              if (value.isNotEmpty) {
-                _validateEmail(value);
-                return value;
-              }
-              return null;
-            },
+    passwordFieldWidget = PasswordFieldWidget(
+      enteredUserInfo: widget.enteredUserInfo,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextFormField(
+          initialValue: 'mobiledevsuperscheduler@gmail.com',
+          decoration: InputDecoration(
+            labelText: 'Email',
+            hintText: 'e.g. spongebob@thekrustykrab.net',
           ),
-          PasswordFieldWidget(),
-          ElevatedButton(
-            onPressed: widget.signInButtonOnPressdCallback,
-            child: Text('Sign In'),
-          ),
-        ],
-      ),
+          onChanged: (value) {
+            widget.enteredUserInfo.enteredEmail = value;
+          },
+        ),
+        passwordFieldWidget,
+        ElevatedButton(
+          onPressed: () {
+            signIn();
+          },
+          child: Text('Sign In'),
+        ),
+      ],
     );
   }
 }
