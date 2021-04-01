@@ -86,16 +86,16 @@ class _SignInWidgetState extends State<SignInWidget> {
       );
       if (userCredential.user.emailVerified) {
         widget.signInButtonOnPressdCallback();
-        showSnackBar(message: 'Welcome');
+        showSnackBar(message: 'Welcome!');
       } else {
         await FirebaseAuth.instance.currentUser.sendEmailVerification();
 
-        showSnackBar(message: 'Please check your email for verification');
+        showSnackBar(message: 'Please check your email for verification.');
       }
     } on FirebaseAuthException catch (e) {
       print(e.toString());
       if (e.code == 'user-not-found') {
-        showSnackBar(message: 'No user found with that email');
+        showSnackBar(message: 'No user found with that email.');
       } else if (e.code == 'wrong-password') {
         showSnackBar(message: 'Incorrect password provided for that email');
       }
