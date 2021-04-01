@@ -59,7 +59,8 @@ class _SignInScreenWidgetState extends State<SignInScreenWidget> {
 ///@author: Rudy Fisher
 class SignInWidget extends StatefulWidget {
   final Function() signInButtonOnPressdCallback;
-  final EnteredSignInInfo enteredUserInfo = EnteredSignInInfo();
+  final StringByReference email = StringByReference();
+  final StringByReference password = StringByReference();
 
   SignInWidget({this.signInButtonOnPressdCallback});
 
@@ -80,8 +81,8 @@ class _SignInWidgetState extends State<SignInWidget> {
     try {
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: widget.enteredUserInfo.enteredEmail,
-        password: widget.enteredUserInfo.enteredPassword,
+        email: widget.email.string,
+        password: widget.password.string,
       );
       if (userCredential.user.emailVerified) {
         widget.signInButtonOnPressdCallback();
@@ -103,21 +104,23 @@ class _SignInWidgetState extends State<SignInWidget> {
 
   @override
   Widget build(BuildContext context) {
+    widget.email.string = 'mobiledevsuperscheduler@gmail.com';
+    widget.password.string = '321schedule!';
     passwordFieldWidget = PasswordFieldWidget(
-      enteredUserInfo: widget.enteredUserInfo,
+      password: widget.password,
     );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TextFormField(
-          initialValue: 'mobiledevsuperscheduler@gmail.com',
+          initialValue: widget.email.string,
           decoration: InputDecoration(
             labelText: 'Email',
             hintText: 'e.g. spongebob@thekrustykrab.net',
           ),
           onChanged: (value) {
-            widget.enteredUserInfo.enteredEmail = value;
+            widget.email.string = value;
           },
         ),
         passwordFieldWidget,

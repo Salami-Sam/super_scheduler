@@ -1,10 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-///Defines the necessary information a user must enter to
-///sign in to an account.
+///Wraps a [String] into a reference type data structure.
 ///@author Rudy Fisher
-class EnteredSignInInfo {
-  final FirebaseFirestore database = FirebaseFirestore.instance;
-  String enteredEmail = 'mobiledevsuperscheduler@gmail.com';
-  String enteredPassword = '';
+class StringByReference {
+  String string = '321schdeule!';
 }

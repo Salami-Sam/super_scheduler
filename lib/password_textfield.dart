@@ -8,9 +8,9 @@ import 'entered_user_info.dart';
 ///@author: Rudy Fisher
 class PasswordFieldWidget extends StatefulWidget {
   final String textLabel;
-  final EnteredSignInInfo enteredUserInfo;
+  final StringByReference password;
 
-  PasswordFieldWidget({this.textLabel = 'Password', this.enteredUserInfo});
+  PasswordFieldWidget({this.textLabel = 'Password', this.password});
 
   @override
   _PasswordFieldWidgetState createState() => _PasswordFieldWidgetState();
@@ -38,6 +38,7 @@ class _PasswordFieldWidgetState extends State<PasswordFieldWidget> {
     return Column(
       children: [
         TextFormField(
+          initialValue: widget.password.string,
           decoration: InputDecoration(
             suffix: InkWell(
               onTap: _toggleObscurePassword,
@@ -48,7 +49,7 @@ class _PasswordFieldWidgetState extends State<PasswordFieldWidget> {
           ),
           obscureText: _obscurePassword,
           onChanged: (value) {
-            widget.enteredUserInfo.enteredPassword = value;
+            widget.password.string = value;
           },
         ),
       ],

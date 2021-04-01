@@ -44,16 +44,16 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
     }
   }
 
-  ///Rebuilds this state's widget tree with a [SignUpWidget] assigned to its
+  ///Rebuilds this state's widget tree with a [SignUpScreenWidget] assigned to its
   ///[Scaffold]'s body.
   //////This method can be given to children widgets as
   ///callbacks to navigate to the Sign Up page without having push/pop
   ///capabilities, when it makes sense to do so.
   void _goToSignUpScreen() {
     setState(() {
-      currentBodyWidget = SignUpWidget(
+      currentBodyWidget = SignUpScreenWidget(
         signInButtonCallBack: _goToSignInScreen,
-        signUpButtonCallBack: _goToMyGroupsScreen,
+        signUpButtonCallBack: _goToSignInScreen,
       );
       title = 'Sign Up';
     });
