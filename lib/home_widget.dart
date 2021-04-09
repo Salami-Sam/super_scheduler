@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:super_scheduler/about.dart';
 import 'package:super_scheduler/my_account.dart';
@@ -65,6 +66,14 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
   ///callbacks to navigate to the Sign In page without having push/pop
   ///capabilities, when it makes sense to do so.
   void _goToSignInScreen() {
+    // Sign out the user if they are signed in
+    if (userIsSignedIn) {
+      User user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        FirebaseAuth.instance.signOut();
+      }
+    }
+
     setState(() {
       currentBodyWidget = SignInScreenWidget(
         signInButtonOnPressdCallback: _goToMyGroupsScreen,
