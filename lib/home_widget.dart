@@ -18,14 +18,13 @@ class SuperSchedulerApp extends StatefulWidget {
     //TODO: RUDY -- Check if user is signed in when app is opened.
     //  if so, skip the login screen and go to My Groups screen
     //  this only assigns the initial app screen
-    return _SuperSchedulerAppState(userIsSignedIn: false);
+    return _SuperSchedulerAppState();
   }
 }
 
 ///This is where the most top-level screens will transition.
 class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
   Widget currentBodyWidget;
-  bool userIsSignedIn = false;
   String title = 'Sign In';
 
   ///Sets the initial screen of the app based on whether
@@ -33,8 +32,8 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
   ///then the screen will be the [MyGroupsWidget],
   ///otherwise it will show [SignInScreenWidget].
   ///(This is a constructor.)
-  _SuperSchedulerAppState({this.userIsSignedIn}) {
-    if (userIsSignedIn) {
+  _SuperSchedulerAppState() {
+    if (FirebaseAuth.instance.currentUser != null) {
       currentBodyWidget = MyGroupsWidget();
     } else {
       currentBodyWidget = SignInScreenWidget(
@@ -67,11 +66,8 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
   ///capabilities, when it makes sense to do so.
   void _goToSignInScreen() {
     // Sign out the user if they are signed in
-    if (userIsSignedIn) {
-      User user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        FirebaseAuth.instance.signOut();
-      }
+    if (FirebaseAuth.instance.currentUser != null) {
+      FirebaseAuth.instance.signOut();
     }
 
     setState(() {
@@ -81,7 +77,6 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
         forgotPasswordButtonOnPressdCallback: _goToForgotPasswordScreen,
       );
       title = 'Sign In';
-      userIsSignedIn = false;
     });
   }
 
@@ -103,7 +98,6 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
     setState(() {
       currentBodyWidget = MyGroupsWidget();
       title = 'My Groups';
-      userIsSignedIn = true;
     });
   }
 
@@ -187,7 +181,8 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
       ),
       body: currentBodyWidget,
       drawer: _getUnifiedDrawerWidget(
-        userIsSignedIn: userIsSignedIn,
+        userIsSignedIn: FirebaseAuth.instance.currentUser != null,
+        // Pass in whether a signed in user exists.
       ),
     );
   }
