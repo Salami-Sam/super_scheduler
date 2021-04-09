@@ -13,14 +13,17 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
   String email = 'mobiledevsuperscheduler@gmail.com';
 
   void showSnackBar({String message}) {
-    SnackBar snackbar = SnackBar(content: Text(message));
+    SnackBar snackbar = SnackBar(
+      content: Text(message),
+      duration: Duration(seconds: 7),
+    );
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
-  void sendPasswordResetEmail() {
+  void sendPasswordResetEmail() async {
     try {
       FirebaseAuth emailSender = FirebaseAuth.instance;
-      emailSender.sendPasswordResetEmail(email: email);
+      await emailSender.sendPasswordResetEmail(email: email);
       showSnackBar(message: 'Password reset email sent to $email');
     } on FirebaseAuthException catch (e) {
       print(e.toString());

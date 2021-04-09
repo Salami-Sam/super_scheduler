@@ -72,7 +72,10 @@ class _SignInWidgetState extends State<SignInWidget> {
   PasswordFieldWidget passwordFieldWidget;
 
   void showSnackBar({String message}) {
-    SnackBar snackbar = SnackBar(content: Text(message));
+    SnackBar snackbar = SnackBar(
+      content: Text(message),
+      duration: Duration(seconds: 7),
+    );
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
@@ -104,10 +107,11 @@ class _SignInWidgetState extends State<SignInWidget> {
 
   @override
   Widget build(BuildContext context) {
-    widget.email.string = 'mobiledevsuperscheduler@gmail.com';
-    widget.password.string = '321schedule!';
+    widget.email.string = 'fisher97@uwosh.edu'; // REMOVE/CHANGE THIS TEST DATA
+    widget.password.string = 'hi@!!!';
     passwordFieldWidget = PasswordFieldWidget(
       password: widget.password,
+      obscurePassword: BooleanByReference(boolean: true),
     );
 
     return Column(

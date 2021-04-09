@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'entered_user_info.dart';
 import 'password_textfield.dart';
 
@@ -47,10 +48,13 @@ class _SignUpScreenWidgetState extends State<SignUpScreenWidget> {
 ///@author: Rudy Fisher
 class SignUpWidget extends StatefulWidget {
   final Function() signUpButtonOnPressedCallBack;
-  final StringByReference email = StringByReference();
-  final StringByReference name = StringByReference();
-  final StringByReference password1 = StringByReference();
-  final StringByReference password2 = StringByReference();
+  final StringByReference _email = StringByReference();
+  final StringByReference _name = StringByReference();
+  final StringByReference _password1 = StringByReference();
+  final StringByReference _password2 = StringByReference();
+  final BooleanByReference _obscurePasswords = BooleanByReference(
+    boolean: false,
+  );
 
   SignUpWidget({this.signUpButtonOnPressedCallBack});
 
@@ -60,12 +64,15 @@ class SignUpWidget extends StatefulWidget {
 
 class _SignUpWidgetState extends State<SignUpWidget> {
   void showSnackBar({String message}) {
-    SnackBar snackbar = SnackBar(content: Text(message));
+    SnackBar snackbar = SnackBar(
+      content: Text(message),
+      duration: Duration(seconds: 7),
+    );
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
   bool passwordsMatch() {
-    if (widget.password1.string != widget.password2.string) {
+    if (widget._password1.string != widget._password2.string) {
       showSnackBar(message: 'Passwords don\'t match. Please re-enter.');
       return false;
     }
@@ -73,7 +80,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   }
 
   bool nameIsValid() {
-    if (widget.name.string.trim().isEmpty) {
+    if (widget._name.string.trim().isEmpty) {
       showSnackBar(
           message:
               'Please enter your name. Alphabet characters are preferred, but feel free to get crazy with it ;)');
@@ -86,8 +93,12 @@ class _SignUpWidgetState extends State<SignUpWidget> {
     try {
       UserCredential userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: widget.email.string,
-        password: widget.password1.string,
+        email: widget._email.string,
+        password: widget._password1.string,
+      );
+
+      FirebaseAuth.instance.currentUser.updateProfile(
+        displayName: widget._name.string,
       );
 
       await userCredential.user.sendEmailVerification();
@@ -111,44 +122,66 @@ class _SignUpWidgetState extends State<SignUpWidget> {
 
   @override
   Widget build(BuildContext context) {
-    widget.email.string = 'fisher97@uwosh.edu';
-    widget.name.string = ''; //'Spongebob Squarepants';
-    widget.password1.string = 'hi@!!!';
-    widget.password2.string = 'hi@!!!';
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextFormField(
-          initialValue: widget.name.string,
-          decoration: InputDecoration(
-            labelText: 'Name',
-            hintText: 'e.g. Spongebob Squarepants',
+    widget._email.string = 'fisher97@uwosh.edu';
+    widget._name.string = ''; //'Spongebob Squarepants';
+    widget._password1.string = 'hi@!!!';
+    widget._password2.string = 'hi@!!!';
+
+    return ChangeNotifierProvider(
+      create: (context) => widget._obscurePasswords,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextFormField(
+            initialValue: widget._name.string,
+            decoration: InputDecoration(
+              labelText: 'Name',
+              hintText: 'e.g. Spongebob Squarepants',
+            ),
+            onChanged: (value) {
+              widget._name.string = value;
+            },
           ),
-          onChanged: (value) {
-            widget.name.string = value;
-          },
-        ),
-        TextFormField(
-          initialValue: widget.email.string,
-          decoration: InputDecoration(
-            labelText: 'Email',
-            hintText: 'e.g. spongebob@thekrustykrab.com',
+          TextFormField(
+            initialValue: widget._email.string,
+            decoration: InputDecoration(
+              labelText: 'Email',
+              hintText: 'e.g. spongebob@thekrustykrab.com',
+            ),
+            onChanged: (value) {
+              widget._email.string = value;
+            },
           ),
-          onChanged: (value) {
-            widget.email.string = value;
-          },
-        ),
-        PasswordFieldWidget(password: widget.password1),
-        PasswordFieldWidget(password: widget.password2),
-        ElevatedButton(
-          onPressed: () {
-            if (!passwordsMatch()) return;
-            if (!nameIsValid()) return;
-            signUp();
-          },
-          child: Text('Sign Up'),
-        ),
-      ],
+          Consumer<BooleanByReference>(
+            builder: (context, booleanByReference, child) =>
+                PasswordFieldWidget(
+              password: widget._password1,
+              obscurePassword: booleanByReference,
+            ),
+          ),
+          Consumer<BooleanByReference>(
+            builder: (context, booleanByReference, child) =>
+                PasswordFieldWidget(
+              password: widget._password1,
+              obscurePassword: booleanByReference,
+            ),
+          ),
+
+          /*
+          PasswordFieldWidget(
+            password: widget._password2,
+            obscurePassword: widget._obscurePasswords,
+          ),*/
+          ElevatedButton(
+            onPressed: () {
+              if (!passwordsMatch()) return;
+              if (!nameIsValid()) return;
+              signUp();
+            },
+            child: Text('Sign Up'),
+          ),
+        ],
+      ),
     );
   }
 }

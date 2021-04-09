@@ -1,8 +1,39 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:super_scheduler/home_widget.dart';
 
 ///Defines a screen that allows the user to delete/deactivate their account
 ///@author: Rudy Fisher
-class DeleteAccountWidget extends StatelessWidget {
+class DeleteAccountWidget extends StatefulWidget {
+  @override
+  _DeleteAccountWidgetState createState() => _DeleteAccountWidgetState();
+}
+
+class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
+  void showSnackBar({String message}) {
+    SnackBar snackbar = SnackBar(
+      content: Text(message),
+      duration: Duration(seconds: 7),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackbar);
+  }
+
+  void _deleteAccountAndReturnToSignInScreen() async {
+    try {
+      await FirebaseAuth.instance.currentUser.delete();
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SuperSchedulerApp(),
+        ),
+        (route) => false,
+      );
+      showSnackBar(message: 'Account deleted. Sorry to see you go!');
+    } on FirebaseAuthException catch (e) {
+      showSnackBar(message: e.message);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +53,7 @@ class DeleteAccountWidget extends StatelessWidget {
               ),
             ),
             ElevatedButton(
-              onPressed: null,
+              onPressed: _deleteAccountAndReturnToSignInScreen,
               child: Text('confirm'),
             ),
           ],

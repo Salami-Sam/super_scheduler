@@ -35,6 +35,7 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
   _SuperSchedulerAppState() {
     if (FirebaseAuth.instance.currentUser != null) {
       currentBodyWidget = MyGroupsWidget();
+      title = 'My Groups';
     } else {
       currentBodyWidget = SignInScreenWidget(
         signUpButtonOnPressdCallback: _goToSignUpScreen,
