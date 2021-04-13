@@ -103,7 +103,6 @@ class _EditIndividualMemberWidgetState
   }
 }
 /* EditRolesWidget allows admin to create or deleted roles with a group
- * todo: implement delete roles feature
  * 
 */
 
@@ -133,6 +132,7 @@ Future<void> addRoles(var roleToAdd) async {
 }
 
 Future<void> deleteRoles(var roleToRemove) async {
+  print("${roleToRemove}");
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').update({
     'roles': FieldValue.arrayRemove([roleToRemove])
   });
@@ -267,6 +267,13 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
   }
 }
 
+Future<void> deleteMember(var memberToRemove) async {
+  print(memberToRemove);
+  await group
+      .doc('PCXUSOFVGcmZ8UqK0QnX')
+      .update({'Members.${memberToRemove}': FieldValue.delete()});
+}
+
 /* EditMemberWidget screen acts like the "main" screen for most member management 
  * screens as it acts as a jumping off point to all other member management screens
  * EditMemberWidget can also allow admins to be able to delete members from group
@@ -280,6 +287,7 @@ class EditMemberWidget extends StatefulWidget {
 }
 
 class _EditMemberWidgetState extends State<EditMemberWidget> {
+  Future<Map> futureMembers;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -296,27 +304,44 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
         drawer: getUnifiedDrawerWidget(),
         body: Column(children: [
           Flexible(
-              child: ListView.separated(
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                        leading: IconButton(
-                            icon: Icon(Icons.delete), onPressed: () {}),
-                        title: Text('${groupMembers[index]}'),
-                        subtitle: Text('${roles[index]}'),
-                        trailing: IconButton(
-                            icon: Icon(Icons.more_vert),
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          EditIndividualMemberWidget(
-                                              index: index)));
-                            }));
-                  },
-                  separatorBuilder: (context, int) =>
-                      Divider(thickness: 1.0, height: 1.0),
-                  itemCount: groupMembers.length)),
+              child: FutureBuilder<Map>(
+                  future: futureMembers = getMembers(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    }
+                    if (snapshot.hasError) {
+                      return Text('Error');
+                    }
+                    Map members = snapshot.data;
+                    List names = members.keys.toList();
+                    List roles = members.values.toList();
+                    return ListView.separated(
+                        itemBuilder: (context, index) => ListTile(
+                            leading: IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () {
+                                  deleteMember(names[index]);
+                                  setState(() {
+                                    names.length;
+                                  });
+                                }),
+                            title: Text('${names[index]}'),
+                            subtitle: Text('${roles[index]}'),
+                            trailing: IconButton(
+                                icon: Icon(Icons.more_vert),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              EditIndividualMemberWidget(
+                                                  index: index)));
+                                })),
+                        separatorBuilder: (context, int) =>
+                            Divider(thickness: 1.0, height: 1.0),
+                        itemCount: names.length);
+                  })),
           ElevatedButton(
               onPressed: () {
                 Navigator.push(
