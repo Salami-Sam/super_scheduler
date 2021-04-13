@@ -132,10 +132,10 @@ Future<void> addRoles(var roleToAdd) async {
   });
 }
 
-Future<void> deleteRoles(role) async {
-  await group
-      .doc('PCXUSOFVGcmZ8UqK0QnX')
-      .update({'roles': FieldValue.arrayRemove([role])});
+Future<void> deleteRoles(var roleToRemove) async {
+  await group.doc('PCXUSOFVGcmZ8UqK0QnX').update({
+    'roles': FieldValue.arrayRemove([roleToRemove])
+  });
 }
 
 String newRole = '';
@@ -337,11 +337,31 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
   }
 }
 
+Future<Map> getMembers() async {
+  Map returnMap;
+  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+    if (docref.exists) {
+      returnMap = docref['Members'];
+      print(returnMap);
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnMap;
+}
+
 /* ViewMembersWidget is a screen that displays members of a particular group
  * this could probably be in the groups file as ViewMembersWidget is not a screen
  * that is reachable from EditMembersWidget, doesn't fit here really
  */
-class ViewMembersWidget extends StatelessWidget {
+class ViewMembersWidget extends StatefulWidget {
+  @override
+  _ViewMembersWidgetState createState() => _ViewMembersWidgetState();
+}
+
+class _ViewMembersWidgetState extends State<ViewMembersWidget> {
+  Future<Map> futureMembers;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -357,15 +377,27 @@ class ViewMembersWidget extends StatelessWidget {
           centerTitle: true,
         ),
         drawer: getUnifiedDrawerWidget(),
-        body: Center(
-            child: ListView.separated(
-                itemBuilder: (context, index) => ListTile(
-                      title: Text('${groupMembers[index]}'),
-                      subtitle: Text('${roles[index]}'),
-                    ),
-                separatorBuilder: (context, int) =>
-                    Divider(thickness: 1.0, height: 1.0),
-                itemCount: roles.length)));
+        body: FutureBuilder<Map>(
+            future: futureMembers = getMembers(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              }
+              if (snapshot.hasError) {
+                return Text('Error');
+              }
+              Map members = snapshot.data;
+              List names = members.keys.toList();
+              List roles = members.values.toList();
+              return ListView.separated(
+                  itemBuilder: (context, index) => ListTile(
+                        title: Text('${names[index]}'),
+                        subtitle: Text('${roles[index]}'),
+                      ),
+                  separatorBuilder: (context, int) =>
+                      Divider(thickness: 1.0, height: 1.0),
+                  itemCount: roles.length);
+            }));
   }
 }
 
@@ -374,4 +406,3 @@ Drawer getUnifiedDrawerWidget() {
     child: Text('Drawer placeholder'),
   );
 }
-
