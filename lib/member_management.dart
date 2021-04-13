@@ -125,10 +125,17 @@ Future<List> getRoles() async {
   return returnList;
 }
 
+//need to not have doc be a string, should be variable
 Future<void> addRoles(var roleToAdd) async {
+  await group.doc('PCXUSOFVGcmZ8UqK0QnX').update({
+    'roles': FieldValue.arrayUnion([roleToAdd])
+  });
+}
+
+Future<void> deleteRoles(role) async {
   await group
       .doc('PCXUSOFVGcmZ8UqK0QnX')
-      .update({'roles': FieldValue.arrayUnion([roleToAdd])});
+      .update({'roles': FieldValue.arrayRemove([role])});
 }
 
 String newRole = '';
@@ -162,6 +169,12 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
                     List roles = snapshot.data ?? [];
                     return ListView.separated(
                         itemBuilder: (context, index) => ListTile(
+                              leading: IconButton(
+                                  icon: Icon(Icons.delete),
+                                  onPressed: () {
+                                    deleteRoles(roles[index]);
+                                    Navigator.pop(context);
+                                  }),
                               title: Text('${roles[index]}'),
                             ),
                         separatorBuilder: (context, int) =>
@@ -361,3 +374,4 @@ Drawer getUnifiedDrawerWidget() {
     child: Text('Drawer placeholder'),
   );
 }
+
