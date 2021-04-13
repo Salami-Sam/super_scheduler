@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 
@@ -17,6 +19,8 @@ import 'main.dart';
 List roles = ['Cook', 'Cashier', 'Busboy'];
 List groupMembers = ['Spongebob', 'Squidward', 'Patrick'];
 List permissions = ['Member', 'Manager', 'Admin'];
+var db = FirebaseFirestore.instance;
+CollectionReference group = db.collection('groups');
 
 /*
  * EditIndividualMember is a screen that allows an admin to change a role and 
@@ -108,12 +112,29 @@ class EditRolesWidget extends StatefulWidget {
   _EditRolesWidgetState createState() => _EditRolesWidgetState();
 }
 
-class _EditRolesWidgetState extends State<EditRolesWidget> {
-  String newRole = '';
-  void _submitRole(String newRole) {
-    roles.add(newRole);
-  }
+Future<List> getRoles() async {
+  List returnList = [];
+  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+    if (docref.exists) {
+      returnList = docref['roles'];
+      print(returnList);
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnList;
+}
 
+Future<void> addRoles(var roleToAdd) async {
+  await group
+      .doc('PCXUSOFVGcmZ8UqK0QnX')
+      .update({'roles': FieldValue.arrayUnion([roleToAdd])});
+}
+
+String newRole = '';
+
+class _EditRolesWidgetState extends State<EditRolesWidget> {
+  Future<List> futureRoles;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,15 +150,24 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
         drawer: getUnifiedDrawerWidget(),
         body: Column(children: [
           Flexible(
-              child: ListView.separated(
-                  itemBuilder: (context, index) => ListTile(
-                        leading: IconButton(
-                            icon: Icon(Icons.delete), onPressed: () {}),
-                        title: Text('${roles[index]}'),
-                      ),
-                  separatorBuilder: (context, int) =>
-                      Divider(thickness: 1.0, height: 1.0),
-                  itemCount: roles.length)),
+              child: FutureBuilder<List>(
+                  future: futureRoles = getRoles(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    }
+                    if (snapshot.hasError) {
+                      return Text('Error');
+                    }
+                    List roles = snapshot.data ?? [];
+                    return ListView.separated(
+                        itemBuilder: (context, index) => ListTile(
+                              title: Text('${roles[index]}'),
+                            ),
+                        separatorBuilder: (context, int) =>
+                            Divider(thickness: 1.0, height: 1.0),
+                        itemCount: roles.length);
+                  })),
           TextField(
               decoration: InputDecoration(
                   labelText: 'New Role',
@@ -146,14 +176,10 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
               onChanged: (text) {
                 newRole = text;
               }),
-          /* todo: this works for right now, however I should find a way to submit changes 
-           * to roles list without having to leave the screen and come back looks kind of 
-           * clunky/unfinished */
           ElevatedButton(
               onPressed: () {
-                _submitRole(newRole);
+                addRoles(newRole);
                 Navigator.pop(context);
-                //back to edit member screen, but submits first
               },
               child: Text('Submit'))
         ]));
@@ -166,6 +192,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
  * todo: email functionality and code creation
  *  
  */
+
 class InviteMemberWidget extends StatefulWidget {
   @override
   _InviteMemberWidgetState createState() => _InviteMemberWidgetState();
