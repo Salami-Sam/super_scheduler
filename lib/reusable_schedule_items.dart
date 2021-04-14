@@ -23,29 +23,28 @@ final List<Widget> dailyTabList = [
 
 // Contains left and right arrows on either side of
 // the Text that lists the dates of the currently displayed week
-class DateNavigationRow extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          icon: Icon(Icons.arrow_left),
-          onPressed: null,
-        ),
-        Text(
-          'For the week 3/14/21 to 3/20/21',
-          style: TextStyle(fontSize: 18),
-        ),
-        IconButton(
-          icon: Icon(Icons.arrow_right),
-          onPressed: null,
-        ),
-      ],
-    );
-  }
+Row getDateNavigationRow(DateTime weekStartDate) {
+  DateTime weekEndDate = weekStartDate.add(Duration(days: 6));
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      IconButton(
+        icon: Icon(Icons.arrow_left),
+        onPressed: null,
+      ),
+      Text(
+        'For the week ${getDateString(weekStartDate)} to ${getDateString(weekEndDate)}',
+        style: TextStyle(fontSize: 18),
+      ),
+      IconButton(
+        icon: Icon(Icons.arrow_right),
+        onPressed: null,
+      ),
+    ],
+  );
 }
 
+//
 StreamBuilder<DocumentSnapshot> getScreenTitle(
     {@required DocumentReference currentGroupRef,
     @required String screenName}) {
@@ -76,7 +75,7 @@ Widget getFormattedTextForTable(String contents) {
       padding: EdgeInsets.all(5));
 }
 
-// Converts a TimeOfDay into a nice String
+// Converts a TimeOfDay into a nice String of the form H:MM AM or H:MM PM
 String getTimeString(TimeOfDay time) {
   int hour = time.hourOfPeriod;
   int minute = time.minute;
@@ -93,6 +92,44 @@ String getTimeString(TimeOfDay time) {
 
   return '$hour:$minuteStr $amOrPmStr';
 }
+
+// Gets Sunday at midnight (morning) of the current week according to DateTime.now()
+// Considers Sunday to be the first day of the week
+DateTime getSundayMidnightOfThisWeek() {
+  var correctDay = DateTime.now();
+  while (correctDay.weekday != DateTime.sunday) {
+    print(correctDay);
+    correctDay = correctDay.subtract(Duration(days: 1));
+  }
+  return DateTime(correctDay.year, correctDay.month, correctDay.day);
+}
+
+// Converts a DateTime into a nice String of the form M/D/YY
+String getDateString(DateTime date) {
+  int twoDigitYear = date.year % 100;
+  return '${date.month}/${date.day}/$twoDigitYear';
+}
+
+// Creates a weekly schedule document with the given info,
+// if it does not already exist
+void createWeeklyScheduleDoc(
+    {@required DocumentReference groupRef, @required DateTime weekStartDate}) {
+  // First see if the document already exists
+  var query = groupRef
+      .collection('WeeklySchedules')
+      .where('startDate', isEqualTo: Timestamp.fromDate(weekStartDate));
+  query.get().then((snapshot) {
+    if (snapshot.size == 0) {
+      // If it does not exist, create it
+      groupRef.collection('WeeklySchedules').doc().set({
+        'startDate': Timestamp.fromDate(weekStartDate),
+        'published': false,
+      });
+    }
+  });
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 // Used for placeholder dates until the actual model and database are set up
 String getRandomTime() {

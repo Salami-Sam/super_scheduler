@@ -26,38 +26,46 @@ class PrimarySchedulerWidget extends StatefulWidget {
 class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
   CollectionReference groups;
   DocumentReference currentGroupRef;
+  DateTime curWeekStartDate;
 
   // Gets the tab with a particular day's information
   Widget getIndividualTab(int day) {
     return Container(
       margin: EdgeInsets.all(5),
-      child: SingleChildScrollView(
-        child: Table(
-          border: TableBorder.all(),
-          children: [
-            TableRow(
-              children: [
-                getFormattedTextForTable('Start'),
-                getFormattedTextForTable('End'),
-                getFormattedTextForTable('Roles'),
-              ],
-            ),
-            TableRow(
-              children: [
-                getFormattedTextForTable('${getRandomTime()}'),
-                getFormattedTextForTable('${getRandomTime()}'),
-                getFormattedTextForTable('${getRandomRoleset()}'),
-              ],
-            ),
-            TableRow(
-              children: [
-                getFormattedTextForTable('${getRandomTime()}'),
-                getFormattedTextForTable('${getRandomTime()}'),
-                getFormattedTextForTable('${getRandomRoleset()}'),
-              ],
-            ),
-          ],
-        ),
+      child: StreamBuilder<DocumentSnapshot>(
+        stream: currentGroupRef.snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text('There was an error in retrieving the schedule.');
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text('Retrieving schedule...');
+          } else {
+            return SingleChildScrollView(
+              child: Table(
+                border: TableBorder.all(),
+                children: [
+                      TableRow(children: [
+                        getFormattedTextForTable('Start'),
+                        getFormattedTextForTable('End'),
+                        getFormattedTextForTable('Roles'),
+                      ])
+                    ] +
+                    List<TableRow>.generate(
+                      3,
+                      (index) {
+                        return TableRow(
+                          children: [
+                            getFormattedTextForTable('${getRandomTime()}'),
+                            getFormattedTextForTable('${getRandomTime()}'),
+                            getFormattedTextForTable('${getRandomRole()}'),
+                          ],
+                        );
+                      },
+                    ),
+              ),
+            );
+          }
+        },
       ),
     );
   }
@@ -66,6 +74,12 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
   Widget build(BuildContext context) {
     groups = widget.db.collection('groups');
     currentGroupRef = groups.doc(widget.currentGroupId);
+    curWeekStartDate = getSundayMidnightOfThisWeek();
+
+    createWeeklyScheduleDoc(
+      groupRef: currentGroupRef,
+      weekStartDate: curWeekStartDate,
+    );
 
     return DefaultTabController(
       length: numDaysInWeek,
@@ -80,11 +94,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
           ),
         ),
         body: Container(
-          margin: EdgeInsets.only(
-            top: 8,
-            left: 8,
-            right: 8,
-          ),
+          margin: EdgeInsets.all(8),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -135,7 +145,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
             ],
           ),
         ),
-        bottomNavigationBar: DateNavigationRow(),
+        bottomNavigationBar: getDateNavigationRow(curWeekStartDate),
       ),
     );
   }

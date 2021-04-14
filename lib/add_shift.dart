@@ -66,7 +66,7 @@ class _AddShiftWidgetState extends State<AddShiftWidget> {
       body: Container(
         margin: EdgeInsets.only(
           top: 16,
-          bottom: 16,
+          bottom: 8,
           left: 8,
           right: 8,
         ),

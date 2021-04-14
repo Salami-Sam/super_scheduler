@@ -13,8 +13,6 @@ import 'reusable_schedule_items.dart';
  * which displays weekly schedules for all group members.
  */
 class MainScheduleWidget extends StatefulWidget {
-  static const int daysInWeek = 7;
-
   final db = FirebaseFirestore.instance;
 
   // Temporarily set to constant value
@@ -30,6 +28,7 @@ class MainScheduleWidget extends StatefulWidget {
 class _MainScheduleWidgetState extends State<MainScheduleWidget> {
   CollectionReference groups;
   DocumentReference currentGroupRef;
+  DateTime curWeekStartDate;
 
   // Gets the tab with a particular day's scheduling information
   Widget getIndividualTab(int day) {
@@ -65,6 +64,7 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
   Widget build(BuildContext context) {
     groups = widget.db.collection('groups');
     currentGroupRef = groups.doc(widget.currentGroupId);
+    curWeekStartDate = getSundayMidnightOfThisWeek();
 
     return DefaultTabController(
       length: numDaysInWeek,
@@ -89,7 +89,7 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
             getIndividualTab(6),
           ],
         ),
-        bottomNavigationBar: DateNavigationRow(),
+        bottomNavigationBar: getDateNavigationRow(curWeekStartDate),
       ),
     );
   }

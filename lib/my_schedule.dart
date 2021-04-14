@@ -39,6 +39,7 @@ class MyScheduleWidget extends StatefulWidget {
 class _MyScheduleWidgetState extends State<MyScheduleWidget> {
   CollectionReference groups;
   DocumentReference currentGroupRef;
+  DateTime curWeekStartDate;
 
   // Placeholder times for now
   // Will eventually call methods to get actual times
@@ -56,6 +57,7 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
   Widget build(BuildContext context) {
     groups = widget.db.collection('groups');
     currentGroupRef = groups.doc(widget.currentGroupId);
+    curWeekStartDate = getSundayMidnightOfThisWeek();
 
     return Scaffold(
       appBar: AppBar(
@@ -106,7 +108,7 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
           ],
         ),
       ),
-      bottomNavigationBar: DateNavigationRow(),
+      bottomNavigationBar: getDateNavigationRow(curWeekStartDate),
     );
   }
 }

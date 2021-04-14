@@ -24,6 +24,7 @@ class MyAvailabilityWidget extends StatefulWidget {
 class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
   CollectionReference groups;
   DocumentReference currentGroupRef;
+  DateTime curWeekStartDate;
 
   // Gets the tab with a particular day's information
   Widget getIndividualTab(int day) {
@@ -46,6 +47,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
   Widget build(BuildContext context) {
     groups = widget.db.collection('groups');
     currentGroupRef = groups.doc(widget.currentGroupId);
+    curWeekStartDate = getSundayMidnightOfThisWeek();
 
     return DefaultTabController(
       length: numDaysInWeek,
@@ -70,7 +72,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
             getIndividualTab(6),
           ],
         ),
-        bottomNavigationBar: DateNavigationRow(),
+        bottomNavigationBar: getDateNavigationRow(curWeekStartDate),
       ),
     );
   }
