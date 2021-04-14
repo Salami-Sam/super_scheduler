@@ -89,7 +89,7 @@ class _SignInWidgetState extends State<SignInWidget> {
       );
       if (userCredential.user.emailVerified) {
         widget.signInButtonOnPressdCallback();
-        showSnackBar(message: 'Welcome!');
+        //showSnackBar(message: 'Welcome!');
       } else {
         await FirebaseAuth.instance.currentUser.sendEmailVerification();
 
