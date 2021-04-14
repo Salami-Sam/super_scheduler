@@ -35,14 +35,16 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
     print(curWeekScheduleDocRef);
     return Container(
       margin: EdgeInsets.all(5),
-      child: StreamBuilder<DocumentSnapshot>(
-        stream: curWeekScheduleDocRef.snapshots(),
+      child: StreamBuilder<QuerySnapshot>(
+        stream: curWeekScheduleDocRef.collection('Shifts').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Text('There was an error in retrieving the schedule.');
           } else if (snapshot.connectionState == ConnectionState.waiting) {
             return Text('Retrieving schedule...');
-          } else if (snapshot.hasData) {
+          } else {
+            var docsList = snapshot.data.docs;
+
             return SingleChildScrollView(
               child: Table(
                 border: TableBorder.all(),
@@ -54,23 +56,25 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                       ])
                     ] +
                     List<TableRow>.generate(
-                      3,
+                      docsList.length,
                       (index) {
-                        snapshot.data.get('Shifts');
-
+                        var docData = docsList[index].data();
+                        var startTime =
+                            getTimeString2(docData['startDateTime'].toDate());
+                        var endTime =
+                            getTimeString2(docData['endDateTime'].toDate());
                         return TableRow(
                           children: [
-                            getFormattedTextForTable('${getRandomTime()}'),
-                            getFormattedTextForTable('${getRandomTime()}'),
-                            getFormattedTextForTable('${getRandomRole()}'),
+                            getFormattedTextForTable("$startTime"),
+                            getFormattedTextForTable("$endTime"),
+                            getFormattedTextForTable(
+                                "${docData['rolesNeeded']}"),
                           ],
                         );
                       },
                     ),
               ),
             );
-          } else {
-            return Text('Hi');
           }
         },
       ),

@@ -95,6 +95,11 @@ String getTimeString(TimeOfDay time) {
   return '$hour:$minuteStr $amOrPmStr';
 }
 
+// Converts a DateTime into a nice String of the form M/D/YY
+String getTimeString2(DateTime time) {
+  return getTimeString(TimeOfDay.fromDateTime(time));
+}
+
 // Gets Sunday at midnight (morning) of the current week according to DateTime.now()
 // Considers Sunday to be the first day of the week
 DateTime getSundayMidnightOfThisWeek() {
