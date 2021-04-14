@@ -4,3 +4,7 @@ class Model {
   final FirebaseFirestore database = FirebaseFirestore.instance;
   
 }
+
+Future<void> access() async {
+  
+}

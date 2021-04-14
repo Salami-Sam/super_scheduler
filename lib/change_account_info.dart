@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:super_scheduler/entered_user_info.dart';
-import 'package:super_scheduler/multipasswordfield.dart';
 import 'package:super_scheduler/password_textfield.dart';
 
 ///Defines a screen that allows the user to change their name
