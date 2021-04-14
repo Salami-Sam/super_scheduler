@@ -70,7 +70,9 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // First 2 widgets have remaining divided between them
               Expanded(
+                flex: 2, // 2/3 of the available space
                 child: TabBarView(
                   children: [
                     getIndividualTab(0),
@@ -84,18 +86,15 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                 ),
               ),
               Expanded(
-                child: ListView.separated(
+                flex: 1, // 1/3 of the available space
+                child: ListView.builder(
                   itemCount: names.length, //Placeholder
                   itemBuilder: (context, index) {
                     return ListTile(
                       title: Text(names[index]),
-                    );
-                  },
-                  separatorBuilder: (context, int) {
-                    return Divider(
-                      color: Colors.white,
-                      thickness: 0,
-                      height: 0.1,
+                      visualDensity: VisualDensity(
+                        vertical: -3,
+                      ), // How close tiles are to each other
                     );
                   },
                 ),

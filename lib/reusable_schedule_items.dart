@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 const int numDaysInWeek = 7;
 
+// A standard list of tabs for days of the week
 final List<Widget> dailyTabList = [
   Tab(text: 'Su'),
   Tab(text: 'M'),
@@ -44,7 +45,7 @@ class DateNavigationRow extends StatelessWidget {
   }
 }
 
-// Gets text nicely formatted for use in a table
+// Gets text nicely formatted for use in a table in the schedule screens
 Widget getFormattedTextForTable(String contents) {
   return Padding(
       child: Text(
