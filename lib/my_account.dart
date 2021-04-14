@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:super_scheduler/change_account_info.dart';
@@ -7,6 +9,7 @@ import 'package:super_scheduler/delete_account.dart';
 ///@author: Rudy Fisher
 class MyAccountWidget extends StatefulWidget {
   final padding = 16.0;
+  final User user = FirebaseAuth.instance.currentUser;
   @override
   _MyAccountWidgetState createState() => _MyAccountWidgetState();
 }
@@ -58,64 +61,79 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
     );
   }
 
+  Widget _accountInfoPage(snapshot) {
+    return Container(
+      padding: EdgeInsets.only(
+        left: widget.padding,
+        right: widget.padding,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: TextFormField(
+              controller:
+                  TextEditingController(text: snapshot.data.displayName),
+              readOnly: true,
+              decoration: InputDecoration(
+                labelText: 'Name',
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: _goToChangeNamePage,
+            child: Text('Change Name'),
+          ),
+          Divider(),
+          Center(
+            child: TextFormField(
+              readOnly: true,
+              controller: TextEditingController(text: snapshot.data.email),
+              decoration: InputDecoration(
+                labelText: 'Email',
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: _goToChangeEmailPage,
+            child: Text('Change Email'),
+          ),
+          Divider(),
+          ElevatedButton(
+            onPressed: _sendChangePasswordEmail,
+            child: Text('Change Password'),
+          ),
+          Divider(),
+          ElevatedButton(
+            //style: ButtonStyle(), //TODO: RUDY -- make background red
+            onPressed: _goToDeleteAccountPage,
+            child: Text('Deactivate Account'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = TextStyle(fontSize: 24.0);
     return StreamBuilder<User>(
-        stream: FirebaseAuth.instance.userChanges(),
+        stream: StreamWrapper.stream,
         builder: (context, snapshot) {
-          return Container(
-            padding: EdgeInsets.only(
-              left: widget.padding,
-              right: widget.padding,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: TextFormField(
-                    readOnly: true,
-                    initialValue: snapshot.data
-                        .displayName, // TODO: - RUDY - make this update in real time
-                    decoration: InputDecoration(
-                      labelText: 'Name',
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: _goToChangeNamePage,
-                  child: Text('Change Name'),
-                ),
-                Divider(),
-                Center(
-                  child: TextFormField(
-                    readOnly: true,
-                    initialValue: snapshot.data
-                        .email, // TODO: - RUDY - make this update in real time
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: _goToChangeEmailPage,
-                  child: Text('Change Email'),
-                ),
-                Divider(),
-                ElevatedButton(
-                  onPressed: _sendChangePasswordEmail,
-                  child: Text('Change Password'),
-                ),
-                Divider(),
-                ElevatedButton(
-                  //style: ButtonStyle(), //TODO: RUDY -- make background red
-                  onPressed: _goToDeleteAccountPage,
-                  child: Text('Deactivate Account'),
-                ),
-              ],
-            ),
-          );
+          print('I have been rebuilt and snapshot is $snapshot');
+          if (snapshot.hasError) {
+            return Center(child: Text('${snapshot.error}'));
+          } else if (snapshot.hasData) {
+            return _accountInfoPage(snapshot);
+          } else {
+            return Center(
+              child: Text('IDK what happened...'),
+            );
+          }
         });
   }
+}
+
+class StreamWrapper {
+  static final Stream<User> stream = FirebaseAuth.instance.userChanges();
 }
