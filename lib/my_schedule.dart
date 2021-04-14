@@ -13,6 +13,16 @@ import 'reusable_schedule_items.dart';
  * for the logged in user.
  */
 class MyScheduleWidget extends StatefulWidget {
+  final List<String> days = [
+    'Sunday:',
+    'Monday:',
+    'Tuesday:',
+    'Wednesday:',
+    'Thursday:',
+    'Friday:',
+    'Saturday:'
+  ];
+
   @override
   _MyScheduleWidgetState createState() => _MyScheduleWidgetState();
 }
@@ -20,14 +30,14 @@ class MyScheduleWidget extends StatefulWidget {
 class _MyScheduleWidgetState extends State<MyScheduleWidget> {
   // Placeholder times for now
   // Will eventually call methods to get actual times
-  final List<String> days = [
-    'Sunday: OFF',
-    'Monday: 10:00 AM - 6:00 PM',
-    'Tuesday: 11:00 AM - 7:00 PM',
-    'Wednesday: OFF',
-    'Thursday: 8:00 AM - 5:00 PM',
-    'Friday: 8:00 AM - 6:00 PM',
-    'Saturday: 7:00 AM - 4:00 PM'
+  final List<String> dailyTimes = [
+    'OFF',
+    '10:00 AM - 6:00 PM',
+    '11:00 AM - 7:00 PM',
+    'OFF',
+    '8:00 AM - 5:00 PM',
+    '8:00 AM - 6:00 PM',
+    '7:00 AM - 4:00 PM'
   ];
 
   @override
@@ -37,7 +47,7 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
         title: Text('My Schedule: The Krusty Crew'),
       ),
       body: Container(
-        margin: EdgeInsets.all(20),
+        margin: EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -53,10 +63,17 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
             ),
             Expanded(
               child: ListView.separated(
-                itemCount: days.length,
+                itemCount: numDaysInWeek,
                 itemBuilder: (context, index) {
                   return ListTile(
-                    title: Text(days[index]),
+                    title: Text(
+                      widget.days[index],
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    trailing: Text(
+                      dailyTimes[index],
+                      style: TextStyle(fontSize: 18),
+                    ),
                   );
                 },
                 separatorBuilder: (context, int) {

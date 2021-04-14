@@ -61,64 +61,60 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
         appBar: AppBar(
           title: Text('Scheduler: The Krusty Crew'),
           bottom: TabBar(
-            tabs: [
-              Tab(text: 'Su'),
-              Tab(text: 'M'),
-              Tab(text: 'T'),
-              Tab(text: 'W'),
-              Tab(text: 'Th'),
-              Tab(text: 'F'),
-              Tab(text: 'Sa'),
-            ],
+            tabs: dailyTabList,
           ),
         ),
-        body: Column(
-          children: [
-            Container(
-              height: MediaQuery.of(context).size.height / 2,
-              child: TabBarView(
-                children: [
-                  getIndividualTab(0),
-                  getIndividualTab(1),
-                  getIndividualTab(2),
-                  getIndividualTab(3),
-                  getIndividualTab(4),
-                  getIndividualTab(5),
-                  getIndividualTab(6),
-                ],
+        body: Container(
+          margin: EdgeInsets.all(8),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    getIndividualTab(0),
+                    getIndividualTab(1),
+                    getIndividualTab(2),
+                    getIndividualTab(3),
+                    getIndividualTab(4),
+                    getIndividualTab(5),
+                    getIndividualTab(6),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: ListView.separated(
-                itemCount: names.length, //Placeholder
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(names[index]),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: names.length, //Placeholder
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(names[index]),
+                    );
+                  },
+                  separatorBuilder: (context, int) {
+                    return Divider(
+                      color: Colors.white,
+                      thickness: 0,
+                      height: 0.1,
+                    );
+                  },
+                ),
+              ),
+              ElevatedButton(
+                child: Text('Publish Schedule'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MainScheduleWidget(),
+                    ),
                   );
                 },
-                separatorBuilder: (context, int) {
-                  return Divider(
-                    color: Colors.white,
-                    thickness: 0,
-                    height: 0.1,
-                  );
-                },
               ),
-            ),
-            ElevatedButton(
-              child: Text('Publish Schedule'),
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MainScheduleWidget(),
-                  ),
-                );
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

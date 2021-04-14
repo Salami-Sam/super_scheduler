@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'reusable_schedule_items.dart';
 import 'finalize_schedule.dart';
+import 'add_shift.dart';
 
 /* Screens:
  * Primary Scheduler
- * Add Shift
  *
  * Author: Dylan Schulz
  */
@@ -58,162 +58,62 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
         appBar: AppBar(
           title: Text('Scheduler: The Krusty Crew'),
           bottom: TabBar(
-            tabs: [
-              Tab(text: 'Su'),
-              Tab(text: 'M'),
-              Tab(text: 'T'),
-              Tab(text: 'W'),
-              Tab(text: 'Th'),
-              Tab(text: 'F'),
-              Tab(text: 'Sa'),
+            tabs: dailyTabList,
+          ),
+        ),
+        body: Container(
+          margin: EdgeInsets.only(
+            top: 8,
+            left: 8,
+            right: 8,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    getIndividualTab(0),
+                    getIndividualTab(1),
+                    getIndividualTab(2),
+                    getIndividualTab(3),
+                    getIndividualTab(4),
+                    getIndividualTab(5),
+                    getIndividualTab(6),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                child: Text('Add Shift'),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddShiftWidget(),
+                    ),
+                  );
+                },
+              ),
+              ElevatedButton(
+                child: Text('Remove Selected Shift'),
+                onPressed: null,
+              ),
+              ElevatedButton(
+                child: Text('Finalize Schedule'),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FinalizeScheduleWidget(),
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),
-        body: Column(
-          children: [
-            Container(
-              height: 4 * MediaQuery.of(context).size.height / 7,
-              child: TabBarView(
-                children: [
-                  getIndividualTab(0),
-                  getIndividualTab(1),
-                  getIndividualTab(2),
-                  getIndividualTab(3),
-                  getIndividualTab(4),
-                  getIndividualTab(5),
-                  getIndividualTab(6),
-                ],
-              ),
-            ),
-            ElevatedButton(
-              child: Text('Add Shift'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddShiftWidget(),
-                  ),
-                );
-              },
-            ),
-            ElevatedButton(
-              child: Text('Remove Selected Shift'),
-              onPressed: null,
-            ),
-            ElevatedButton(
-              child: Text('Finalize Schedule'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FinalizeScheduleWidget(),
-                  ),
-                );
-              },
-            ),
-            DateNavigationRow(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// A widget for adding shifts to the schedule
-// Still needs some work
-class AddShiftWidget extends StatelessWidget {
-  static const List<String> roles = ['GM', 'Busboy', 'Cashier', 'Fry Cook'];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Shift: The Krusty Crew'),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text(
-            'Start Time',
-            style: TextStyle(fontSize: 18),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  decoration: InputDecoration(hintText: 'Hour'),
-                ),
-              ),
-              Expanded(
-                child: TextField(
-                  decoration: InputDecoration(hintText: 'Minute'),
-                ),
-              ),
-              DropdownButton(
-                items: [
-                  DropdownMenuItem(child: Text('AM')),
-                  DropdownMenuItem(child: Text('PM'))
-                ],
-                onChanged: (selection) {},
-              ),
-            ],
-          ),
-          Text(
-            'End Time',
-            style: TextStyle(fontSize: 18),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  decoration: InputDecoration(hintText: 'Hour'),
-                ),
-              ),
-              Expanded(
-                child: TextField(
-                  decoration: InputDecoration(hintText: 'Minute'),
-                ),
-              ),
-              DropdownButton(
-                items: [
-                  DropdownMenuItem(child: Text('AM')),
-                  DropdownMenuItem(child: Text('PM'))
-                ],
-                onChanged: (selection) {},
-              ),
-            ],
-          ),
-          Text(
-            'Roles Needed',
-            style: TextStyle(fontSize: 18),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: roles.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: IconButton(
-                    icon: Icon(Icons.arrow_left),
-                    onPressed: null,
-                  ),
-                  title: Text(roles[index]),
-                  subtitle: Text('1'),
-                  trailing: IconButton(
-                    icon: Icon(Icons.arrow_right),
-                    onPressed: null,
-                  ),
-                );
-              },
-            ),
-          ),
-          ElevatedButton(
-            child: Text('Add Shift'),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ],
+        bottomNavigationBar: DateNavigationRow(),
       ),
     );
   }

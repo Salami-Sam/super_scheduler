@@ -16,7 +16,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
   // Gets the tab with a particular day's information
   Widget getIndividualTab(int day) {
     return Container(
-      margin: EdgeInsets.all(5),
+      margin: EdgeInsets.all(8),
       child: ListView.builder(
         itemCount: 2, //Placeholder
         itemBuilder: (context, index) {
@@ -38,15 +38,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
         appBar: AppBar(
           title: Text('My Availability: The Krusty Crew'),
           bottom: TabBar(
-            tabs: [
-              Tab(text: 'Su'),
-              Tab(text: 'M'),
-              Tab(text: 'T'),
-              Tab(text: 'W'),
-              Tab(text: 'Th'),
-              Tab(text: 'F'),
-              Tab(text: 'Sa'),
-            ],
+            tabs: dailyTabList,
           ),
         ),
         body: TabBarView(

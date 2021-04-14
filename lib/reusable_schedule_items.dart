@@ -9,6 +9,16 @@ import 'package:flutter/material.dart';
 
 const int numDaysInWeek = 7;
 
+final List<Widget> dailyTabList = [
+  Tab(text: 'Su'),
+  Tab(text: 'M'),
+  Tab(text: 'T'),
+  Tab(text: 'W'),
+  Tab(text: 'Th'),
+  Tab(text: 'F'),
+  Tab(text: 'Sa'),
+];
+
 // Contains left and right arrows on either side of
 // the Text that lists the dates of the currently displayed week
 class DateNavigationRow extends StatelessWidget {
@@ -23,7 +33,7 @@ class DateNavigationRow extends StatelessWidget {
         ),
         Text(
           'For the week 3/14/21 to 3/20/21',
-          style: TextStyle(fontSize: 20),
+          style: TextStyle(fontSize: 18),
         ),
         IconButton(
           icon: Icon(Icons.arrow_right),
@@ -44,6 +54,24 @@ Widget getFormattedTextForTable(String contents) {
         ),
       ),
       padding: EdgeInsets.all(5));
+}
+
+// Converts a TimeOfDay into a nice String
+String getTimeString(TimeOfDay time) {
+  int hour = time.hourOfPeriod;
+  int minute = time.minute;
+  DayPeriod amOrPm = time.period;
+
+  String minuteStr = minute < 10 ? '0$minute' : '$minute';
+  String amOrPmStr;
+
+  if (amOrPm == DayPeriod.am) {
+    amOrPmStr = 'AM';
+  } else {
+    amOrPmStr = 'PM';
+  }
+
+  return '$hour:$minuteStr $amOrPmStr';
 }
 
 // Used for placeholder dates until the actual model and database are set up

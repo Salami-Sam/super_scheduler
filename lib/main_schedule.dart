@@ -22,7 +22,7 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
   // Gets the tab with a particular day's scheduling information
   Widget getIndividualTab(int day) {
     return Container(
-      margin: EdgeInsets.all(5),
+      margin: EdgeInsets.all(8),
       child: SingleChildScrollView(
         child: Table(
           border: TableBorder.all(),
@@ -57,15 +57,7 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
         appBar: AppBar(
           title: Text('Main Schedule: The Krusty Crew'),
           bottom: TabBar(
-            tabs: [
-              Tab(text: 'Su'),
-              Tab(text: 'M'),
-              Tab(text: 'T'),
-              Tab(text: 'W'),
-              Tab(text: 'Th'),
-              Tab(text: 'F'),
-              Tab(text: 'Sa'),
-            ],
+            tabs: dailyTabList,
           ),
         ),
         body: TabBarView(
