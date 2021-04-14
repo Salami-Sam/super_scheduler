@@ -24,10 +24,11 @@ class _ChangeNameWidgetState extends State<ChangeNameWidget> {
 
   void _changeUserName() async {
     try {
-      await FirebaseAuth.instance.currentUser.updateProfile(displayName: _name);
+      User user = FirebaseAuth.instance.currentUser;
+      await user.updateProfile(displayName: _name);
 
       Navigator.pop(context);
-      showSnackBar(message: 'Username updated successfully.');
+      showSnackBar(message: 'Name updated to \'$_name\' successfully.');
     } on FirebaseAuthException catch (e) {
       showSnackBar(message: e.code + '\n' + e.message);
     } catch (e) {
