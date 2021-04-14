@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -110,23 +112,33 @@ String getDateString(DateTime date) {
   return '${date.month}/${date.day}/$twoDigitYear';
 }
 
-// Creates a weekly schedule document with the given info,
-// if it does not already exist
-void createWeeklyScheduleDoc(
+// Get weekly schedule doc, if it exists
+// If it does not, return null
+Future<DocumentReference> getWeeklyScheduleDoc(
     {@required DocumentReference groupRef, @required DateTime weekStartDate}) {
-  // First see if the document already exists
-  var query = groupRef
+  var existsQuery = groupRef
       .collection('WeeklySchedules')
       .where('startDate', isEqualTo: Timestamp.fromDate(weekStartDate));
-  query.get().then((snapshot) {
+  return existsQuery.get().then((snapshot) {
     if (snapshot.size == 0) {
-      // If it does not exist, create it
-      groupRef.collection('WeeklySchedules').doc().set({
-        'startDate': Timestamp.fromDate(weekStartDate),
-        'published': false,
-      });
+      // If no WeeklySchedule doc has this start date, it doesn't exist
+      return null;
+    } else {
+      // Return the first and only doc with this date
+      return snapshot.docs.first.reference;
     }
   });
+}
+
+// Creates a weekly schedule document with the given info
+// Returns the created document
+Future<DocumentReference> createWeeklyScheduleDoc(
+    {@required DocumentReference groupRef, @required DateTime weekStartDate}) {
+  var doc = groupRef.collection('WeeklySchedules').doc();
+  doc.set({
+    'startDate': Timestamp.fromDate(weekStartDate),
+    'published': false,
+  }).then((value) => doc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

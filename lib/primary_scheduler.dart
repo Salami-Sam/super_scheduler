@@ -27,19 +27,22 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
   CollectionReference groups;
   DocumentReference currentGroupRef;
   DateTime curWeekStartDate;
+  DocumentReference curWeekScheduleDocRef;
 
   // Gets the tab with a particular day's information
+  // day goes from 1 (Sunday) to 7 (Saturday)
   Widget getIndividualTab(int day) {
+    print(curWeekScheduleDocRef);
     return Container(
       margin: EdgeInsets.all(5),
       child: StreamBuilder<DocumentSnapshot>(
-        stream: currentGroupRef.snapshots(),
+        stream: curWeekScheduleDocRef.snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Text('There was an error in retrieving the schedule.');
           } else if (snapshot.connectionState == ConnectionState.waiting) {
             return Text('Retrieving schedule...');
-          } else {
+          } else if (snapshot.hasData) {
             return SingleChildScrollView(
               child: Table(
                 border: TableBorder.all(),
@@ -53,6 +56,8 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                     List<TableRow>.generate(
                       3,
                       (index) {
+                        snapshot.data.get('Shifts');
+
                         return TableRow(
                           children: [
                             getFormattedTextForTable('${getRandomTime()}'),
@@ -64,8 +69,66 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                     ),
               ),
             );
+          } else {
+            return Text('Hi');
           }
         },
+      ),
+    );
+  }
+
+  // Return the main contents of this screen
+  Widget getScreenContents() {
+    return Container(
+      margin: EdgeInsets.all(8),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: TabBarView(
+              children: [
+                getIndividualTab(1),
+                getIndividualTab(2),
+                getIndividualTab(3),
+                getIndividualTab(4),
+                getIndividualTab(5),
+                getIndividualTab(6),
+                getIndividualTab(7),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            child: Text('Add Shift'),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddShiftWidget(
+                    currentGroupId: widget.currentGroupId,
+                  ),
+                ),
+              );
+            },
+          ),
+          ElevatedButton(
+            child: Text('Remove Selected Shift'),
+            onPressed: null,
+          ),
+          ElevatedButton(
+            child: Text('Finalize Schedule'),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FinalizeScheduleWidget(
+                    currentGroupId: widget.currentGroupId,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -75,11 +138,6 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
     groups = widget.db.collection('groups');
     currentGroupRef = groups.doc(widget.currentGroupId);
     curWeekStartDate = getSundayMidnightOfThisWeek();
-
-    createWeeklyScheduleDoc(
-      groupRef: currentGroupRef,
-      weekStartDate: curWeekStartDate,
-    );
 
     return DefaultTabController(
       length: numDaysInWeek,
@@ -93,57 +151,49 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
             tabs: dailyTabList,
           ),
         ),
-        body: Container(
-          margin: EdgeInsets.all(8),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    getIndividualTab(0),
-                    getIndividualTab(1),
-                    getIndividualTab(2),
-                    getIndividualTab(3),
-                    getIndividualTab(4),
-                    getIndividualTab(5),
-                    getIndividualTab(6),
-                  ],
-                ),
-              ),
-              ElevatedButton(
-                child: Text('Add Shift'),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddShiftWidget(
-                        currentGroupId: widget.currentGroupId,
-                      ),
-                    ),
-                  );
-                },
-              ),
-              ElevatedButton(
-                child: Text('Remove Selected Shift'),
-                onPressed: null,
-              ),
-              ElevatedButton(
-                child: Text('Finalize Schedule'),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FinalizeScheduleWidget(
-                        currentGroupId: widget.currentGroupId,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
+        body: FutureBuilder<DocumentReference>(
+          future: getWeeklyScheduleDoc(
+            groupRef: currentGroupRef,
+            weekStartDate: curWeekStartDate,
           ),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(
+                  child: Text(
+                      'There was an error in checking this week\'s schedule.'));
+            } else if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: Text('Preparing schedule...'));
+            } else {
+              // Check if the schedule existed when checked
+              if (snapshot.data == null) {
+                // Did not exist, so create it in a Future
+                return FutureBuilder<DocumentReference>(
+                  future: createWeeklyScheduleDoc(
+                    groupRef: currentGroupRef,
+                    weekStartDate: curWeekStartDate,
+                  ),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(
+                          child: Text(
+                              'There was an error in creating this week\'s schedule.'));
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return Center(child: Text('Preparing schedule...'));
+                    } else {
+                      // Save the schedule ref in a var and return screen contents
+                      curWeekScheduleDocRef = snapshot.data;
+                      return getScreenContents();
+                    }
+                  },
+                );
+              } else {
+                // Did exist, so save it in a variable and return screen contents
+                curWeekScheduleDocRef = snapshot.data;
+                return getScreenContents();
+              }
+            }
+          },
         ),
         bottomNavigationBar: getDateNavigationRow(curWeekStartDate),
       ),
