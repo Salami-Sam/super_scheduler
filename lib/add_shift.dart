@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'reusable_schedule_items.dart';
 
@@ -10,6 +11,11 @@ import 'reusable_schedule_items.dart';
 // A widget for adding shifts to the schedule
 // Still needs some work
 class AddShiftWidget extends StatefulWidget {
+  final db = FirebaseFirestore.instance;
+  final String currentGroupId;
+
+  AddShiftWidget({@required this.currentGroupId});
+
   static const List<String> roles = ['GM', 'Busboy', 'Cashier', 'Fry Cook'];
 
   @override
@@ -17,6 +23,9 @@ class AddShiftWidget extends StatefulWidget {
 }
 
 class _AddShiftWidgetState extends State<AddShiftWidget> {
+  CollectionReference groups;
+  DocumentReference currentGroupRef;
+
   TimeOfDay startTime = TimeOfDay(hour: 9, minute: 0);
   TimeOfDay endTime = TimeOfDay(hour: 17, minute: 0);
 
@@ -44,9 +53,15 @@ class _AddShiftWidgetState extends State<AddShiftWidget> {
 
   @override
   Widget build(BuildContext context) {
+    groups = widget.db.collection('groups');
+    currentGroupRef = groups.doc(widget.currentGroupId);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Shift: The Krusty Crew'),
+        title: getScreenTitle(
+          currentGroupRef: currentGroupRef,
+          screenName: 'Add Shift',
+        ),
       ),
       body: Container(
         margin: EdgeInsets.only(

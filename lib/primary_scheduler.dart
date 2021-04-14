@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'reusable_schedule_items.dart';
 import 'finalize_schedule.dart';
@@ -10,11 +11,22 @@ import 'add_shift.dart';
  */
 
 class PrimarySchedulerWidget extends StatefulWidget {
+  final db = FirebaseFirestore.instance;
+
+  // Temporarily set to constant value
+  // Eventually should be passed in from the Group Home Page
+  final String currentGroupId = 'RsTjd6INQsNa6RvSTeUX';
+
+  //PrimarySchedulerWidget({@required this.currentGroupId});
+
   @override
   _PrimarySchedulerWidgetState createState() => _PrimarySchedulerWidgetState();
 }
 
 class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
+  CollectionReference groups;
+  DocumentReference currentGroupRef;
+
   // Gets the tab with a particular day's information
   Widget getIndividualTab(int day) {
     return Container(
@@ -52,11 +64,17 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    groups = widget.db.collection('groups');
+    currentGroupRef = groups.doc(widget.currentGroupId);
+
     return DefaultTabController(
       length: numDaysInWeek,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Scheduler: The Krusty Crew'),
+          title: getScreenTitle(
+            currentGroupRef: currentGroupRef,
+            screenName: 'Scheduler',
+          ),
           bottom: TabBar(
             tabs: dailyTabList,
           ),
@@ -90,7 +108,9 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AddShiftWidget(),
+                      builder: (context) => AddShiftWidget(
+                        currentGroupId: widget.currentGroupId,
+                      ),
                     ),
                   );
                 },
@@ -105,7 +125,9 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => FinalizeScheduleWidget(),
+                      builder: (context) => FinalizeScheduleWidget(
+                        currentGroupId: widget.currentGroupId,
+                      ),
                     ),
                   );
                 },

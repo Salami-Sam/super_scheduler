@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'reusable_schedule_items.dart';
 
@@ -13,6 +14,14 @@ import 'reusable_schedule_items.dart';
  * for the logged in user.
  */
 class MyScheduleWidget extends StatefulWidget {
+  final db = FirebaseFirestore.instance;
+
+  // Temporarily set to constant value
+  // Eventually should be passed in from the Group Home Page
+  final String currentGroupId = 'RsTjd6INQsNa6RvSTeUX';
+
+  //MyScheduleWidget({@required this.currentGroupId});
+
   final List<String> days = [
     'Sunday:',
     'Monday:',
@@ -28,6 +37,9 @@ class MyScheduleWidget extends StatefulWidget {
 }
 
 class _MyScheduleWidgetState extends State<MyScheduleWidget> {
+  CollectionReference groups;
+  DocumentReference currentGroupRef;
+
   // Placeholder times for now
   // Will eventually call methods to get actual times
   final List<String> dailyTimes = [
@@ -42,9 +54,15 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
 
   @override
   Widget build(BuildContext context) {
+    groups = widget.db.collection('groups');
+    currentGroupRef = groups.doc(widget.currentGroupId);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Schedule: The Krusty Crew'),
+        title: getScreenTitle(
+          currentGroupRef: currentGroupRef,
+          screenName: 'My Schedule',
+        ),
       ),
       body: Container(
         margin: EdgeInsets.all(16),

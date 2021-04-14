@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 
@@ -43,6 +44,24 @@ class DateNavigationRow extends StatelessWidget {
       ],
     );
   }
+}
+
+StreamBuilder<DocumentSnapshot> getScreenTitle(
+    {@required DocumentReference currentGroupRef,
+    @required String screenName}) {
+  return StreamBuilder<DocumentSnapshot>(
+    stream: currentGroupRef.snapshots(),
+    builder: (context, snapshot) {
+      if (snapshot.hasError) {
+        return Text('$screenName');
+      } else if (snapshot.connectionState == ConnectionState.waiting) {
+        return Text('$screenName');
+      } else {
+        var currentGroup = snapshot.data;
+        return Text('$screenName: ${currentGroup['name']}');
+      }
+    },
+  );
 }
 
 // Gets text nicely formatted for use in a table in the schedule screens

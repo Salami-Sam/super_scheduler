@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'main_schedule.dart';
 import 'reusable_schedule_items.dart';
@@ -9,11 +10,19 @@ import 'reusable_schedule_items.dart';
  */
 
 class FinalizeScheduleWidget extends StatefulWidget {
+  final db = FirebaseFirestore.instance;
+  final String currentGroupId;
+
+  FinalizeScheduleWidget({@required this.currentGroupId});
+
   @override
   _FinalizeScheduleWidgetState createState() => _FinalizeScheduleWidgetState();
 }
 
 class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
+  CollectionReference groups;
+  DocumentReference currentGroupRef;
+
   // Placeholder list of names
   List<String> names = [
     'Spongebob Squarepants',
@@ -55,11 +64,17 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
 
   @override
   Widget build(BuildContext context) {
+    groups = widget.db.collection('groups');
+    currentGroupRef = groups.doc(widget.currentGroupId);
+
     return DefaultTabController(
       length: numDaysInWeek,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Scheduler: The Krusty Crew'),
+          title: getScreenTitle(
+            currentGroupRef: currentGroupRef,
+            screenName: 'Scheduler',
+          ),
           bottom: TabBar(
             tabs: dailyTabList,
           ),

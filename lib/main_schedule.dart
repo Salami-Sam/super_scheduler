@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'reusable_schedule_items.dart';
 
@@ -14,11 +15,22 @@ import 'reusable_schedule_items.dart';
 class MainScheduleWidget extends StatefulWidget {
   static const int daysInWeek = 7;
 
+  final db = FirebaseFirestore.instance;
+
+  // Temporarily set to constant value
+  // Eventually should be passed in from the Group Home Page
+  final String currentGroupId = 'RsTjd6INQsNa6RvSTeUX';
+
+  //MainScheduleWidget({@required this.currentGroupId});
+
   @override
   _MainScheduleWidgetState createState() => _MainScheduleWidgetState();
 }
 
 class _MainScheduleWidgetState extends State<MainScheduleWidget> {
+  CollectionReference groups;
+  DocumentReference currentGroupRef;
+
   // Gets the tab with a particular day's scheduling information
   Widget getIndividualTab(int day) {
     return Container(
@@ -51,11 +63,17 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
 
   @override
   Widget build(BuildContext context) {
+    groups = widget.db.collection('groups');
+    currentGroupRef = groups.doc(widget.currentGroupId);
+
     return DefaultTabController(
       length: numDaysInWeek,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Main Schedule: The Krusty Crew'),
+          title: getScreenTitle(
+            currentGroupRef: currentGroupRef,
+            screenName: 'Main Schedule',
+          ),
           bottom: TabBar(
             tabs: dailyTabList,
           ),
