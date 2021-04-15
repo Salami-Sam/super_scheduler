@@ -84,7 +84,7 @@ class _AddShiftWidgetState extends State<AddShiftWidget> {
                   },
                 ),
                 Text(
-                  '${getTimeString(startTime)}',
+                  '${timeOfDayToTimeString(startTime)}',
                   style: TextStyle(fontSize: 18),
                 ),
               ],
@@ -99,7 +99,7 @@ class _AddShiftWidgetState extends State<AddShiftWidget> {
                   },
                 ),
                 Text(
-                  '${getTimeString(endTime)}',
+                  '${timeOfDayToTimeString(endTime)}',
                   style: TextStyle(fontSize: 18),
                 ),
               ],

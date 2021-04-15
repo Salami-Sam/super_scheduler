@@ -46,7 +46,8 @@ Row getDateNavigationRow(DateTime weekStartDate) {
   );
 }
 
-//
+// Gets the title of a screen in the following format:
+// screenName: currentGroupRefName
 StreamBuilder<DocumentSnapshot> getScreenTitle(
     {@required DocumentReference currentGroupRef,
     @required String screenName}) {
@@ -77,8 +78,23 @@ Widget getFormattedTextForTable(String contents) {
       padding: EdgeInsets.all(5));
 }
 
+// Converts a map of needed roles to a nice String
+// rolesMap should be of the type Map<String, int>
+String getRoleMapString(Map<String, dynamic> rolesMap) {
+  var toReturn = '';
+  for (var mapEntry in rolesMap.entries) {
+    var role = mapEntry.key;
+    var numNeeded = mapEntry.value;
+    if (toReturn != '') {
+      toReturn = '$toReturn, ';
+    }
+    toReturn = '$toReturn$role ($numNeeded)';
+  }
+  return toReturn;
+}
+
 // Converts a TimeOfDay into a nice String of the form H:MM AM or H:MM PM
-String getTimeString(TimeOfDay time) {
+String timeOfDayToTimeString(TimeOfDay time) {
   int hour = time.hourOfPeriod;
   int minute = time.minute;
   DayPeriod amOrPm = time.period;
@@ -95,9 +111,15 @@ String getTimeString(TimeOfDay time) {
   return '$hour:$minuteStr $amOrPmStr';
 }
 
+// Converts a DateTime's time into a nice String of the form H:MM AM or H:MM PM
+String dateTimeToTimeString(DateTime time) {
+  return timeOfDayToTimeString(TimeOfDay.fromDateTime(time));
+}
+
 // Converts a DateTime into a nice String of the form M/D/YY
-String getTimeString2(DateTime time) {
-  return getTimeString(TimeOfDay.fromDateTime(time));
+String getDateString(DateTime date) {
+  int twoDigitYear = date.year % 100;
+  return '${date.month}/${date.day}/$twoDigitYear';
 }
 
 // Gets Sunday at midnight (morning) of the current week according to DateTime.now()
@@ -109,12 +131,6 @@ DateTime getSundayMidnightOfThisWeek() {
     correctDay = correctDay.subtract(Duration(days: 1));
   }
   return DateTime(correctDay.year, correctDay.month, correctDay.day);
-}
-
-// Converts a DateTime into a nice String of the form M/D/YY
-String getDateString(DateTime date) {
-  int twoDigitYear = date.year % 100;
-  return '${date.month}/${date.day}/$twoDigitYear';
 }
 
 // Get weekly schedule doc, if it exists
@@ -140,7 +156,7 @@ Future<DocumentReference> getWeeklyScheduleDoc(
 Future<DocumentReference> createWeeklyScheduleDoc(
     {@required DocumentReference groupRef, @required DateTime weekStartDate}) {
   var doc = groupRef.collection('WeeklySchedules').doc();
-  doc.set({
+  return doc.set({
     'startDate': Timestamp.fromDate(weekStartDate),
     'published': false,
   }).then((value) => doc);

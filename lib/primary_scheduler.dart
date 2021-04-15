@@ -30,51 +30,66 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
   DocumentReference curWeekScheduleDocRef;
 
   // Gets the tab with a particular day's information
-  // day goes from 1 (Sunday) to 7 (Saturday)
+  // day goes from 0 (Sunday) to 6 (Saturday)
   Widget getIndividualTab(int day) {
-    print(curWeekScheduleDocRef);
     return Container(
       margin: EdgeInsets.all(5),
       child: StreamBuilder<QuerySnapshot>(
         stream: curWeekScheduleDocRef.collection('Shifts').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Text('There was an error in retrieving the schedule.');
+            return Center(
+                child: Text('There was an error in retrieving the schedule.'));
           } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return Text('Retrieving schedule...');
+            return Center(child: Text('Retrieving schedule...'));
           } else {
             var docsList = snapshot.data.docs;
+            DateTime today = curWeekStartDate.add(Duration(days: day));
+            var todaysShifts = docsList.where((element) {
+              DateTime shiftDate = element['startDateTime'].toDate();
+              if (shiftDate.year == today.year &&
+                  shiftDate.month == today.month &&
+                  shiftDate.day == today.day) {
+                return true;
+              }
+              return false;
+            }).toList();
+            if (todaysShifts.isEmpty) {
+              return Center(child: Text('There are no shifts on this day.'));
+            } else {
+              return SingleChildScrollView(
+                child: Table(
+                  border: TableBorder.all(),
+                  children: [
+                        TableRow(children: [
+                          getFormattedTextForTable('Start'),
+                          getFormattedTextForTable('End'),
+                          getFormattedTextForTable('Roles'),
+                        ])
+                      ] +
+                      List<TableRow>.generate(
+                        todaysShifts.length,
+                        (index) {
+                          var docData = todaysShifts[index].data();
+                          var startTime = dateTimeToTimeString(
+                              docData['startDateTime'].toDate());
+                          var endTime = dateTimeToTimeString(
+                              docData['endDateTime'].toDate());
+                          var roleList =
+                              getRoleMapString(docData['rolesNeeded']);
 
-            return SingleChildScrollView(
-              child: Table(
-                border: TableBorder.all(),
-                children: [
-                      TableRow(children: [
-                        getFormattedTextForTable('Start'),
-                        getFormattedTextForTable('End'),
-                        getFormattedTextForTable('Roles'),
-                      ])
-                    ] +
-                    List<TableRow>.generate(
-                      docsList.length,
-                      (index) {
-                        var docData = docsList[index].data();
-                        var startTime =
-                            getTimeString2(docData['startDateTime'].toDate());
-                        var endTime =
-                            getTimeString2(docData['endDateTime'].toDate());
-                        return TableRow(
-                          children: [
-                            getFormattedTextForTable("$startTime"),
-                            getFormattedTextForTable("$endTime"),
-                            getFormattedTextForTable(
-                                "${docData['rolesNeeded']}"),
-                          ],
-                        );
-                      },
-                    ),
-              ),
-            );
+                          return TableRow(
+                            children: [
+                              getFormattedTextForTable("$startTime"),
+                              getFormattedTextForTable("$endTime"),
+                              getFormattedTextForTable("$roleList"),
+                            ],
+                          );
+                        },
+                      ),
+                ),
+              );
+            }
           }
         },
       ),
@@ -92,13 +107,13 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
           Expanded(
             child: TabBarView(
               children: [
+                getIndividualTab(0),
                 getIndividualTab(1),
                 getIndividualTab(2),
                 getIndividualTab(3),
                 getIndividualTab(4),
                 getIndividualTab(5),
                 getIndividualTab(6),
-                getIndividualTab(7),
               ],
             ),
           ),
