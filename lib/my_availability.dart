@@ -24,7 +24,6 @@ class MyAvailabilityWidget extends StatefulWidget {
 class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
   CollectionReference groups;
   DocumentReference currentGroupRef;
-  DateTime curWeekStartDate;
 
   // Gets the tab with a particular day's information
   Widget getIndividualTab(int day) {
@@ -49,7 +48,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
     currentGroupRef = groups.doc(widget.currentGroupId);
 
     return DefaultTabController(
-      length: numDaysInWeek,
+      length: DateTime.daysPerWeek,
       child: Scaffold(
         appBar: AppBar(
           title: getScreenTitle(

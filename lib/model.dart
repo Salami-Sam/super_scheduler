@@ -25,7 +25,7 @@ class AppStateModel extends ChangeNotifier {
 // Gets Sunday at midnight (morning) of the current week according to DateTime.now()
 // Considers Sunday to be the first day of the week
 DateTime _getSundayMidnightOfThisWeek() {
-  var correctDay = DateTime.now();
+  var correctDay = DateTime.now().toUtc();
   while (correctDay.weekday != DateTime.sunday) {
     print(correctDay);
     correctDay = correctDay.subtract(Duration(days: 1));

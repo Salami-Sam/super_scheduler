@@ -45,7 +45,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
           } else {
             var docsList = snapshot.data.docs;
             var todaysShifts = docsList.where((element) {
-              DateTime shiftDate = element['startDateTime'].toDate();
+              DateTime shiftDate = element['startDateTime'].toDate().toUtc();
               if (shiftDate.year == today.year &&
                   shiftDate.month == today.month &&
                   shiftDate.day == today.day) {
@@ -71,9 +71,9 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                         (index) {
                           var docData = todaysShifts[index].data();
                           var startTime = dateTimeToTimeString(
-                              docData['startDateTime'].toDate());
+                              docData['startDateTime'].toDate().toUtc());
                           var endTime = dateTimeToTimeString(
-                              docData['endDateTime'].toDate());
+                              docData['endDateTime'].toDate().toUtc());
                           var roleList =
                               getRoleMapString(docData['rolesNeeded']);
 
@@ -157,7 +157,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
     currentGroupRef = groups.doc(widget.currentGroupId);
 
     return DefaultTabController(
-      length: numDaysInWeek,
+      length: DateTime.daysPerWeek,
       child: Scaffold(
         appBar: AppBar(
           title: getScreenTitle(

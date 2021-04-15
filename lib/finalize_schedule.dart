@@ -68,7 +68,7 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
     currentGroupRef = groups.doc(widget.currentGroupId);
 
     return DefaultTabController(
-      length: numDaysInWeek,
+      length: DateTime.daysPerWeek,
       child: Scaffold(
         appBar: AppBar(
           title: getScreenTitle(

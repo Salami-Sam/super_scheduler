@@ -64,10 +64,9 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
   Widget build(BuildContext context) {
     groups = widget.db.collection('groups');
     currentGroupRef = groups.doc(widget.currentGroupId);
-    curWeekStartDate;
 
     return DefaultTabController(
-      length: numDaysInWeek,
+      length: DateTime.daysPerWeek,
       child: Scaffold(
         appBar: AppBar(
           title: getScreenTitle(

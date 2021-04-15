@@ -12,8 +12,6 @@ import 'model.dart';
  * Author: Dylan Schulz
  */
 
-const int numDaysInWeek = 7;
-
 // A standard list of tabs for days of the week
 final List<Widget> dailyTabList = [
   Tab(text: 'Su'),
