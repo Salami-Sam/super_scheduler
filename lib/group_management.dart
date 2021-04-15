@@ -19,34 +19,40 @@ class MyGroupsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Center(
-            child: Column(children: <Widget>[
-      Container(
-          margin: EdgeInsets.all(20),
-          child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => JoinGroupWidget()));
-              },
-              child: Text('Join Group'))),
-      ElevatedButton(
-        onPressed: () {
-          Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => CreateGroupWidget()));
-        },
-        child: Text('Create Group'),
-      ),
-      Container(
-        child: Column(
-          children: <Widget>[Text("Your Groups:")],
-        ),
-      ),
-      Flexible(
-        child: Container(
-          decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-          child: _showGroupList(),
-        ),
-      )
-    ])));
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+          Container(
+              margin: EdgeInsets.all(20),
+              child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => JoinGroupWidget()));
+                  },
+                  child: Text('Join Group'))),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => CreateGroupWidget()));
+            },
+            child: Text('Create Group'),
+          ),
+          Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[Text("Your Groups:")],
+            ),
+          ),
+          Flexible(
+            child: Container(
+              decoration:
+                  BoxDecoration(border: Border.all(color: Colors.black)),
+              child: _showGroupList(),
+            ),
+          )
+        ])));
   }
 }
 
@@ -56,6 +62,7 @@ Widget _showGroupList() {
       itemBuilder: (BuildContext context, int index) {
         return Container(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               ElevatedButton(
                   onPressed: () {
