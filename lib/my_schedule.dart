@@ -57,7 +57,7 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
   Widget build(BuildContext context) {
     groups = widget.db.collection('groups');
     currentGroupRef = groups.doc(widget.currentGroupId);
-    curWeekStartDate = getSundayMidnightOfThisWeek();
+    curWeekStartDate;
 
     return Scaffold(
       appBar: AppBar(
@@ -108,7 +108,7 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
           ],
         ),
       ),
-      bottomNavigationBar: getDateNavigationRow(curWeekStartDate),
+      bottomNavigationBar: getDateNavigationRow(),
     );
   }
 }

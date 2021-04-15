@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:super_scheduler/model.dart';
 import 'reusable_schedule_items.dart';
 import 'finalize_schedule.dart';
 import 'add_shift.dart';
@@ -26,12 +28,10 @@ class PrimarySchedulerWidget extends StatefulWidget {
 class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
   CollectionReference groups;
   DocumentReference currentGroupRef;
-  DateTime curWeekStartDate;
   DocumentReference curWeekScheduleDocRef;
 
   // Gets the tab with a particular day's information
-  // day goes from 0 (Sunday) to 6 (Saturday)
-  Widget getIndividualTab(int day) {
+  Widget getIndividualTab(DateTime today) {
     return Container(
       margin: EdgeInsets.all(5),
       child: StreamBuilder<QuerySnapshot>(
@@ -44,7 +44,6 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
             return Center(child: Text('Retrieving schedule...'));
           } else {
             var docsList = snapshot.data.docs;
-            DateTime today = curWeekStartDate.add(Duration(days: day));
             var todaysShifts = docsList.where((element) {
               DateTime shiftDate = element['startDateTime'].toDate();
               if (shiftDate.year == today.year &&
@@ -97,7 +96,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
   }
 
   // Return the main contents of this screen
-  Widget getScreenContents() {
+  Widget getScreenContents(DateTime weekStartDate) {
     return Container(
       margin: EdgeInsets.all(8),
       child: Column(
@@ -107,13 +106,13 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
           Expanded(
             child: TabBarView(
               children: [
-                getIndividualTab(0),
-                getIndividualTab(1),
-                getIndividualTab(2),
-                getIndividualTab(3),
-                getIndividualTab(4),
-                getIndividualTab(5),
-                getIndividualTab(6),
+                getIndividualTab(weekStartDate),
+                getIndividualTab(weekStartDate.add(Duration(days: 1))),
+                getIndividualTab(weekStartDate.add(Duration(days: 2))),
+                getIndividualTab(weekStartDate.add(Duration(days: 3))),
+                getIndividualTab(weekStartDate.add(Duration(days: 4))),
+                getIndividualTab(weekStartDate.add(Duration(days: 5))),
+                getIndividualTab(weekStartDate.add(Duration(days: 6))),
               ],
             ),
           ),
@@ -156,7 +155,6 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
   Widget build(BuildContext context) {
     groups = widget.db.collection('groups');
     currentGroupRef = groups.doc(widget.currentGroupId);
-    curWeekStartDate = getSundayMidnightOfThisWeek();
 
     return DefaultTabController(
       length: numDaysInWeek,
@@ -170,51 +168,55 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
             tabs: dailyTabList,
           ),
         ),
-        body: FutureBuilder<DocumentReference>(
-          future: getWeeklyScheduleDoc(
-            groupRef: currentGroupRef,
-            weekStartDate: curWeekStartDate,
-          ),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(
-                  child: Text(
-                      'There was an error in checking this week\'s schedule.'));
-            } else if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: Text('Preparing schedule...'));
-            } else {
-              // Check if the schedule existed when checked
-              if (snapshot.data == null) {
-                // Did not exist, so create it in a Future
-                return FutureBuilder<DocumentReference>(
-                  future: createWeeklyScheduleDoc(
-                    groupRef: currentGroupRef,
-                    weekStartDate: curWeekStartDate,
-                  ),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(
-                          child: Text(
-                              'There was an error in creating this week\'s schedule.'));
-                    } else if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return Center(child: Text('Preparing schedule...'));
-                    } else {
-                      // Save the schedule ref in a var and return screen contents
-                      curWeekScheduleDocRef = snapshot.data;
-                      return getScreenContents();
-                    }
-                  },
-                );
+        body: Consumer<AppStateModel>(
+          builder: (context, appStateModel, child) =>
+              FutureBuilder<DocumentReference>(
+            future: getWeeklyScheduleDoc(
+              groupRef: currentGroupRef,
+              weekStartDate: appStateModel.curWeekStartDate,
+            ),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                    child: Text(
+                        'There was an error in checking this week\'s schedule.'));
+              } else if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: Text('Preparing schedule...'));
               } else {
-                // Did exist, so save it in a variable and return screen contents
-                curWeekScheduleDocRef = snapshot.data;
-                return getScreenContents();
+                // Check if the schedule existed when checked
+                if (snapshot.data == null) {
+                  // Did not exist, so create it in a Future
+                  return FutureBuilder<DocumentReference>(
+                    future: createWeeklyScheduleDoc(
+                      groupRef: currentGroupRef,
+                      weekStartDate: appStateModel.curWeekStartDate,
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Center(
+                            child: Text(
+                                'There was an error in creating this week\'s schedule.'));
+                      } else if (snapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return Center(child: Text('Preparing schedule...'));
+                      } else {
+                        // Save the schedule ref in a var and return screen contents
+                        curWeekScheduleDocRef = snapshot.data;
+                        return getScreenContents(
+                            appStateModel.curWeekStartDate);
+                      }
+                    },
+                  );
+                } else {
+                  // Did exist, so save it in a variable and return screen contents
+                  curWeekScheduleDocRef = snapshot.data;
+                  return getScreenContents(appStateModel.curWeekStartDate);
+                }
               }
-            }
-          },
+            },
+          ),
         ),
-        bottomNavigationBar: getDateNavigationRow(curWeekStartDate),
+        bottomNavigationBar: getDateNavigationRow(),
       ),
     );
   }

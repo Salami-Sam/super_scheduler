@@ -1,8 +1,10 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'model.dart';
 
 /* This file contains scheduling-related things that are reused
  * by multiple different parts of the app
@@ -25,24 +27,33 @@ final List<Widget> dailyTabList = [
 
 // Contains left and right arrows on either side of
 // the Text that lists the dates of the currently displayed week
-Row getDateNavigationRow(DateTime weekStartDate) {
-  DateTime weekEndDate = weekStartDate.add(Duration(days: 6));
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      IconButton(
-        icon: Icon(Icons.arrow_left),
-        onPressed: null,
-      ),
-      Text(
-        'For the week ${getDateString(weekStartDate)} to ${getDateString(weekEndDate)}',
-        style: TextStyle(fontSize: 18),
-      ),
-      IconButton(
-        icon: Icon(Icons.arrow_right),
-        onPressed: null,
-      ),
-    ],
+Widget getDateNavigationRow() {
+  return Consumer<AppStateModel>(
+    builder: (context, appStateModel, child) {
+      DateTime weekEndDate =
+          appStateModel.curWeekStartDate.add(Duration(days: 6));
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: Icon(Icons.arrow_left),
+            onPressed: () {
+              appStateModel.decreaseCurWeekBy1();
+            },
+          ),
+          Text(
+            'For the week ${getDateString(appStateModel.curWeekStartDate)} to ${getDateString(weekEndDate)}',
+            style: TextStyle(fontSize: 18),
+          ),
+          IconButton(
+            icon: Icon(Icons.arrow_right),
+            onPressed: () {
+              appStateModel.increaseCurWeekBy1();
+            },
+          ),
+        ],
+      );
+    },
   );
 }
 
@@ -120,17 +131,6 @@ String dateTimeToTimeString(DateTime time) {
 String getDateString(DateTime date) {
   int twoDigitYear = date.year % 100;
   return '${date.month}/${date.day}/$twoDigitYear';
-}
-
-// Gets Sunday at midnight (morning) of the current week according to DateTime.now()
-// Considers Sunday to be the first day of the week
-DateTime getSundayMidnightOfThisWeek() {
-  var correctDay = DateTime.now();
-  while (correctDay.weekday != DateTime.sunday) {
-    print(correctDay);
-    correctDay = correctDay.subtract(Duration(days: 1));
-  }
-  return DateTime(correctDay.year, correctDay.month, correctDay.day);
 }
 
 // Get weekly schedule doc, if it exists

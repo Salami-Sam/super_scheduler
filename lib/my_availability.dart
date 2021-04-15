@@ -47,7 +47,6 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
   Widget build(BuildContext context) {
     groups = widget.db.collection('groups');
     currentGroupRef = groups.doc(widget.currentGroupId);
-    curWeekStartDate = getSundayMidnightOfThisWeek();
 
     return DefaultTabController(
       length: numDaysInWeek,
@@ -72,7 +71,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
             getIndividualTab(6),
           ],
         ),
-        bottomNavigationBar: getDateNavigationRow(curWeekStartDate),
+        bottomNavigationBar: getDateNavigationRow(),
       ),
     );
   }
