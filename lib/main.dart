@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:super_scheduler/model.dart';
 import 'home_widget.dart';
 
 ///The entry point of the app
@@ -9,7 +10,7 @@ void main() async {
   await Firebase.initializeApp();
   runApp(ChangeNotifierProvider(
     child: RootWidget(),
-    create: (context) => null,
+    create: (context) => AppStateModel(),
   ));
 }
 

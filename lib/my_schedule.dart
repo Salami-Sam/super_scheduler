@@ -57,7 +57,6 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
   Widget build(BuildContext context) {
     groups = widget.db.collection('groups');
     currentGroupRef = groups.doc(widget.currentGroupId);
-    curWeekStartDate = getSundayMidnightOfThisWeek();
 
     return Scaffold(
       appBar: AppBar(
@@ -83,7 +82,7 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
             ),
             Expanded(
               child: ListView.separated(
-                itemCount: numDaysInWeek,
+                itemCount: DateTime.daysPerWeek,
                 itemBuilder: (context, index) {
                   return ListTile(
                     title: Text(
@@ -108,7 +107,7 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
           ],
         ),
       ),
-      bottomNavigationBar: getDateNavigationRow(curWeekStartDate),
+      bottomNavigationBar: getDateNavigationRow(),
     );
   }
 }

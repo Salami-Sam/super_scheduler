@@ -20,7 +20,7 @@ class GroupHomeAdminWidget extends StatelessWidget {
         ),
         body: Center(
             child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
               Container(
                   child: ElevatedButton(

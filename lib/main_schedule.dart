@@ -64,10 +64,9 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
   Widget build(BuildContext context) {
     groups = widget.db.collection('groups');
     currentGroupRef = groups.doc(widget.currentGroupId);
-    curWeekStartDate = getSundayMidnightOfThisWeek();
 
     return DefaultTabController(
-      length: numDaysInWeek,
+      length: DateTime.daysPerWeek,
       child: Scaffold(
         appBar: AppBar(
           title: getScreenTitle(
@@ -89,7 +88,7 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
             getIndividualTab(6),
           ],
         ),
-        bottomNavigationBar: getDateNavigationRow(curWeekStartDate),
+        bottomNavigationBar: getDateNavigationRow(),
       ),
     );
   }
