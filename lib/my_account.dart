@@ -106,9 +106,11 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
           ),
           Divider(),
           ElevatedButton(
-            //style: ButtonStyle(), //TODO: RUDY -- make background red
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.redAccent),
+            ),
             onPressed: _goToDeleteAccountPage,
-            child: Text('Deactivate Account'),
+            child: Text('Delete Account'),
           ),
         ],
       ),
