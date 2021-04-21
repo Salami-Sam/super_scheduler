@@ -38,7 +38,7 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Deactivate Account?'),
+        title: Text('Delete Account?'),
       ),
       body: Padding(
         padding: EdgeInsets.all(16),
@@ -48,13 +48,16 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
           children: [
             Center(
               child: Text(
-                'Are you sure you want to Deactivate your account?',
-                style: TextStyle(fontSize: 32.0),
+                'Are you sure you want to delete your account?',
+                style: TextStyle(
+                  fontSize: 32.0,
+                  color: Colors.redAccent,
+                ),
               ),
             ),
             ElevatedButton(
               onPressed: _deleteAccountAndReturnToSignInScreen,
-              child: Text('confirm'),
+              child: Text('Confirm'),
             ),
           ],
         ),

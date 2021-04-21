@@ -8,32 +8,17 @@ class NotificationsWidget extends StatefulWidget {
 }
 
 class _NotificationsWidgetState extends State<NotificationsWidget> {
-  final userNotifications = [
-    'tmp',
-    'tmp',
-    'tmp',
-    'tmp',
-    'tmp',
-    'tmp',
-    'tmp',
-    'tmp',
-  ];
+  void _deleteNotification(Widget child) {}
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(16.0),
       child: ListView.separated(
-        itemCount: userNotifications.length,
-        itemBuilder: (BuildContext context, int index) => ListTile(
-          leading: Icon(Icons.notification_important_rounded),
-          title: Text(
-            userNotifications[index],
-          ),
-          subtitle: Text(
-            userNotifications[index],
-          ),
-          trailing: IconButton(
-              icon: Icon(Icons.delete_forever_rounded), onPressed: null),
+        itemCount: 20,
+        itemBuilder: (BuildContext context, int index) => Notification(
+          parentDeleteMeCallback: _deleteNotification,
+          title: 'tmp',
+          subtitle: 'tmp',
         ),
         separatorBuilder: (context, index) => Divider(
           height: 16.0,
@@ -44,3 +29,28 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
 }
 
 //TODO: define a class for notifications with optional buttons
+
+class Notification extends StatelessWidget {
+  final Function(Widget) parentDeleteMeCallback;
+  final String title;
+  final String subtitle;
+
+  Notification({this.parentDeleteMeCallback, this.title, this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(Icons.notification_important_rounded),
+      title: Text(
+        title,
+      ),
+      subtitle: Text(
+        subtitle,
+      ),
+      trailing: IconButton(
+        icon: Icon(Icons.delete_forever_rounded),
+        onPressed: () => parentDeleteMeCallback(this),
+      ),
+    );
+  }
+}

@@ -68,7 +68,7 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
     currentGroupRef = groups.doc(widget.currentGroupId);
 
     return DefaultTabController(
-      length: numDaysInWeek,
+      length: DateTime.daysPerWeek,
       child: Scaffold(
         appBar: AppBar(
           title: getScreenTitle(
@@ -108,8 +108,9 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                     return ListTile(
                       title: Text(names[index]),
                       visualDensity: VisualDensity(
+                        // How close tiles are to each other
                         vertical: -3,
-                      ), // How close tiles are to each other
+                      ),
                     );
                   },
                 ),

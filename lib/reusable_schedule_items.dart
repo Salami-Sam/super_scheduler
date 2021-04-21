@@ -1,14 +1,16 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'model.dart';
 
 /* This file contains scheduling-related things that are reused
  * by multiple different parts of the app
  * 
  * Author: Dylan Schulz
  */
-
-const int numDaysInWeek = 7;
 
 // A standard list of tabs for days of the week
 final List<Widget> dailyTabList = [
@@ -23,28 +25,38 @@ final List<Widget> dailyTabList = [
 
 // Contains left and right arrows on either side of
 // the Text that lists the dates of the currently displayed week
-Row getDateNavigationRow(DateTime weekStartDate) {
-  DateTime weekEndDate = weekStartDate.add(Duration(days: 6));
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      IconButton(
-        icon: Icon(Icons.arrow_left),
-        onPressed: null,
-      ),
-      Text(
-        'For the week ${getDateString(weekStartDate)} to ${getDateString(weekEndDate)}',
-        style: TextStyle(fontSize: 18),
-      ),
-      IconButton(
-        icon: Icon(Icons.arrow_right),
-        onPressed: null,
-      ),
-    ],
+Widget getDateNavigationRow() {
+  return Consumer<AppStateModel>(
+    builder: (context, appStateModel, child) {
+      DateTime weekEndDate =
+          appStateModel.curWeekStartDate.add(Duration(days: 6));
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: Icon(Icons.arrow_left),
+            onPressed: () {
+              appStateModel.decreaseCurWeekBy1();
+            },
+          ),
+          Text(
+            'For the week ${getDateString(appStateModel.curWeekStartDate)} to ${getDateString(weekEndDate)}',
+            style: TextStyle(fontSize: 18),
+          ),
+          IconButton(
+            icon: Icon(Icons.arrow_right),
+            onPressed: () {
+              appStateModel.increaseCurWeekBy1();
+            },
+          ),
+        ],
+      );
+    },
   );
 }
 
-//
+// Gets the title of a screen in the following format:
+// screenName: currentGroupRefName
 StreamBuilder<DocumentSnapshot> getScreenTitle(
     {@required DocumentReference currentGroupRef,
     @required String screenName}) {
@@ -75,8 +87,23 @@ Widget getFormattedTextForTable(String contents) {
       padding: EdgeInsets.all(5));
 }
 
+// Converts a map of needed roles to a nice String
+// rolesMap should be of the type Map<String, int>
+String getRoleMapString(Map<String, dynamic> rolesMap) {
+  var toReturn = '';
+  for (var mapEntry in rolesMap.entries) {
+    var role = mapEntry.key;
+    var numNeeded = mapEntry.value;
+    if (toReturn != '') {
+      toReturn = '$toReturn, ';
+    }
+    toReturn = '$toReturn$role ($numNeeded)';
+  }
+  return toReturn;
+}
+
 // Converts a TimeOfDay into a nice String of the form H:MM AM or H:MM PM
-String getTimeString(TimeOfDay time) {
+String timeOfDayToTimeString(TimeOfDay time) {
   int hour = time.hourOfPeriod;
   int minute = time.minute;
   DayPeriod amOrPm = time.period;
@@ -93,15 +120,9 @@ String getTimeString(TimeOfDay time) {
   return '$hour:$minuteStr $amOrPmStr';
 }
 
-// Gets Sunday at midnight (morning) of the current week according to DateTime.now()
-// Considers Sunday to be the first day of the week
-DateTime getSundayMidnightOfThisWeek() {
-  var correctDay = DateTime.now();
-  while (correctDay.weekday != DateTime.sunday) {
-    print(correctDay);
-    correctDay = correctDay.subtract(Duration(days: 1));
-  }
-  return DateTime(correctDay.year, correctDay.month, correctDay.day);
+// Converts a DateTime's time into a nice String of the form H:MM AM or H:MM PM
+String dateTimeToTimeString(DateTime time) {
+  return timeOfDayToTimeString(TimeOfDay.fromDateTime(time));
 }
 
 // Converts a DateTime into a nice String of the form M/D/YY
@@ -110,23 +131,33 @@ String getDateString(DateTime date) {
   return '${date.month}/${date.day}/$twoDigitYear';
 }
 
-// Creates a weekly schedule document with the given info,
-// if it does not already exist
-void createWeeklyScheduleDoc(
+// Get weekly schedule doc, if it exists
+// If it does not, return null
+Future<DocumentReference> getWeeklyScheduleDoc(
     {@required DocumentReference groupRef, @required DateTime weekStartDate}) {
-  // First see if the document already exists
-  var query = groupRef
+  var existsQuery = groupRef
       .collection('WeeklySchedules')
       .where('startDate', isEqualTo: Timestamp.fromDate(weekStartDate));
-  query.get().then((snapshot) {
+  return existsQuery.get().then((snapshot) {
     if (snapshot.size == 0) {
-      // If it does not exist, create it
-      groupRef.collection('WeeklySchedules').doc().set({
-        'startDate': Timestamp.fromDate(weekStartDate),
-        'published': false,
-      });
+      // If no WeeklySchedule doc has this start date, it doesn't exist
+      return null;
+    } else {
+      // Return the first and only doc with this date
+      return snapshot.docs.first.reference;
     }
   });
+}
+
+// Creates a weekly schedule document with the given info
+// Returns the created document
+Future<DocumentReference> createWeeklyScheduleDoc(
+    {@required DocumentReference groupRef, @required DateTime weekStartDate}) {
+  var doc = groupRef.collection('WeeklySchedules').doc();
+  return doc.set({
+    'startDate': Timestamp.fromDate(weekStartDate),
+    'published': false,
+  }).then((value) => doc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
