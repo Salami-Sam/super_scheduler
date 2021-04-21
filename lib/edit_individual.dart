@@ -19,6 +19,19 @@ List roles = ['Cook', 'Cashier', 'Busboy'];
 List groupMembers = ['Spongebob', 'Squidward', 'Patrick'];  //these are placeholders
 List permissions = ['Member', 'Manager', 'Admin'];
 
+Future<List> getRoles() async {
+  List returnList = [];
+  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+    if (docref.exists) {
+      returnList = docref['roles'];
+      print(returnList);
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnList;
+}
+
 /*
  * EditIndividualMember is a screen that allows an admin to change a role and 
  * permission level of a specific user and save the changes made to said user
