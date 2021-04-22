@@ -14,12 +14,6 @@ import 'main.dart';
  * 4/14/21
  */
 
-List roles = ['Cook', 'Cashier', 'Busboy'];
-List groupMembers = [
-  'Spongebob',
-  'Squidward',
-  'Patrick'
-]; //these are place holders
 List permissions = ['Member', 'Manager', 'Admin'];
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');

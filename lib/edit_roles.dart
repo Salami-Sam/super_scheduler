@@ -14,14 +14,8 @@ import 'member_management.dart';
 
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
-List roles = ['Cook', 'Cashier', 'Busboy'];
-List groupMembers = ['Spongebob', 'Squidward', 'Patrick'];  //these are placeholders
-List permissions = ['Member', 'Manager', 'Admin'];
 
-/* EditRolesWidget allows admin to create or deleted roles with a group
- * 
-*/
-
+//EditRolesWidget allows admin to create or deleted roles with a group
 class EditRolesWidget extends StatefulWidget {
   @override
   _EditRolesWidgetState createState() => _EditRolesWidgetState();
@@ -54,10 +48,11 @@ Future<void> deleteRoles(var roleToRemove) async {
   });
 }
 
-String newRole = '';
+
 
 class _EditRolesWidgetState extends State<EditRolesWidget> {
   Future<List> futureRoles;
+  String newRole = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(

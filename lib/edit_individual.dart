@@ -14,13 +14,8 @@ import 'member_management.dart';
 
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
-//List roles = ['Cook', 'Cashier', 'Busboy'];
-List groupMembers = [
-  'Spongebob',
-  'Squidward',
-  'Patrick'
-]; //these are placeholders
-List permissions = ['Member', 'Manager', 'Admin'];
+
+List permissions = ['Member', 'Manager', 'Admin']; //tmp
 
 Future<List> getRoles() async {
   List returnList = [];
