@@ -44,7 +44,6 @@ Future<void> deleteMember(var memberToRemove) async {
       .update({'Members.${memberToRemove}': FieldValue.delete()});
 }
 
-
 /* EditMemberWidget screen acts like the "main" screen for most member management 
  * screens as it acts as a jumping off point to all other member management screens
  * EditMemberWidget can also allow admins to be able to delete members from group
@@ -102,11 +101,15 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                                 icon: Icon(Icons.more_vert),
                                 onPressed: () {
                                   Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              EditIndividualMemberWidget(
-                                                  index: index)));
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EditIndividualMemberWidget(
+                                                      index: index,
+                                                      members: members)))
+                                      .then((value) {
+                                    setState(() {});
+                                  });
                                 })),
                         separatorBuilder: (context, int) =>
                             Divider(thickness: 1.0, height: 1.0),
@@ -137,4 +140,3 @@ Drawer getUnifiedDrawerWidget() {
     child: Text('Drawer placeholder'),
   );
 }
-
