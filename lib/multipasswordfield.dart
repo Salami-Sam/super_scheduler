@@ -4,7 +4,6 @@ import 'password_textfield.dart';
 
 ///Defines a widget that encapsulates multiple password fields
 ///@author: Rudy Fisher
-///TODO: RUDY -- Coordinate between both password fields' obscurity toggling
 class MultiPasswordWidget extends StatefulWidget {
   final List<PasswordFieldWidget> passwordFields;
 

@@ -1,8 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:super_scheduler/entered_user_info.dart';
-import 'package:super_scheduler/password_textfield.dart';
 
 ///Defines a screen that allows the user to change their name
 ///@author: Rudy Fisher
@@ -127,6 +124,7 @@ class _ChangeEmailWidgetState extends State<ChangeEmailWidget> {
   }
 }
 
+/*
 ///Defines a screen that allows the user to change their password.
 ///NOTE: This class is currently not used because the app will be
 ///using [FirestoreAuth]'s password reset email functionality.
@@ -203,3 +201,4 @@ class _ChangePasswordWidgetState extends State<ChangePasswordWidget> {
     );
   }
 }
+*/

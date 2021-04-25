@@ -15,9 +15,6 @@ import 'sign_up.dart';
 class SuperSchedulerApp extends StatefulWidget {
   @override
   _SuperSchedulerAppState createState() {
-    //TODO: RUDY -- Check if user is signed in when app is opened.
-    //  if so, skip the login screen and go to My Groups screen
-    //  this only assigns the initial app screen
     return _SuperSchedulerAppState();
   }
 }

@@ -104,7 +104,6 @@ class _SignUpWidgetState extends State<SignUpWidget> {
       await userCredential.user.sendEmailVerification();
       widget.signUpButtonOnPressedCallBack();
       showSnackBar(message: 'Please check your email to finish signing up.');
-      // TODO: RUDY -- Save user's name into database and initialize a user as a document
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         showSnackBar(message: 'The password provided is too weak.');
