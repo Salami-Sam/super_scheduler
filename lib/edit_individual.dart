@@ -12,12 +12,44 @@ import 'member_management.dart';
  * 4/14/21
  */
 
-
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
-List roles = ['Cook', 'Cashier', 'Busboy'];
-List groupMembers = ['Spongebob', 'Squidward', 'Patrick'];  //these are placeholders
-List permissions = ['Member', 'Manager', 'Admin'];
+
+List permissions = ['Member', 'Manager', 'Admin']; //tmp
+
+Future<List> getRoles() async {
+  List returnList = [];
+  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+    if (docref.exists) {
+      returnList = docref['roles'];
+      print("in getRoles() " + "$returnList");
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnList;
+}
+
+Future<Map> getMembers() async {
+  Map returnMap;
+  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+    if (docref.exists) {
+      returnMap = docref['Members'];
+      print("in getMembers() " + "$returnMap");
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnMap;
+}
+
+Future<void> editRole(var memberChosen, var newRole) async {
+  print(memberChosen);
+  print(newRole);
+  await group
+      .doc('PCXUSOFVGcmZ8UqK0QnX')
+      .update({'Members.$memberChosen': '$newRole'});
+}
 
 /*
  * EditIndividualMember is a screen that allows an admin to change a role and 
@@ -25,26 +57,45 @@ List permissions = ['Member', 'Manager', 'Admin'];
  * 
 */
 class EditIndividualMemberWidget extends StatefulWidget {
+  final Map members;
   final int index;
-  EditIndividualMemberWidget({this.index});
+  EditIndividualMemberWidget({this.members, this.index});
 
   @override
   _EditIndividualMemberWidgetState createState() =>
-      _EditIndividualMemberWidgetState(index);
+      _EditIndividualMemberWidgetState(members, index);
 }
 
 class _EditIndividualMemberWidgetState
     extends State<EditIndividualMemberWidget> {
-  int index;
-  _EditIndividualMemberWidgetState(this.index);
+  Future<Map> futureMembers;
+  Future<List> futureRoles;
+  List names;
+  List roles;
+  Map members;
   //these strings are used by the drop menu, will see similar strings in other widgets
   String selectedRole;
   String selectedPermission;
+  int index;
+  _EditIndividualMemberWidgetState(this.members, this.index);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: Text('${groupMembers[index]}'),
+            title: FutureBuilder<Map>(
+                future: futureMembers = getMembers(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error');
+                  }
+                  members = snapshot.data;
+                  print("in title " + "$members");
+                  names = members.keys.toList();
+                  return Text('${names[index]}');
+                }),
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),
                 onPressed: () {
@@ -52,51 +103,62 @@ class _EditIndividualMemberWidgetState
                   Navigator.pop(context);
                 })),
         drawer: getUnifiedDrawerWidget(),
-        body: Column(
-          children: [
-            ListTile(
-              title: Center(
-                child: Text('Role',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
-              ),
+        body: Column(children: [
+          ListTile(
+            title: Center(
+              child: Text('Role',
+                  style:
+                      TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
             ),
-            //todo: need to find way to assign whatever is chosen from dropdown to user
-            //this will come once users are properly implemented
-            DropdownButton(
-              hint: Text('${roles[index]}'),
-              value: selectedRole,
-              onChanged: (newRole) {
-                setState(() {
-                  selectedRole = newRole;
-                });
-              },
-              items: roles.map((role) {
-                return DropdownMenuItem(child: new Text(role), value: role);
-              }).toList(),
+          ),
+          FutureBuilder<List>(
+              future: futureRoles = getRoles(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                }
+                if (snapshot.hasError) {
+                  return Text('Error');
+                }
+                List roles = snapshot.data;
+                print("in dropdown " + "$members");
+                names = members.keys.toList();
+                print("in dropdown " + 'members[${names[index]}');
+                return DropdownButton(
+                  hint: Text(members['${names[index]}']),
+                  value: selectedRole,
+                  onChanged: (newRole) {
+                    setState(() {
+                      editRole(names[index], newRole);
+                      selectedRole = newRole;
+                    });
+                  },
+                  items: roles.map((role) {
+                    return DropdownMenuItem(child: new Text(role), value: role);
+                  }).toList(),
+                );
+              }),
+          ListTile(
+            title: Center(
+              child: Text('Permissions',
+                  style:
+                      TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
             ),
-            ListTile(
-              title: Center(
-                child: Text('Permissions',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
-              ),
-            ),
-            DropdownButton(
-              hint: Text('${permissions[0]}'),
-              value: selectedPermission,
-              onChanged: (newPermissions) {
-                setState(() {
-                  selectedPermission = newPermissions;
-                });
-              },
-              items: permissions.map((permission) {
-                return DropdownMenuItem(
-                    child: new Text(permission), value: permission);
-              }).toList(),
-            )
-          ],
-        ));
+          ),
+          DropdownButton(
+            hint: Text('${permissions[0]}'),
+            value: selectedPermission,
+            onChanged: (newPermissions) {
+              setState(() {
+                selectedPermission = newPermissions;
+              });
+            },
+            items: permissions.map((permission) {
+              return DropdownMenuItem(
+                  child: new Text(permission), value: permission);
+            }).toList(),
+          )
+        ]));
   }
 }
 

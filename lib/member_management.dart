@@ -14,12 +14,6 @@ import 'main.dart';
  * 4/14/21
  */
 
-List roles = ['Cook', 'Cashier', 'Busboy'];
-List groupMembers = [
-  'Spongebob',
-  'Squidward',
-  'Patrick'
-]; //these are place holders
 List permissions = ['Member', 'Manager', 'Admin'];
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
@@ -101,11 +95,15 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                                 icon: Icon(Icons.more_vert),
                                 onPressed: () {
                                   Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              EditIndividualMemberWidget(
-                                                  index: index)));
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EditIndividualMemberWidget(
+                                                      index: index,
+                                                      members: members)))
+                                      .then((value) {
+                                    setState(() {});
+                                  });
                                 })),
                         separatorBuilder: (context, int) =>
                             Divider(thickness: 1.0, height: 1.0),
@@ -136,4 +134,3 @@ Drawer getUnifiedDrawerWidget() {
     child: Text('Drawer placeholder'),
   );
 }
-
