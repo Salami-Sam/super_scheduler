@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'entered_user_info.dart';
@@ -61,6 +62,7 @@ class SignInWidget extends StatefulWidget {
   final Function() signInButtonOnPressdCallback;
   final StringByReference email = StringByReference();
   final StringByReference password = StringByReference();
+  final FirebaseFirestore db = FirebaseFirestore.instance;
 
   SignInWidget({this.signInButtonOnPressdCallback});
 
@@ -79,6 +81,24 @@ class _SignInWidgetState extends State<SignInWidget> {
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
+  void addUserToFirestore(DocumentReference docRef) async {
+    // Add user to users Firestore collection.
+    Map<String, dynamic> data = {'userGroups': []};
+    await docRef.set(data);
+
+    // Add sub-collection of notifications to user's document in Firestore
+    // with a welcome notification.
+    data = {
+      'groupId': 'Welcome to Super Scheduler!',
+      'content': 'Now you can join and create groups! It\'s a good day!',
+      'isInvite': false,
+    };
+    widget.db.collection('users')
+      ..doc(FirebaseAuth.instance.currentUser.uid)
+          .collection('notifications')
+          .add(data);
+  }
+
   void signIn() async {
     print('sign in');
     try {
@@ -88,6 +108,19 @@ class _SignInWidgetState extends State<SignInWidget> {
         password: widget.password.string,
       );
       if (userCredential.user.emailVerified) {
+        // Check if user is also in the Firestore. If not, add them.
+        DocumentReference docRef = widget.db
+            .collection(
+              'users',
+            )
+            .doc(
+              '${FirebaseAuth.instance.currentUser.uid}',
+            );
+        DocumentSnapshot doc = await docRef.get();
+        if (!doc.exists) {
+          addUserToFirestore(docRef);
+        }
+
         widget.signInButtonOnPressdCallback();
         //showSnackBar(message: 'Welcome!');
       } else {

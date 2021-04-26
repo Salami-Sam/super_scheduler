@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 ///Defines the app's notifications screen
@@ -9,14 +10,11 @@ class NotificationsWidget extends StatefulWidget {
 }
 
 class _NotificationsWidgetState extends State<NotificationsWidget> {
-  final String tmpCurrentUserID = 'pvTQ6g7u5RPOk7veFbN7pJM9poF3';
+  final String tmpCurrentUserID = FirebaseAuth.instance.currentUser.uid;
 
   final FirebaseFirestore db = FirebaseFirestore.instance;
   DocumentReference currentUserDocRef;
 
-  void _deleteNotification(Widget child) {
-    //TODO: -- RUDY -- remove notification of child widget from firestore
-  }
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -26,7 +24,7 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
               .collection('users')
               .doc(tmpCurrentUserID)
               .collection('notifications')
-              .snapshots(), //TODO: -- RUDY -- Use stream builder to populate listview
+              .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Center(
@@ -39,10 +37,8 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
             } else {
               return ListView.separated(
                 itemCount: snapshot.data.docs.length,
-                itemBuilder: (BuildContext context, int index) => Notification(
-                  parentDeleteMeCallback: _deleteNotification,
-                  title: 'tmp',
-                  subtitle: 'tmp',
+                itemBuilder: (context, index) => Notification(
+                  doc: snapshot.data.docs.elementAt(index),
                 ),
                 separatorBuilder: (context, index) => Divider(
                   height: 16.0,
@@ -54,32 +50,68 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
   }
 }
 
-//TODO: -- RUDY -- add optional buttons for invite notifications
-
 ///Defines a widget to encapsulate a notification within the app.
-///[parentDeleteMeCallback] is a [Function(Widget)] of its parent
-///and takes this widget as its parameter's argument for deletion
-class Notification extends StatelessWidget {
-  final Function(Widget) parentDeleteMeCallback;
-  final String title;
-  final String subtitle;
+///Handles deletion of this widget's notification document in
+///[Firestore] and the user's ability to confirm invites into a group
+class Notification extends StatefulWidget {
+  final FirebaseFirestore db = FirebaseFirestore.instance;
+  final QueryDocumentSnapshot doc;
 
-  Notification({this.parentDeleteMeCallback, this.title, this.subtitle});
+  Notification({this.doc});
+
+  @override
+  _NotificationState createState() => _NotificationState();
+}
+
+class _NotificationState extends State<Notification> {
+  bool _isInvite = false;
+
+  String _getGroupName(String groupId) {
+    //TODO: -- RUDY -- if groupId exists in usergroups, return that to display, otherwise return the id
+
+    return groupId;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _isInvite = widget.doc.get('isInvite');
+  }
+
+  void showSnackBar({String message}) {
+    SnackBar snackbar = SnackBar(
+      content: Text(message),
+      duration: Duration(seconds: 7),
+      action: SnackBarAction(
+        label: 'Confirm Invite',
+        onPressed: () {
+          //TODO -- RUDY -- Add user to group when confirmed
+        },
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackbar);
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       leading: Icon(Icons.notification_important_rounded),
       title: Text(
-        title,
+        _getGroupName(widget.doc.get('groupId')),
       ),
       subtitle: Text(
-        subtitle,
+        widget.doc.get('content'),
       ),
       trailing: IconButton(
         icon: Icon(Icons.delete_forever_rounded),
-        onPressed: () => parentDeleteMeCallback(this),
+        onPressed: widget.doc.reference.delete,
       ),
+      tileColor: _isInvite ? Colors.blue : null,
+      onTap: () {
+        if (_isInvite) {
+          showSnackBar(message: '');
+        }
+      },
     );
   }
 }
