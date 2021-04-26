@@ -12,9 +12,12 @@ import 'join_group.dart';
  * Edit Group
  */
 ///@author: James Chartraw & Rudy Fisher
-class MyGroupsWidget extends StatelessWidget {
-  //_MyGroupsWidgetState createState() => _MyGroupsWidgetState();
+class MyGroupsWidget extends StatefulWidget {
+  @override
+  _MyGroupsWidgetState createState() => _MyGroupsWidgetState();
+}
 
+class _MyGroupsWidgetState extends State<MyGroupsWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
