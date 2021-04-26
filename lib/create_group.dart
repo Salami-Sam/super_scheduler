@@ -67,7 +67,7 @@ class _CreateGroupWidgetState extends State<CreateGroupWidget> {
                 newGroupName = groupNameController.text;
                 newGroupDescription = groupDescriptionController.text;
                 addAGroup(newGroupName, newGroupDescription);
-                Navigator.of(context).push(
+                Navigator.of(context).pop(
                     MaterialPageRoute(builder: (context) => MyGroupsWidget()));
                 //TODO: submit the form
               },
