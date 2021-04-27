@@ -76,43 +76,6 @@ FutureBuilder<DocumentSnapshot> getScreenTitle(
   );
 }
 
-// Gets text nicely formatted for use in a table in the schedule screens
-Widget getFormattedTextForTable(String contents) {
-  return Padding(
-      child: Text(
-        contents,
-        style: TextStyle(
-          fontSize: 14,
-        ),
-      ),
-      padding: EdgeInsets.all(5));
-}
-
-// Converts a map of needed roles to a nice String
-// rolesMap should be of the type Map<String, int>
-String getRoleMapString(Map<String, dynamic> rolesMap) {
-  var toReturn = '';
-  for (var mapEntry in rolesMap.entries) {
-    var role = mapEntry.key;
-    var numNeeded = mapEntry.value;
-    // If this role is not needed, don't add it to the String
-    if (numNeeded > 0) {
-      // Add the comma if this is not the first iteration
-      if (toReturn != '') {
-        toReturn = '$toReturn, ';
-      }
-      // Add the value
-      toReturn = '$toReturn$role ($numNeeded)';
-    }
-  }
-
-  if (toReturn == '') {
-    return 'No roles needed';
-  } else {
-    return toReturn;
-  }
-}
-
 // Converts a TimeOfDay into a nice String of the form H:MM AM or H:MM PM
 String timeOfDayToTimeString(TimeOfDay time) {
   int hour = time.hourOfPeriod;
