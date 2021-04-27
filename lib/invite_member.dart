@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'main.dart';
 import 'member_management.dart';
 
@@ -14,19 +15,33 @@ import 'member_management.dart';
 
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
-List roles = ['Cook', 'Cashier', 'Busboy'];
-List groupMembers = [
-  'Spongebob',
-  'Squidward',
-  'Patrick'
-]; //these are placeholders
-List permissions = ['Member', 'Manager', 'Admin'];
+String groupName;
+String accessCode = 'abc123'; //should be passed in from group creation
+
+List permissions = ['Member', 'Manager', 'Admin']; //these are placeholders
+
+Future<void> send(String recipient, String role) async {
+  List<String> recipientList = [recipient];
+  Email email = Email(
+      subject: 'Invitaion to join group $groupName',
+      body:
+          'You have been invited to $groupName! \n Here is your access code: $accessCode',
+      recipients: recipientList);
+
+  try {
+    await FlutterEmailSender.send(email);
+    print('Success');
+  } catch (error) {
+    print('Error, something went wrong!');
+  }
+}
 
 Future<List> getRoles() async {
   List returnList = [];
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
     if (docref.exists) {
       returnList = docref['roles'];
+      groupName = docref['name'];
       print("in getRoles() " + "$returnList");
     } else {
       print("Error, name not found");
@@ -49,8 +64,8 @@ class InviteMemberWidget extends StatefulWidget {
 
 class _InviteMemberWidgetState extends State<InviteMemberWidget> {
   String newMember = '';
-  String newMemberRole;
   String selectedRole;
+  bool roleChosen = false;
   Future<List> futureRoles;
   @override
   Widget build(BuildContext context) {
@@ -105,6 +120,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                   onChanged: (newRole) {
                     setState(() {
                       selectedRole = newRole;
+                      roleChosen = true;
                     });
                   },
                   items: roles.map((role) {
@@ -112,6 +128,22 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                   }).toList(),
                 );
               }),
+          Container(
+              width: 120.0,
+              height: 50.0,
+              child: ElevatedButton(
+                  onPressed: () {
+                    if (roleChosen) {
+                      send(newMember, selectedRole);
+                      Navigator.pop(context);
+                    } else {}
+                  },
+                  child: Row(children: [
+                    Text('Send',
+                        style: TextStyle(fontSize: 20.0),
+                        textAlign: TextAlign.center),
+                    Icon(Icons.mail_outline_rounded, color: Colors.white)
+                  ])))
         ],
       ),
     );
