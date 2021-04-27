@@ -40,7 +40,8 @@ Widget getDateNavigationRow() {
             },
           ),
           Text(
-            'For the week ${getDateString(appStateModel.curWeekStartDate)} to ${getDateString(weekEndDate)}',
+            'For the week ${getDateString(appStateModel.curWeekStartDate.toLocal())} ' +
+                'to ${getDateString(weekEndDate.toLocal())}',
             style: TextStyle(fontSize: 18),
           ),
           IconButton(
@@ -94,12 +95,22 @@ String getRoleMapString(Map<String, dynamic> rolesMap) {
   for (var mapEntry in rolesMap.entries) {
     var role = mapEntry.key;
     var numNeeded = mapEntry.value;
-    if (toReturn != '') {
-      toReturn = '$toReturn, ';
+    // If this role is not needed, don't add it to the String
+    if (numNeeded > 0) {
+      // Add the comma if this is not the first iteration
+      if (toReturn != '') {
+        toReturn = '$toReturn, ';
+      }
+      // Add the value
+      toReturn = '$toReturn$role ($numNeeded)';
     }
-    toReturn = '$toReturn$role ($numNeeded)';
   }
-  return toReturn;
+
+  if (toReturn == '') {
+    return 'No roles needed';
+  } else {
+    return toReturn;
+  }
 }
 
 // Converts a TimeOfDay into a nice String of the form H:MM AM or H:MM PM
