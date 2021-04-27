@@ -17,6 +17,7 @@ CollectionReference group = db.collection('groups');
 CollectionReference users = db.collection('users');
 
 List permissions = ['Member', 'Manager', 'Admin']; //tmp
+List uids;
 
 Future<List> getRoles() async {
   List returnList = [];
@@ -36,6 +37,7 @@ Future<Map> getMembers() async {
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Members'];
+      uids = returnMap.keys.toList();
       print("in getMembers()");
       print(returnMap);
     } else {
@@ -122,7 +124,7 @@ class _EditIndividualMemberWidgetState
                     return Text('Error');
                   }
                   members = snapshot.data;
-                  print("in title " + "$members");
+                  //print("in title " + "$members");
                   names = members.keys.toList();
                   return Text('${names[index]}');
                 }),
@@ -151,15 +153,17 @@ class _EditIndividualMemberWidgetState
                   return Text('Error');
                 }
                 List roles = snapshot.data;
-                print("in dropdown " + "$members");
+                //print("in dropdown " + "$members");
                 names = members.keys.toList();
-                print("in dropdown " + 'members[${names[index]}');
+                //print("in dropdown " + 'members[${names[index]}');
                 return DropdownButton(
                   hint: Text(members['${names[index]}']),
                   value: selectedRole,
                   onChanged: (newRole) {
                     setState(() {
-                      editRole(names[index], newRole);
+                      print('in role change drop menu\n');
+                      print(uids);
+                      editRole(uids[index], newRole);
                       selectedRole = newRole;
                     });
                   },
