@@ -18,7 +18,8 @@ CollectionReference group = db.collection('groups');
 String groupName;
 String accessCode = 'abc123'; //should be passed in from group creation
 
-
+//pretty basic email sender, uses default email from users phone, works
+//just fine for our purposes
 Future<void> send(String recipient, String role) async {
   List<String> recipientList = [recipient];
   Email email = Email(
@@ -35,6 +36,7 @@ Future<void> send(String recipient, String role) async {
   }
 }
 
+//standard function to return roles from database
 Future<List> getRoles() async {
   List returnList = [];
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
@@ -52,10 +54,7 @@ Future<List> getRoles() async {
 /* InviteMemberWidget allows admins to invite new users to group
  * This is done by sending an email to potential new user that will send a unique
  * code that will allow user to group
- * todo: email functionality and code creation
- *  
  */
-
 class InviteMemberWidget extends StatefulWidget {
   @override
   _InviteMemberWidgetState createState() => _InviteMemberWidgetState();
@@ -91,9 +90,8 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
               decoration: InputDecoration(
                   hintText: 'spongebob123@bikinimail.com',
                   contentPadding: EdgeInsets.all(20.0)),
-              //will need to use email authentication here
               onChanged: (text) {
-                newMember = text;
+                newMember = text;   //will need to use email authentication here
               }),
           ListTile(
             title: Center(
@@ -119,7 +117,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                   onChanged: (newRole) {
                     setState(() {
                       selectedRole = newRole;
-                      roleChosen = true;
+                      roleChosen = true;    //I don't want user to send an email without a role being assigned
                     });
                   },
                   items: roles.map((role) {
@@ -132,14 +130,9 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
               height: 50.0,
               child: ElevatedButton(
                   onPressed: () {
-                    if (roleChosen) {
-                      var snackBar = SnackBar(
-                        content: Text('Sending!'),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      send(newMember, selectedRole);
-                      Navigator.pop(context);
-                    } else {
+                    if (roleChosen) {                         
+                      send(newMember, selectedRole);  //I would .pop(context) here, but user can back out of email app
+                    } else {                          //Can retry from invite screen without losing any typed in progress
                       var snackBar =
                           SnackBar(content: Text('You Must Choose a Role'));
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);

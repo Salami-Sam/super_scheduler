@@ -21,6 +21,7 @@ class EditRolesWidget extends StatefulWidget {
   _EditRolesWidgetState createState() => _EditRolesWidgetState();
 }
 
+//standard function to return roles from database
 Future<List> getRoles() async {
   List returnList = [];
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
@@ -40,7 +41,7 @@ Future<void> addRoles(var roleToAdd) async {
     'roles': FieldValue.arrayUnion([roleToAdd])
   });
 }
-
+//standard function to delete roles from database
 Future<void> deleteRoles(var roleToRemove) async {
   print("${roleToRemove}");
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').update({
@@ -103,7 +104,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
               }),
           ElevatedButton(
               onPressed: () {
-                addRoles(newRole);
+                addRoles(newRole);  //sends new role to database
                 Navigator.pop(context);
               },
               child: Text('Submit'))

@@ -17,8 +17,9 @@ CollectionReference group = db.collection('groups');
 CollectionReference users = db.collection('users');
 
 List permissions = ['Member', 'Manager', 'Admin']; //tmp
-List uids;
+List uids;  //this stores any uids before they are converted into display names
 
+//standard function to return roles from database
 Future<List> getRoles() async {
   List returnList = [];
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
@@ -32,6 +33,7 @@ Future<List> getRoles() async {
   return returnList;
 }
 
+//standard function to return members from database
 Future<Map> getMembers() async {
   Map returnMap;
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
@@ -47,6 +49,8 @@ Future<Map> getMembers() async {
   return uidToMembers(returnMap);
 }
 
+//fetches username from users collection 
+//(users collection is collection that stores members from firebase auth)
 Future<String> uidToMembersHelper(var key) async {
   String returnString;
   await users.doc(key).get().then((docref) {
@@ -60,6 +64,7 @@ Future<String> uidToMembersHelper(var key) async {
   return returnString;
 }
 
+//converts database map uids to names
 Future<Map> uidToMembers(Map members) async {
   List keys = members.keys.toList();
   String displayName = '';
@@ -102,17 +107,14 @@ class _EditIndividualMemberWidgetState
     extends State<EditIndividualMemberWidget> {
   Future<Map> futureMembers;
   Future<List> futureRoles;
-  List names;
-  List roles;
-  Map members;
-  //these strings are used by the drop menu, will see similar strings in other widgets
-  String selectedRole;
-  String selectedPermission;
+  List names, roles;
+  Map members;                                  //this map is used for the display of member in title box
+  String selectedRole, selectedPermission;      //these strings are used by the drop menu, will see similar strings in other widgets
   int index;
-  _EditIndividualMemberWidgetState(this.members, this.index);
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+  _EditIndividualMemberWidgetState(this.members, this.index);    //this members map is used for the dropdown menu
+  @override                                                      //for some reason the dropdown kept returning null
+  Widget build(BuildContext context) {                           //the only way around it was to have two different maps
+    return Scaffold(                                             //this is fine as the first members map is only used for printing
         appBar: AppBar(
             title: FutureBuilder<Map>(
                 future: futureMembers = getMembers(),

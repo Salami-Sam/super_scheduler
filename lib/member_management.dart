@@ -20,6 +20,7 @@ var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
 CollectionReference users = db.collection('users');
 
+//standard function to return members from database
 Future<Map> getMembers() async {
   Map returnMap;
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
@@ -34,6 +35,8 @@ Future<Map> getMembers() async {
   return uidToMembers(returnMap);
 }
 
+//fetches username from users collection 
+//(users collection is collection that stores members from firebase auth)
 Future<String> uidToMembersHelper(var key) async {
   String returnString;
   await users.doc(key).get().then((docref) {
@@ -47,6 +50,7 @@ Future<String> uidToMembersHelper(var key) async {
   return returnString;
 }
 
+//converts database map uids to names
 Future<Map> uidToMembers(Map members) async {
   List keys = members.keys.toList();
   String displayName = '';
@@ -62,6 +66,7 @@ Future<Map> uidToMembers(Map members) async {
   return members;
 }
 
+//deletes member from database map
 Future<void> deleteMember(var memberToRemove) async {
   print(memberToRemove);
   await group
@@ -108,15 +113,15 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                       return Text('Error');
                     }
                     Map members = snapshot.data;
-                    List names = members.keys.toList();
-                    List roles = members.values.toList();
+                    List names = members.keys.toList();     //these are used for printing
+                    List roles = members.values.toList();   // easier to use than maps as Lists are naturally indexed
                     return ListView.separated(
                         itemBuilder: (context, index) => ListTile(
                             leading: IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
-                                  deleteMember(names[index]);
-                                  setState(() {
+                                  deleteMember(names[index]); 
+                                  setState(() {       //changes state to reflect any deleted member
                                     names.length;
                                   });
                                 }),
@@ -130,10 +135,10 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   EditIndividualMemberWidget(
-                                                      index: index,
+                                                      index: index,   //index of which member is clicked on
                                                       members: members)))
                                       .then((value) {
-                                    setState(() {});
+                                    setState(() {});  //this is here to ensure any change on EditIndividualMemberWidget is reflected back here
                                   });
                                 })),
                         separatorBuilder: (context, int) =>
