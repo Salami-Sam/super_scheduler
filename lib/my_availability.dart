@@ -11,11 +11,10 @@ import 'reusable_schedule_items.dart';
 class MyAvailabilityWidget extends StatefulWidget {
   final db = FirebaseFirestore.instance;
 
-  // Temporarily set to constant value
-  // Eventually should be passed in from the Group Home Page
-  final String currentGroupId = 'RsTjd6INQsNa6RvSTeUX';
+  final String currentGroupId;
 
-  //MyAvailabilityWidget({@required this.currentGroupId});
+  // Need to change to @required and remove default value
+  MyAvailabilityWidget({this.currentGroupId = 'RsTjd6INQsNa6RvSTeUX'});
 
   @override
   _MyAvailabilityWidgetState createState() => _MyAvailabilityWidgetState();

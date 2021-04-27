@@ -15,11 +15,10 @@ import 'reusable_schedule_items.dart';
 class MainScheduleWidget extends StatefulWidget {
   final db = FirebaseFirestore.instance;
 
-  // Temporarily set to constant value
-  // Eventually should be passed in from the Group Home Page
-  final String currentGroupId = 'RsTjd6INQsNa6RvSTeUX';
+  final String currentGroupId;
 
-  //MainScheduleWidget({@required this.currentGroupId});
+  // Need to change to @required and remove default value
+  MainScheduleWidget({this.currentGroupId = 'RsTjd6INQsNa6RvSTeUX'});
 
   @override
   _MainScheduleWidgetState createState() => _MainScheduleWidgetState();

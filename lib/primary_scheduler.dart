@@ -15,11 +15,10 @@ import 'add_shift.dart';
 class PrimarySchedulerWidget extends StatefulWidget {
   final db = FirebaseFirestore.instance;
 
-  // Temporarily set to constant value
-  // Eventually should be passed in from the Group Home Page
-  final String currentGroupId = 'RsTjd6INQsNa6RvSTeUX';
+  final String currentGroupId;
 
-  //PrimarySchedulerWidget({@required this.currentGroupId});
+  // Need to change to @required and remove default value
+  PrimarySchedulerWidget({this.currentGroupId = 'RsTjd6INQsNa6RvSTeUX'});
 
   @override
   _PrimarySchedulerWidgetState createState() => _PrimarySchedulerWidgetState();
@@ -45,7 +44,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
           } else {
             var docsList = snapshot.data.docs;
             var todaysShifts = docsList.where((element) {
-              DateTime shiftDate = element['startDateTime'].toDate().toUtc();
+              DateTime shiftDate = element['startDateTime'].toDate();
               if (shiftDate.year == today.year &&
                   shiftDate.month == today.month &&
                   shiftDate.day == today.day) {
@@ -71,9 +70,9 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                         (index) {
                           var docData = todaysShifts[index].data();
                           var startTime = dateTimeToTimeString(
-                              docData['startDateTime'].toDate().toUtc());
+                              docData['startDateTime'].toDate());
                           var endTime = dateTimeToTimeString(
-                              docData['endDateTime'].toDate().toUtc());
+                              docData['endDateTime'].toDate());
                           var roleList =
                               getRoleMapString(docData['rolesNeeded']);
 
