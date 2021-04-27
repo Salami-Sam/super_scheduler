@@ -14,8 +14,10 @@ import 'member_management.dart';
 
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
+CollectionReference users = db.collection('users');
 
 List permissions = ['Member', 'Manager', 'Admin']; //tmp
+List uids;
 
 Future<List> getRoles() async {
   List returnList = [];
@@ -35,12 +37,42 @@ Future<Map> getMembers() async {
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Members'];
-      print("in getMembers() " + "$returnMap");
+      uids = returnMap.keys.toList();
+      print("in getMembers()");
+      print(returnMap);
     } else {
       print("Error, name not found");
     }
   });
-  return returnMap;
+  return uidToMembers(returnMap);
+}
+
+Future<String> uidToMembersHelper(var key) async {
+  String returnString;
+  await users.doc(key).get().then((docref) {
+    if (docref.exists) {
+      returnString = docref['displayName'];
+      print(returnString);
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnString;
+}
+
+Future<Map> uidToMembers(Map members) async {
+  List keys = members.keys.toList();
+  String displayName = '';
+  for (int i = 0; i < keys.length; i++) {
+    if (members.containsKey(keys[i])) {
+      displayName = await uidToMembersHelper(keys[i]);
+      String role = members[keys[i]];
+      members.remove(keys[i]);
+      members['$displayName'] = role;
+    }
+  }
+  print(members);
+  return members;
 }
 
 Future<void> editRole(var memberChosen, var newRole) async {
@@ -92,7 +124,7 @@ class _EditIndividualMemberWidgetState
                     return Text('Error');
                   }
                   members = snapshot.data;
-                  print("in title " + "$members");
+                  //print("in title " + "$members");
                   names = members.keys.toList();
                   return Text('${names[index]}');
                 }),
@@ -121,15 +153,17 @@ class _EditIndividualMemberWidgetState
                   return Text('Error');
                 }
                 List roles = snapshot.data;
-                print("in dropdown " + "$members");
+                //print("in dropdown " + "$members");
                 names = members.keys.toList();
-                print("in dropdown " + 'members[${names[index]}');
+                //print("in dropdown " + 'members[${names[index]}');
                 return DropdownButton(
                   hint: Text(members['${names[index]}']),
                   value: selectedRole,
                   onChanged: (newRole) {
                     setState(() {
-                      editRole(names[index], newRole);
+                      print('in role change drop menu\n');
+                      print(uids);
+                      editRole(uids[index], newRole);
                       selectedRole = newRole;
                     });
                   },
