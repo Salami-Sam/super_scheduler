@@ -56,7 +56,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text('Invite Member'),
+          title: Text('Group Invitation'),
           centerTitle: true,
           leading: IconButton(
               icon: Icon(Icons.arrow_back),
@@ -68,7 +68,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
         children: [
           ListTile(
             title: Center(
-              child: Text('Enter Email',
+              child: Text('Enter An Email',
                   style:
                       TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
             ),
@@ -83,7 +83,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
               }),
           ListTile(
             title: Center(
-              child: Text('Select a Role',
+              child: Text('Select A Role',
                   style:
                       TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
             ),

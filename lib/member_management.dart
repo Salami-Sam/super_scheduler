@@ -86,7 +86,7 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Edit Members'),
+          title: Text('Edit Current Members'),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -147,7 +147,7 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                   MaterialPageRoute(builder: (context) => InviteMemberWidget()),
                 );
               },
-              child: Text('Invite Members')),
+              child: Text('Invite New Members')),
           ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -155,7 +155,7 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                   MaterialPageRoute(builder: (context) => EditRolesWidget()),
                 );
               },
-              child: Text('Edit Roles')),
+              child: Text('Edit Group Roles')),
         ]));
   }
 }
