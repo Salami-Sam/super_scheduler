@@ -58,6 +58,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
     return Scaffold(
         appBar: AppBar(
             title: Text('Current Roles'),
+            centerTitle: true,
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {

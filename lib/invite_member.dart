@@ -15,8 +15,25 @@ import 'member_management.dart';
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
 List roles = ['Cook', 'Cashier', 'Busboy'];
-List groupMembers = ['Spongebob', 'Squidward', 'Patrick'];  //these are placeholders
+List groupMembers = [
+  'Spongebob',
+  'Squidward',
+  'Patrick'
+]; //these are placeholders
 List permissions = ['Member', 'Manager', 'Admin'];
+
+Future<List> getRoles() async {
+  List returnList = [];
+  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+    if (docref.exists) {
+      returnList = docref['roles'];
+      print("in getRoles() " + "$returnList");
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnList;
+}
 
 /* InviteMemberWidget allows admins to invite new users to group
  * This is done by sending an email to potential new user that will send a unique
@@ -33,11 +50,14 @@ class InviteMemberWidget extends StatefulWidget {
 class _InviteMemberWidgetState extends State<InviteMemberWidget> {
   String newMember = '';
   String newMemberRole;
+  String selectedRole;
+  Future<List> futureRoles;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
           title: Text('Invite Member'),
+          centerTitle: true,
           leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
@@ -63,23 +83,35 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
               }),
           ListTile(
             title: Center(
-              child: Text('Role',
+              child: Text('Select a Role',
                   style:
                       TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
             ),
           ),
-          DropdownButton(
-            hint: Text('Choose role'),
-            value: newMemberRole,
-            onChanged: (assignedRole) {
-              setState(() {
-                newMemberRole = assignedRole;
-              });
-            },
-            items: roles.map((role) {
-              return DropdownMenuItem(child: new Text(role), value: role);
-            }).toList(),
-          ),
+          FutureBuilder<List>(
+              future: futureRoles = getRoles(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                }
+                if (snapshot.hasError) {
+                  return Text('Error');
+                }
+                List roles = snapshot.data;
+                print(roles);
+                return DropdownButton(
+                  hint: Text('N\A'),
+                  value: selectedRole,
+                  onChanged: (newRole) {
+                    setState(() {
+                      selectedRole = newRole;
+                    });
+                  },
+                  items: roles.map((role) {
+                    return DropdownMenuItem(child: new Text(role), value: role);
+                  }).toList(),
+                );
+              }),
         ],
       ),
     );
@@ -91,4 +123,3 @@ Drawer getUnifiedDrawerWidget() {
     child: Text('Drawer placeholder'),
   );
 }
-

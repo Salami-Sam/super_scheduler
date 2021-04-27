@@ -127,7 +127,7 @@ class _EditIndividualMemberWidgetState
                   //print("in title " + "$members");
                   names = members.keys.toList();
                   return Text('${names[index]}');
-                }),
+                }), centerTitle: true,
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),
                 onPressed: () {
