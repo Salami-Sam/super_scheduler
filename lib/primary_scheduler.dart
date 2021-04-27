@@ -31,66 +31,98 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
 
   // Gets the tab with a particular day's information
   Widget getIndividualTab(DateTime today) {
-    return Container(
-      margin: EdgeInsets.all(5),
-      child: StreamBuilder<QuerySnapshot>(
-        stream: curWeekScheduleDocRef.collection('Shifts').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-                child: Text('There was an error in retrieving the schedule.'));
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: Text('Retrieving schedule...'));
-          } else {
-            var docsList = snapshot.data.docs;
-            var todaysShifts = docsList.where((element) {
-              DateTime shiftDate = element['startDateTime'].toDate();
-              if (shiftDate.year == today.year &&
-                  shiftDate.month == today.month &&
-                  shiftDate.day == today.day) {
-                return true;
-              }
-              return false;
-            }).toList();
-            if (todaysShifts.isEmpty) {
-              return Center(child: Text('There are no shifts on this day.'));
-            } else {
-              return SingleChildScrollView(
-                child: Table(
-                  border: TableBorder.all(),
-                  children: [
-                        TableRow(children: [
-                          getFormattedTextForTable('Start'),
-                          getFormattedTextForTable('End'),
-                          getFormattedTextForTable('Roles'),
-                        ])
-                      ] +
-                      List<TableRow>.generate(
-                        todaysShifts.length,
-                        (index) {
-                          var docData = todaysShifts[index].data();
-                          var startTime = dateTimeToTimeString(
-                              docData['startDateTime'].toDate());
-                          var endTime = dateTimeToTimeString(
-                              docData['endDateTime'].toDate());
-                          var roleList =
-                              getRoleMapString(docData['rolesNeeded']);
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.all(5),
+            child: StreamBuilder<QuerySnapshot>(
+              stream: curWeekScheduleDocRef.collection('Shifts').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                      child: Text(
+                          'There was an error in retrieving the schedule.'));
+                } else if (snapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return Center(child: Text('Retrieving schedule...'));
+                } else {
+                  var docsList = snapshot.data.docs;
+                  var todaysShifts = docsList.where((element) {
+                    DateTime shiftDate = element['startDateTime'].toDate();
+                    if (shiftDate.year == today.year &&
+                        shiftDate.month == today.month &&
+                        shiftDate.day == today.day) {
+                      return true;
+                    }
+                    return false;
+                  }).toList();
+                  if (todaysShifts.isEmpty) {
+                    return Center(
+                        child: Text('There are no shifts on this day.'));
+                  } else {
+                    return SingleChildScrollView(
+                      child: Table(
+                        border: TableBorder.all(),
+                        children: [
+                              TableRow(children: [
+                                getFormattedTextForTable('Start'),
+                                getFormattedTextForTable('End'),
+                                getFormattedTextForTable('Roles'),
+                              ])
+                            ] +
+                            List<TableRow>.generate(
+                              todaysShifts.length,
+                              (index) {
+                                var docData = todaysShifts[index].data();
+                                var startTime = dateTimeToTimeString(
+                                    docData['startDateTime']
+                                        .toDate()
+                                        .toLocal());
+                                var endTime = dateTimeToTimeString(
+                                    docData['endDateTime'].toDate().toLocal());
+                                var roleList =
+                                    getRoleMapString(docData['rolesNeeded']);
 
-                          return TableRow(
-                            children: [
-                              getFormattedTextForTable("$startTime"),
-                              getFormattedTextForTable("$endTime"),
-                              getFormattedTextForTable("$roleList"),
-                            ],
-                          );
-                        },
+                                return TableRow(
+                                  children: [
+                                    getFormattedTextForTable("$startTime"),
+                                    getFormattedTextForTable("$endTime"),
+                                    getFormattedTextForTable("$roleList"),
+                                  ],
+                                );
+                              },
+                            ),
                       ),
+                    );
+                  }
+                }
+              },
+            ),
+          ),
+        ),
+        ElevatedButton(
+          child: Text('Add Shift'),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddShiftWidget(
+                  currentGroupId: widget.currentGroupId,
+                  curWeekScheduleDocRef: curWeekScheduleDocRef,
+                  curDay: today,
                 ),
-              );
-            }
-          }
-        },
-      ),
+              ),
+            );
+          },
+        ),
+        ElevatedButton(
+          child: Text('Remove Selected Shift'),
+          onPressed: null,
+        ),
+      ],
     );
   }
 
@@ -114,23 +146,6 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                 getIndividualTab(weekStartDate.add(Duration(days: 6))),
               ],
             ),
-          ),
-          ElevatedButton(
-            child: Text('Add Shift'),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddShiftWidget(
-                    currentGroupId: widget.currentGroupId,
-                  ),
-                ),
-              );
-            },
-          ),
-          ElevatedButton(
-            child: Text('Remove Selected Shift'),
-            onPressed: null,
           ),
           ElevatedButton(
             child: Text('Finalize Schedule'),

@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'model.dart';
 
-/* This file contains scheduling-related things that are reused
- * by multiple different parts of the app
+/* This file contains utility methods for scheduling-related things
+ * and methods that are reused by multiple different scheduling-related
+ * parts of the app
  * 
  * Author: Dylan Schulz
  */
@@ -56,11 +57,11 @@ Widget getDateNavigationRow() {
 
 // Gets the title of a screen in the following format:
 // screenName: currentGroupRefName
-StreamBuilder<DocumentSnapshot> getScreenTitle(
+FutureBuilder<DocumentSnapshot> getScreenTitle(
     {@required DocumentReference currentGroupRef,
     @required String screenName}) {
-  return StreamBuilder<DocumentSnapshot>(
-    stream: currentGroupRef.snapshots(),
+  return FutureBuilder<DocumentSnapshot>(
+    future: currentGroupRef.get(),
     builder: (context, snapshot) {
       if (snapshot.hasError) {
         return Text('$screenName');
@@ -106,6 +107,10 @@ String timeOfDayToTimeString(TimeOfDay time) {
   int hour = time.hourOfPeriod;
   int minute = time.minute;
   DayPeriod amOrPm = time.period;
+
+  if (hour == 0) {
+    hour = 12;
+  }
 
   String minuteStr = minute < 10 ? '0$minute' : '$minute';
   String amOrPmStr;
