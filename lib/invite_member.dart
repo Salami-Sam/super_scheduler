@@ -18,14 +18,13 @@ CollectionReference group = db.collection('groups');
 String groupName;
 String accessCode = 'abc123'; //should be passed in from group creation
 
-List permissions = ['Member', 'Manager', 'Admin']; //these are placeholders
 
 Future<void> send(String recipient, String role) async {
   List<String> recipientList = [recipient];
   Email email = Email(
       subject: 'Invitaion to join group $groupName',
       body:
-          'You have been invited to $groupName! \n Here is your access code: $accessCode',
+          'You have been invited to join: $groupName on Super Scheduler! \n Here is your access code: \n $accessCode\n\n',
       recipients: recipientList);
 
   try {
@@ -134,9 +133,17 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
               child: ElevatedButton(
                   onPressed: () {
                     if (roleChosen) {
+                      var snackBar = SnackBar(
+                        content: Text('Sending!'),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       send(newMember, selectedRole);
                       Navigator.pop(context);
-                    } else {}
+                    } else {
+                      var snackBar =
+                          SnackBar(content: Text('You Must Choose a Role'));
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    }
                   },
                   child: Row(children: [
                     Text('Send',
