@@ -34,9 +34,9 @@ Future<Map> getMembers() async {
   return uidToMembers(returnMap);
 }
 
-Future<String> uidToMembersHelper() async {
+Future<String> uidToMembersHelper(var key) async {
   String returnString;
-  await users.doc('5itFaKGaB4X53sOP51ViIsfxGzo2').get().then((docref) {
+  await users.doc(key).get().then((docref) {
     if (docref.exists) {
       returnString = docref['displayName'];
       print(returnString);
@@ -48,11 +48,15 @@ Future<String> uidToMembersHelper() async {
 }
 
 Future<Map> uidToMembers(Map members) async {
-  String displayName = await uidToMembersHelper();
-  if (members.containsKey('5itFaKGaB4X53sOP51ViIsfxGzo2')) {
-    String role = members['5itFaKGaB4X53sOP51ViIsfxGzo2'];
-    members.remove('5itFaKGaB4X53sOP51ViIsfxGzo2');
-    members['$displayName'] = role;
+  List keys = members.keys.toList();
+  String displayName = '';
+  for (int i = 0; i < keys.length; i++) {
+    if (members.containsKey(keys[i])) {
+      displayName = await uidToMembersHelper(keys[i]);
+      String role = members[keys[i]];
+      members.remove(keys[i]);
+      members['$displayName'] = role;
+    }
   }
   print(members);
   return members;
