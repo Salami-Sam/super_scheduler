@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'edit_individual.dart';
 import 'edit_roles.dart';
@@ -17,18 +18,44 @@ import 'main.dart';
 List permissions = ['Member', 'Manager', 'Admin'];
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
+CollectionReference users = db.collection('users');
 
 Future<Map> getMembers() async {
   Map returnMap;
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Members'];
+      print("in getMembers()");
       print(returnMap);
     } else {
       print("Error, name not found");
     }
   });
-  return returnMap;
+  return uidToMembers(returnMap);
+}
+
+Future<String> uidToMembersHelper() async {
+  String returnString;
+  await users.doc('5itFaKGaB4X53sOP51ViIsfxGzo2').get().then((docref) {
+    if (docref.exists) {
+      returnString = docref['displayName'];
+      print(returnString);
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnString;
+}
+
+Future<Map> uidToMembers(Map members) async {
+  String displayName = await uidToMembersHelper();
+  if (members.containsKey('5itFaKGaB4X53sOP51ViIsfxGzo2')) {
+    String role = members['5itFaKGaB4X53sOP51ViIsfxGzo2'];
+    members.remove('5itFaKGaB4X53sOP51ViIsfxGzo2');
+    members['$displayName'] = role;
+  }
+  print(members);
+  return members;
 }
 
 Future<void> deleteMember(var memberToRemove) async {
