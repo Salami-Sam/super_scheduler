@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -97,7 +98,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
         password: widget._password1.string,
       );
 
-      FirebaseAuth.instance.currentUser.updateProfile(
+      await FirebaseAuth.instance.currentUser.updateProfile(
         displayName: widget._name.string,
       );
 
