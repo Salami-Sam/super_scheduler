@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'edit_individual.dart';
 import 'edit_roles.dart';
 import 'invite_member.dart';
-import 'main.dart';
+import '../main.dart';
 
 /* Screen:
  * Edit Members
