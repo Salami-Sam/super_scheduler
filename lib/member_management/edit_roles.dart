@@ -144,7 +144,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
           ElevatedButton(
               onPressed: () {
                 addRoles(newRole); //sends new role to database
-                Navigator.pop(context);
+                setState(() {});
               },
               child: Text('Submit'))
         ]));
