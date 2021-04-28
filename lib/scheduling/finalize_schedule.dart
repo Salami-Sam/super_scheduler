@@ -46,30 +46,58 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
   // Gets the tab with a particular day's information
   Widget getIndividualTab(int day) {
     return Container(
-      margin: EdgeInsets.all(5),
-      child: SingleChildScrollView(
-        child: Table(
-          border: TableBorder.all(),
-          children: [
-            TableRow(
+      margin: EdgeInsets.all(8),
+      child: ListView.separated(
+        itemCount: 15,
+        separatorBuilder: tableSeparatorBuilder,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            // Create the header row
+            return Row(
               children: [
-                getFormattedTextForTable('Start'),
-                getFormattedTextForTable('End'),
-                getFormattedTextForTable('Role'),
-                getFormattedTextForTable('Name'),
+                Expanded(
+                  flex: 2,
+                  child: Text('Start', style: tableHeadingStyle),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text('End', style: tableHeadingStyle),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text('Role', style: tableHeadingStyle),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text('Name', style: tableHeadingStyle),
+                ),
               ],
-            ),
-            TableRow(
+            );
+          } else {
+            index--; // To account for the header row index
+            return Row(
               children: [
-                getFormattedTextForTable('${getRandomTime()}'),
-                getFormattedTextForTable('${getRandomTime()}'),
-                getFormattedTextForTable('${getRandomRole()}'),
-                getFormattedTextForTable(
-                    'Tap here, then tap a name from the list'),
+                Expanded(
+                  flex: 2,
+                  child: Text('${getRandomTime()}', style: tableBodyStyle),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text('${getRandomTime()}', style: tableBodyStyle),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text('${getRandomRole()}', style: tableBodyStyle),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text('Tap here, then tap a name from the list',
+                      style: tableBodyStyle),
+                ),
               ],
-            ),
-          ],
-        ),
+            );
+          }
+        },
       ),
     );
   }

@@ -24,10 +24,24 @@ final List<Widget> dailyTabList = [
 ];
 
 // The styles for text in the scheduling screens' tables
-
 final TextStyle tableHeadingStyle =
     TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
-final TextStyle tableBodyStyle = TextStyle(fontSize: 16);
+final TextStyle tableBodyStyle = TextStyle(fontSize: 14);
+
+// The separatorBuilder for the ListView table in the scheduling screens
+Widget tableSeparatorBuilder(BuildContext context, int index) {
+  // Make the divider right under the header row darker
+  var color;
+  if (index == 0) {
+    color = Colors.black;
+  } else {
+    color = Colors.grey;
+  }
+  return Divider(
+    color: color,
+    thickness: 1.0,
+  );
+}
 
 // Contains left and right arrows on either side of
 // the Text that lists the dates of the currently displayed week
