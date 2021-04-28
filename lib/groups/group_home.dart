@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:super_scheduler/scheduling/main_schedule.dart';
+import 'package:super_scheduler/member_management/view_members.dart';
+import 'package:super_scheduler/scheduling/my_availability.dart';
+import 'package:super_scheduler/scheduling/my_schedule.dart';
 
-import 'scheduling/main_schedule.dart';
-import 'member_management/member_management.dart';
-import 'scheduling/my_availability.dart';
-import 'scheduling/my_schedule.dart';
-import 'scheduling/primary_scheduler.dart';
-
-/*
- * Group Home Manager Page
+/* Screens:
+ * Group Home Page
  */
 ///@author: James Chartraw
-class GroupHomeManagerWidget extends StatelessWidget {
+class GroupHomeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Group Home (Manager)'),
+          title: Text('Group Home (Member)'),
         ),
         body: Center(
             child: Column(
@@ -51,17 +49,10 @@ class GroupHomeManagerWidget extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => PrimarySchedulerWidget()));
+                            builder: (context) => ViewMembersWidget()));
+                    //TODO: submit the form
                   },
-                  child: Text('Scheduler')),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => EditMemberWidget()));
-                  },
-                  child: Text('Edit Members'))
+                  child: Text('View Members'))
             ])));
   }
 }
