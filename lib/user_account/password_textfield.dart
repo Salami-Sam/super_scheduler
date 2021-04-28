@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'user_account_widgets/entered_user_info.dart';
+import 'entered_user_info.dart';
 
 ///Defines a text field specifically for passwords.
 ///Allows user to toggle whether the password should
