@@ -131,7 +131,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                     // The actual schedule part
 
                     return ListView.separated(
-                      itemCount: todaysShifts.length,
+                      itemCount: todaysShifts.length + 1,
                       separatorBuilder: tableSeparatorBuilder,
                       itemBuilder: (context, index) {
                         if (index == 0) {
@@ -152,59 +152,59 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                               ),
                             ],
                           );
-                        } else {
-                          index--; // To account for the header row index
-
-                          var shiftDocData = todaysShifts[index].data();
-                          var shiftDocRef = todaysShifts[index].reference;
-                          var startTime = dateTimeToTimeString(
-                              shiftDocData['startDateTime'].toDate().toLocal());
-                          var endTime = dateTimeToTimeString(
-                              shiftDocData['endDateTime'].toDate().toLocal());
-                          var roleList =
-                              _getRoleMapString(shiftDocData['rolesNeeded']);
-
-                          // If the row is selected, change its background color
-                          var rowBackgroundColor;
-                          if (index == selectedRowIndex) {
-                            rowBackgroundColor = Colors.lightBlue[100];
-                          } else {
-                            // The default color
-                            rowBackgroundColor =
-                                Theme.of(context).scaffoldBackgroundColor;
-                          }
-
-                          return InkWell(
-                            onTap: () {
-                              setState(() {
-                                selectedRowIndex = index;
-                                selectedRowShiftDocRef = shiftDocRef;
-                              });
-                            },
-                            child: Container(
-                              color: rowBackgroundColor,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text('$startTime',
-                                        style: tableBodyStyle),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child:
-                                        Text('$endTime', style: tableBodyStyle),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text('$roleList',
-                                        style: tableBodyStyle),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
                         }
+
+                        index--; // To account for the header row index
+
+                        var shiftDocData = todaysShifts[index].data();
+                        var shiftDocRef = todaysShifts[index].reference;
+                        var startTime = dateTimeToTimeString(
+                            shiftDocData['startDateTime'].toDate().toLocal());
+                        var endTime = dateTimeToTimeString(
+                            shiftDocData['endDateTime'].toDate().toLocal());
+                        var roleList =
+                            _getRoleMapString(shiftDocData['rolesNeeded']);
+
+                        // If the row is selected, change its background color
+                        var rowBackgroundColor;
+                        if (index == selectedRowIndex) {
+                          rowBackgroundColor = Colors.lightBlue[100];
+                        } else {
+                          // The default color
+                          rowBackgroundColor =
+                              Theme.of(context).scaffoldBackgroundColor;
+                        }
+
+                        return InkWell(
+                          onTap: () {
+                            setState(() {
+                              selectedRowIndex = index;
+                              selectedRowShiftDocRef = shiftDocRef;
+                            });
+                          },
+                          child: Container(
+                            color: rowBackgroundColor,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child:
+                                      Text('$startTime', style: tableBodyStyle),
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child:
+                                      Text('$endTime', style: tableBodyStyle),
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child:
+                                      Text('$roleList', style: tableBodyStyle),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
                       },
                     );
                   }
@@ -240,6 +240,9 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
         children: [
           Expanded(
             child: TabBarView(
+              // Disable swiping between tabs because I can't find a simple way
+              // to reset the selectedRowIndex when swiping to a new tab
+              physics: NeverScrollableScrollPhysics(),
               children: [
                 _getIndividualTab(weekStartDate),
                 _getIndividualTab(weekStartDate.add(Duration(days: 1))),
@@ -259,6 +262,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                 MaterialPageRoute(
                   builder: (context) => FinalizeScheduleWidget(
                     currentGroupId: widget.currentGroupId,
+                    curWeekScheduleDocRef: curWeekScheduleDocRef,
                   ),
                 ),
               );
@@ -284,6 +288,12 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
           ),
           bottom: TabBar(
             tabs: dailyTabList,
+            onTap: (num) {
+              setState(() {
+                selectedRowIndex = -1;
+                selectedRowShiftDocRef = null;
+              });
+            },
           ),
         ),
         body: Consumer<AppStateModel>(

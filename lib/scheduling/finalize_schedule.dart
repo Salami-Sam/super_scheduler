@@ -12,8 +12,10 @@ import 'reusable_schedule_items.dart';
 class FinalizeScheduleWidget extends StatefulWidget {
   final db = FirebaseFirestore.instance;
   final String currentGroupId;
+  final DocumentReference curWeekScheduleDocRef;
 
-  FinalizeScheduleWidget({@required this.currentGroupId});
+  FinalizeScheduleWidget(
+      {@required this.currentGroupId, @required this.curWeekScheduleDocRef});
 
   @override
   _FinalizeScheduleWidgetState createState() => _FinalizeScheduleWidgetState();
@@ -30,18 +32,6 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
     'Patrick Star',
     'Eugene Krabs'
   ];
-
-  // Gets text nicely formatted for use in a table
-  Widget getFormattedTextForTable(String contents) {
-    return Padding(
-        child: Text(
-          contents,
-          style: TextStyle(
-            fontSize: 14,
-          ),
-        ),
-        padding: EdgeInsets.all(5));
-  }
 
   // Gets the tab with a particular day's information
   Widget getIndividualTab(int day) {
@@ -73,30 +63,30 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                 ),
               ],
             );
-          } else {
-            index--; // To account for the header row index
-            return Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Text('${getRandomTime()}', style: tableBodyStyle),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text('${getRandomTime()}', style: tableBodyStyle),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text('${getRandomRole()}', style: tableBodyStyle),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text('Tap here, then tap a name from the list',
-                      style: tableBodyStyle),
-                ),
-              ],
-            );
           }
+          index--; // To account for the header row index
+
+          return Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: Text('${getRandomTime()}', style: tableBodyStyle),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text('${getRandomTime()}', style: tableBodyStyle),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text('${getRandomRole()}', style: tableBodyStyle),
+              ),
+              Expanded(
+                flex: 3,
+                child: Text('Tap here, then tap a name from the list',
+                    style: tableBodyStyle),
+              ),
+            ],
+          );
         },
       ),
     );
