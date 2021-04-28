@@ -6,7 +6,7 @@ import 'package:super_scheduler/notifications.dart';
 
 import 'drawer.dart';
 import 'forgot_password.dart';
-import 'group_management.dart';
+import 'package:super_scheduler/groups/group_management.dart';
 import 'user_account/sign_in.dart';
 import 'user_account/sign_up.dart';
 
