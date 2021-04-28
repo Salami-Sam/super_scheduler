@@ -52,7 +52,7 @@ class AboutWidget extends StatelessWidget {
                     leading: Icon(Icons.copyright_rounded),
                     title: Text('Copyright Info'),
                     subtitle: Text(
-                        'This app was created by:\nJames Chartaw\nRajesh Dhirar\nRudy Fisher\nDylan Schulz\nMike Schommer'),
+                        'This app was created by:\n\tJames Chartaw\n\tRajesh Dhirar\n\tRudy Fisher\n\tDylan Schulz\n\tMike Schommer'),
                   ),
                 ],
               ),

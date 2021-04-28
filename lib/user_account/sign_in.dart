@@ -99,10 +99,11 @@ class _SignInWidgetState extends State<SignInWidget> {
       'isInvite': false,
     };
 
-    widget.db.collection('users')
-      ..doc(FirebaseAuth.instance.currentUser.uid)
-          .collection('notifications')
-          .add(data);
+    widget.db
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .collection('notifications')
+        .add(data);
   }
 
   ///Signs in the user, making sure they have a document in the users

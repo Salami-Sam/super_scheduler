@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'main_schedule.dart';
@@ -27,7 +29,9 @@ class FinalizeScheduleWidget extends StatefulWidget {
   final DateTime weekStartDate;
 
   FinalizeScheduleWidget(
-      {@required this.currentGroupId, @required this.curWeekScheduleDocRef, @required this.weekStartDate});
+      {@required this.currentGroupId,
+      @required this.curWeekScheduleDocRef,
+      @required this.weekStartDate});
 
   @override
   _FinalizeScheduleWidgetState createState() => _FinalizeScheduleWidgetState();
@@ -41,7 +45,12 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
   String selectedRowRole;
 
   // Placeholder list of names
-  List<String> names = ['Spongebob Squarepants', 'Squidward Tentacles', 'Patrick Star', 'Eugene Krabs'];
+  List<String> names = [
+    'Spongebob Squarepants',
+    'Squidward Tentacles',
+    'Patrick Star',
+    'Eugene Krabs'
+  ];
 
   // Gets all users within the given group who have the given role
   // The Map contains pairs, where
@@ -55,7 +64,8 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
 
         void forEachCallback(userId, userRole) {
           if (userRole == neededRole) {
-            var userDoc = allUserDocs.firstWhere((element) => element.id == userId);
+            var userDoc =
+                allUserDocs.firstWhere((element) => element.id == userId);
             var userDisplayName = userDoc['displayName'];
             usersWithRole[userId] = userDisplayName;
           }
@@ -86,8 +96,39 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
     });
   }
 
-  void _publishSchedule() {
+  void _publishSchedule() async {
     widget.curWeekScheduleDocRef.update({'published': true});
+
+    // Get all the users in the current group.
+    Map<String, String> members = (await currentGroupRef.get())['Members'];
+    Map<String, String> managers = (await currentGroupRef.get())['Managers'];
+    Map<String, String> admins = (await currentGroupRef.get())['Admins'];
+
+    // Send the notification to each of the users in the group.
+    _notifyUsers(members);
+    _notifyUsers(managers);
+    _notifyUsers(admins);
+  }
+
+  ///Sends a notification about the posted schedule to the given
+  ///[users] in the current group.
+  void _notifyUsers(Map<String, String> users) async {
+    for (String userID in users.keys) {
+      // This is the notification contents and what-not.
+      Map<String, dynamic> data = {
+        'groupId': widget.currentGroupId,
+        'content':
+            'A new schedule has been posted for ${widget.weekStartDate.day}.',
+        'isInvite': false,
+      };
+
+      // Send the notification to the user's document in firestore.
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(userID)
+          .collection('notifications')
+          .add(data);
+    }
   }
 
   // Gets the tab with a particular day's information
@@ -96,7 +137,8 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
         stream: widget.curWeekScheduleDocRef.collection('Shifts').snapshots(),
         builder: (context, shiftSnapshot) {
           if (shiftSnapshot.hasError) {
-            return Center(child: Text('There was an error in retrieving the schedule.'));
+            return Center(
+                child: Text('There was an error in retrieving the schedule.'));
           } else if (shiftSnapshot.connectionState == ConnectionState.waiting) {
             return Center(child: Text('Retrieving schedule...'));
           } else {
@@ -105,7 +147,9 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
             // Get only shifts for the current day
             var todaysShifts = docsList.where((element) {
               DateTime shiftDate = element['startDateTime'].toDate();
-              if (shiftDate.year == today.year && shiftDate.month == today.month && shiftDate.day == today.day) {
+              if (shiftDate.year == today.year &&
+                  shiftDate.month == today.month &&
+                  shiftDate.day == today.day) {
                 return true;
               }
               return false;
@@ -157,7 +201,8 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                               children: [
                                 Expanded(
                                   flex: 2,
-                                  child: Text('Start', style: tableHeadingStyle),
+                                  child:
+                                      Text('Start', style: tableHeadingStyle),
                                 ),
                                 Expanded(
                                   flex: 2,
@@ -169,7 +214,8 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                                 ),
                                 Expanded(
                                   flex: 3,
-                                  child: Text('Assignees', style: tableHeadingStyle),
+                                  child: Text('Assignees',
+                                      style: tableHeadingStyle),
                                 ),
                               ],
                             );
@@ -183,8 +229,10 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                           var role = shiftRoleTuple.role;
                           var numNeeded = shiftRoleTuple.numNeeded;
 
-                          var startTime = dateTimeToTimeString(shiftDocData['startDateTime'].toDate().toLocal());
-                          var endTime = dateTimeToTimeString(shiftDocData['endDateTime'].toDate().toLocal());
+                          var startTime = dateTimeToTimeString(
+                              shiftDocData['startDateTime'].toDate().toLocal());
+                          var endTime = dateTimeToTimeString(
+                              shiftDocData['endDateTime'].toDate().toLocal());
                           List allAssignees = shiftDocData['assignees'];
 
                           // If the row is selected, change its background color
@@ -193,7 +241,8 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                             rowBackgroundColor = Colors.lightBlue[100];
                           } else {
                             // The default color
-                            rowBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
+                            rowBackgroundColor =
+                                Theme.of(context).scaffoldBackgroundColor;
                           }
 
                           return InkWell(
@@ -210,15 +259,18 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                                 children: [
                                   Expanded(
                                     flex: 2,
-                                    child: Text('$startTime', style: tableBodyStyle),
+                                    child: Text('$startTime',
+                                        style: tableBodyStyle),
                                   ),
                                   Expanded(
                                     flex: 2,
-                                    child: Text('$endTime', style: tableBodyStyle),
+                                    child:
+                                        Text('$endTime', style: tableBodyStyle),
                                   ),
                                   Expanded(
                                     flex: 3,
-                                    child: Text('$role ($numNeeded)', style: tableBodyStyle),
+                                    child: Text('$role ($numNeeded)',
+                                        style: tableBodyStyle),
                                   ),
                                   Expanded(
                                     flex: 3,
@@ -227,20 +279,29 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                                       future: _getUsersWithRole(role),
                                       builder: (context, usersSnapshot) {
                                         if (usersSnapshot.hasError) {
-                                          return Text('Error.', style: tableBodyStyle);
-                                        } else if (usersSnapshot.connectionState == ConnectionState.waiting) {
-                                          return Text('Retrieving...', style: tableBodyStyle);
+                                          return Text('Error.',
+                                              style: tableBodyStyle);
+                                        } else if (usersSnapshot
+                                                .connectionState ==
+                                            ConnectionState.waiting) {
+                                          return Text('Retrieving...',
+                                              style: tableBodyStyle);
                                         } else {
                                           // Get map of users with the role for the shift
-                                          Map<String, String> users = usersSnapshot.data;
+                                          Map<String, String> users =
+                                              usersSnapshot.data;
 
                                           // Remove users from this list who are not assigned to this shift
-                                          users.removeWhere((key, value) => allAssignees.contains(key) == false);
+                                          users.removeWhere((key, value) =>
+                                              allAssignees.contains(key) ==
+                                              false);
 
                                           if (users.isEmpty) {
                                             return Text('');
                                           }
-                                          return Text(users.values.toList().join(', '), style: tableBodyStyle);
+                                          return Text(
+                                              users.values.toList().join(', '),
+                                              style: tableBodyStyle);
                                         }
                                       },
                                     ),
@@ -259,20 +320,28 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                       future: _getUsersWithRole(selectedRowRole),
                       builder: (context, usersSnapshot) {
                         if (selectedRowIndex == -1) {
-                          return Center(child: Text('Select a shift to assign members.'));
+                          return Center(
+                              child: Text('Select a shift to assign members.'));
                         } else if (usersSnapshot.hasError) {
-                          return Center(child: Text('There was an error in retrieving the list of members.'));
-                        } else if (usersSnapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: Text('Retrieving list of members...'));
+                          return Center(
+                              child: Text(
+                                  'There was an error in retrieving the list of members.'));
+                        } else if (usersSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(
+                              child: Text('Retrieving list of members...'));
                         } else {
                           // Get map of users with the role for the selected row
                           Map<String, String> users = usersSnapshot.data;
 
                           if (users.isEmpty) {
-                            return Center(child: Text('There are no members with the necessary role.'));
+                            return Center(
+                                child: Text(
+                                    'There are no members with the necessary role.'));
                           }
 
-                          var thisShift = shiftRoleTuples[selectedRowIndex].shift;
+                          var thisShift =
+                              shiftRoleTuples[selectedRowIndex].shift;
                           List unavailableUsers = thisShift['unavailableUsers'];
                           List assignees = thisShift['assignees'];
 
@@ -307,7 +376,8 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                                 child: CheckboxListTile(
                                   value: assignees.contains(userMapEntry.key),
                                   onChanged: (isSelected) {
-                                    _assignOrUnassignUserToShift(userMapEntry.key, isSelected);
+                                    _assignOrUnassignUserToShift(
+                                        userMapEntry.key, isSelected);
                                   },
                                   title: title,
                                   subtitle: subtitle,
@@ -361,12 +431,18 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                   physics: NeverScrollableScrollPhysics(),
                   children: [
                     _getIndividualTab(widget.weekStartDate),
-                    _getIndividualTab(widget.weekStartDate.add(Duration(days: 1))),
-                    _getIndividualTab(widget.weekStartDate.add(Duration(days: 2))),
-                    _getIndividualTab(widget.weekStartDate.add(Duration(days: 3))),
-                    _getIndividualTab(widget.weekStartDate.add(Duration(days: 4))),
-                    _getIndividualTab(widget.weekStartDate.add(Duration(days: 5))),
-                    _getIndividualTab(widget.weekStartDate.add(Duration(days: 6))),
+                    _getIndividualTab(
+                        widget.weekStartDate.add(Duration(days: 1))),
+                    _getIndividualTab(
+                        widget.weekStartDate.add(Duration(days: 2))),
+                    _getIndividualTab(
+                        widget.weekStartDate.add(Duration(days: 3))),
+                    _getIndividualTab(
+                        widget.weekStartDate.add(Duration(days: 4))),
+                    _getIndividualTab(
+                        widget.weekStartDate.add(Duration(days: 5))),
+                    _getIndividualTab(
+                        widget.weekStartDate.add(Duration(days: 6))),
                   ],
                 ),
               ),
