@@ -25,8 +25,7 @@ final List<Widget> dailyTabList = [
 ];
 
 // The styles for text in the scheduling screens' tables
-final TextStyle tableHeadingStyle =
-    TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
+final TextStyle tableHeadingStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 final TextStyle tableBodyStyle = TextStyle(fontSize: 14);
 
 // The separatorBuilder for the ListView table in the scheduling screens
@@ -49,8 +48,7 @@ Widget tableSeparatorBuilder(BuildContext context, int index) {
 Widget getDateNavigationRow() {
   return Consumer<AppStateModel>(
     builder: (context, appStateModel, child) {
-      DateTime weekEndDate =
-          appStateModel.curWeekStartDate.add(Duration(days: 6));
+      DateTime weekEndDate = appStateModel.curWeekStartDate.add(Duration(days: 6));
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -80,8 +78,7 @@ Widget getDateNavigationRow() {
 // Gets the title of a screen in the following format:
 // screenName: currentGroupRefName
 FutureBuilder<DocumentSnapshot> getScreenTitle(
-    {@required DocumentReference currentGroupRef,
-    @required String screenName}) {
+    {@required DocumentReference currentGroupRef, @required String screenName}) {
   return FutureBuilder<DocumentSnapshot>(
     future: currentGroupRef.get(),
     builder: (context, snapshot) {
@@ -134,9 +131,8 @@ String getDateString(DateTime date) {
 // If it does not, return null
 Future<DocumentReference> getWeeklyScheduleDoc(
     {@required DocumentReference groupRef, @required DateTime weekStartDate}) {
-  var existsQuery = groupRef
-      .collection('WeeklySchedules')
-      .where('startDate', isEqualTo: Timestamp.fromDate(weekStartDate));
+  var existsQuery =
+      groupRef.collection('WeeklySchedules').where('startDate', isEqualTo: Timestamp.fromDate(weekStartDate));
   return existsQuery.get().then((snapshot) {
     if (snapshot.size == 0) {
       // If no WeeklySchedule doc has this start date, it doesn't exist
@@ -159,24 +155,6 @@ Future<DocumentReference> createWeeklyScheduleDoc(
   }).then((value) => doc);
 }
 
-// Gets the role within the given group
-// of the user that is currently logged in to the app
-Future<String> getCurrentUsersRole({@required DocumentReference groupRef}) {
-  var curUserId = FirebaseAuth.instance.currentUser.uid;
-  return groupRef.get().then((value) {
-    String role = value['Members'][curUserId];
-    // If the user wasn't in the Members map, check the Managers map
-    if (role == null) {
-      role = value['Managers'][curUserId];
-    }
-    // If user wasn't in either above map, check the Admins map
-    if (role == null) {
-      role = value['Admins'][curUserId];
-    }
-    return role;
-  });
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 // Used for placeholder dates until the actual model and database are set up
@@ -190,12 +168,7 @@ String getRandomTime() {
 
 // Used for placeholder names until the actual model and database are set up
 String getRandomName() {
-  var names = [
-    'Spongebob Squarepants',
-    'Patrick Star',
-    'Squidward Tentacles',
-    'Eugene Krabs'
-  ];
+  var names = ['Spongebob Squarepants', 'Patrick Star', 'Squidward Tentacles', 'Eugene Krabs'];
   return names[Random().nextInt(4)];
 }
 

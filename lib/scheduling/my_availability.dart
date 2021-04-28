@@ -29,6 +29,24 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
   DocumentReference curWeekScheduleDocRef;
   String currentUsersRole;
 
+  // Gets the role within the given group
+  // of the user that is currently logged in to the app
+  Future<String> _getCurrentUsersRole() {
+    var curUserId = FirebaseAuth.instance.currentUser.uid;
+    return currentGroupRef.get().then((value) {
+      String role = value['Members'][curUserId];
+      // If the user wasn't in the Members map, check the Managers map
+      if (role == null) {
+        role = value['Managers'][curUserId];
+      }
+      // If user wasn't in either above map, check the Admins map
+      if (role == null) {
+        role = value['Admins'][curUserId];
+      }
+      return role;
+    });
+  }
+
   void _changeUsersAvailability(DocumentReference shift, bool isAvailable) {
     shift.get().then((value) {
       List unavailableUsers = value['unavailableUsers'];
@@ -54,9 +72,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
         stream: curWeekScheduleDocRef.collection('Shifts').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(
-                child: Text(
-                    'There was an error in retrieving this week\'s schedule.'));
+            return Center(child: Text('There was an error in retrieving this week\'s schedule.'));
           } else if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: Text('Retrieving schedule...'));
           } else {
@@ -65,9 +81,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
             // Get only shifts for the current day
             var todaysShifts = docsList.where((element) {
               DateTime shiftDate = element['startDateTime'].toDate();
-              if (shiftDate.year == today.year &&
-                  shiftDate.month == today.month &&
-                  shiftDate.day == today.day) {
+              if (shiftDate.year == today.year && shiftDate.month == today.month && shiftDate.day == today.day) {
                 return true;
               }
               return false;
@@ -102,10 +116,8 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
               itemBuilder: (context, index) {
                 var shiftDocData = shiftsToDisplay[index].data();
                 var docRef = todaysShifts[index].reference;
-                var startTime = dateTimeToTimeString(
-                    shiftDocData['startDateTime'].toDate().toLocal());
-                var endTime = dateTimeToTimeString(
-                    shiftDocData['endDateTime'].toDate().toLocal());
+                var startTime = dateTimeToTimeString(shiftDocData['startDateTime'].toDate().toLocal());
+                var endTime = dateTimeToTimeString(shiftDocData['endDateTime'].toDate().toLocal());
                 List unavailableUsers = shiftDocData['unavailableUsers'];
 
                 // Check whether the user is available for this shift
@@ -133,14 +145,10 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
   // after getting the current user's role
   Widget _getScreenContents(DateTime weekStartDate) {
     return FutureBuilder<String>(
-      future: getCurrentUsersRole(
-        groupRef: currentGroupRef,
-      ),
+      future: _getCurrentUsersRole(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Center(
-              child: Text(
-                  'There was an error in accessing the current user\'s role.'));
+          return Center(child: Text('There was an error in accessing the current user\'s role.'));
         } else if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: Text('Preparing schedule...'));
         } else {
@@ -181,17 +189,14 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
           ),
         ),
         body: Consumer<AppStateModel>(
-          builder: (context, appStateModel, child) =>
-              FutureBuilder<DocumentReference>(
+          builder: (context, appStateModel, child) => FutureBuilder<DocumentReference>(
             future: getWeeklyScheduleDoc(
               groupRef: currentGroupRef,
               weekStartDate: appStateModel.curWeekStartDate,
             ),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return Center(
-                    child: Text(
-                        'There was an error in checking this week\'s schedule.'));
+                return Center(child: Text('There was an error in checking this week\'s schedule.'));
               } else if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: Text('Preparing schedule...'));
               } else {
@@ -205,17 +210,13 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
                     ),
                     builder: (context, snapshot) {
                       if (snapshot.hasError) {
-                        return Center(
-                            child: Text(
-                                'There was an error in creating this week\'s schedule.'));
-                      } else if (snapshot.connectionState ==
-                          ConnectionState.waiting) {
+                        return Center(child: Text('There was an error in creating this week\'s schedule.'));
+                      } else if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(child: Text('Preparing schedule...'));
                       } else {
                         // Save the schedule ref in a var and return screen contents
                         curWeekScheduleDocRef = snapshot.data;
-                        return _getScreenContents(
-                            appStateModel.curWeekStartDate);
+                        return _getScreenContents(appStateModel.curWeekStartDate);
                       }
                     },
                   );

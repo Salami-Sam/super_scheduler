@@ -263,6 +263,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                   builder: (context) => FinalizeScheduleWidget(
                     currentGroupId: widget.currentGroupId,
                     curWeekScheduleDocRef: curWeekScheduleDocRef,
+                    weekStartDate: weekStartDate,
                   ),
                 ),
               );
