@@ -79,7 +79,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   }
 
   bool passwordsMatch() {
-    //TODO: -- RUDY -- Delete this debug code fore security
+    //TODO: -- RUDY -- Delete this debug code for security
     // print('${widget._name.hashCode}' + ' ' + widget._name.string);
     // print('${widget._email.hashCode}' + ' ' + widget._email.string);
     // print('${widget._password1.hashCode}' + ' ' + widget._password1.string);

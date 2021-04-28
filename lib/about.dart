@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 ///Defines the app's about screen
 ///@author: Rudy Fisher
@@ -24,7 +25,7 @@ class AboutWidget extends StatelessWidget {
                     leading: Icon(Icons.privacy_tip_rounded),
                     title: Text('Privacy Policy'),
                     subtitle: Text(
-                        'We are unethical. You have no privacy. muahahaha'),
+                        'https://docs.google.com/document/d/10VCnZkIwAFCfP_fG73n66pcr5tdcet8aKNhaD-Cz09E/edit?usp=sharing'),
                   ),
                   ListTile(
                     leading: Icon(Icons.copyright_rounded),
