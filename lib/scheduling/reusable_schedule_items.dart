@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,18 +25,30 @@ final List<Widget> dailyTabList = [
 ];
 
 // The styles for text in the scheduling screens' tables
+final TextStyle tableHeadingStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
+final TextStyle tableBodyStyle = TextStyle(fontSize: 14);
 
-final TextStyle tableHeadingStyle =
-    TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
-final TextStyle tableBodyStyle = TextStyle(fontSize: 16);
+// The separatorBuilder for the ListView table in the scheduling screens
+Widget tableSeparatorBuilder(BuildContext context, int index) {
+  // Make the divider right under the header row darker
+  var color;
+  if (index == 0) {
+    color = Colors.black;
+  } else {
+    color = Colors.grey;
+  }
+  return Divider(
+    color: color,
+    thickness: 1.0,
+  );
+}
 
 // Contains left and right arrows on either side of
 // the Text that lists the dates of the currently displayed week
 Widget getDateNavigationRow() {
   return Consumer<AppStateModel>(
     builder: (context, appStateModel, child) {
-      DateTime weekEndDate =
-          appStateModel.curWeekStartDate.add(Duration(days: 6));
+      DateTime weekEndDate = appStateModel.curWeekStartDate.add(Duration(days: 6));
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -45,10 +58,15 @@ Widget getDateNavigationRow() {
               appStateModel.decreaseCurWeekBy1();
             },
           ),
-          Text(
-            'For the week ${getDateString(appStateModel.curWeekStartDate.toLocal())} ' +
-                'to ${getDateString(weekEndDate.toLocal())}',
-            style: TextStyle(fontSize: 18),
+          InkWell(
+            onLongPress: () {
+              appStateModel.resetCurrentWeekToNow();
+            },
+            child: Text(
+              'For the week ${getDateString(appStateModel.curWeekStartDate.toLocal())} ' +
+                  'to ${getDateString(weekEndDate.toLocal())}',
+              style: TextStyle(fontSize: 18),
+            ),
           ),
           IconButton(
             icon: Icon(Icons.arrow_right),
@@ -65,8 +83,7 @@ Widget getDateNavigationRow() {
 // Gets the title of a screen in the following format:
 // screenName: currentGroupRefName
 FutureBuilder<DocumentSnapshot> getScreenTitle(
-    {@required DocumentReference currentGroupRef,
-    @required String screenName}) {
+    {@required DocumentReference currentGroupRef, @required String screenName}) {
   return FutureBuilder<DocumentSnapshot>(
     future: currentGroupRef.get(),
     builder: (context, snapshot) {
@@ -119,9 +136,8 @@ String getDateString(DateTime date) {
 // If it does not, return null
 Future<DocumentReference> getWeeklyScheduleDoc(
     {@required DocumentReference groupRef, @required DateTime weekStartDate}) {
-  var existsQuery = groupRef
-      .collection('WeeklySchedules')
-      .where('startDate', isEqualTo: Timestamp.fromDate(weekStartDate));
+  var existsQuery =
+      groupRef.collection('WeeklySchedules').where('startDate', isEqualTo: Timestamp.fromDate(weekStartDate));
   return existsQuery.get().then((snapshot) {
     if (snapshot.size == 0) {
       // If no WeeklySchedule doc has this start date, it doesn't exist
@@ -157,12 +173,7 @@ String getRandomTime() {
 
 // Used for placeholder names until the actual model and database are set up
 String getRandomName() {
-  var names = [
-    'Spongebob Squarepants',
-    'Patrick Star',
-    'Squidward Tentacles',
-    'Eugene Krabs'
-  ];
+  var names = ['Spongebob Squarepants', 'Patrick Star', 'Squidward Tentacles', 'Eugene Krabs'];
   return names[Random().nextInt(4)];
 }
 

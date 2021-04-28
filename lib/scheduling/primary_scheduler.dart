@@ -63,7 +63,25 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
     selectedRowShiftDocRef.delete();
     setState(() {
       selectedRowIndex = -1;
+      selectedRowShiftDocRef = null;
     });
+  }
+
+  void _addShift(DateTime day) {
+    setState(() {
+      selectedRowIndex = -1;
+      selectedRowShiftDocRef = null;
+    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddShiftWidget(
+          currentGroupId: widget.currentGroupId,
+          curWeekScheduleDocRef: curWeekScheduleDocRef,
+          curDay: day,
+        ),
+      ),
+    );
   }
 
   // Gets the tab with a particular day's information
@@ -74,6 +92,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
       children: [
         Expanded(
           child: Container(
+            margin: EdgeInsets.all(8),
             child: StreamBuilder<QuerySnapshot>(
               stream: curWeekScheduleDocRef.collection('Shifts').snapshots(),
               builder: (context, snapshot) {
@@ -109,67 +128,84 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                     return Center(
                         child: Text('There are no shifts on this day.'));
                   } else {
-                    return SingleChildScrollView(
-                      child: DataTable(
-                        showCheckboxColumn: false,
-                        columnSpacing: 20,
-                        // make dataRowHeight slightly larger than the default to add
-                        // extra padding between rows
-                        dataRowHeight: kMinInteractiveDimension + 5,
-                        onSelectAll: (val) {
-                          // When the user unselects all rows via the checkbox,
-                          // unselect the current row in our state
-                          setState(() {
-                            selectedRowIndex = -1;
-                          });
-                        },
-                        columns: [
-                          DataColumn(label: Text('Start')),
-                          DataColumn(label: Text('End')),
-                          DataColumn(label: Text('Roles')),
-                        ],
-                        rows: List<DataRow>.generate(
-                          todaysShifts.length,
-                          (index) {
-                            var docData = todaysShifts[index].data();
-                            var docRef = todaysShifts[index].reference;
-                            var startTime = dateTimeToTimeString(
-                                docData['startDateTime'].toDate().toLocal());
-                            var endTime = dateTimeToTimeString(
-                                docData['endDateTime'].toDate().toLocal());
-                            var roleList =
-                                _getRoleMapString(docData['rolesNeeded']);
+                    // The actual schedule part
 
-                            return DataRow(
-                                cells: [
-                                  DataCell(Text(
-                                    "$startTime",
-                                    maxLines: 1,
-                                  )),
-                                  DataCell(Text(
-                                    "$endTime",
-                                    maxLines: 1,
-                                  )),
-                                  DataCell(Text("$roleList")),
-                                ],
-                                // Only allow one row to be selected at a time
-                                // This row is selected if the currently selected
-                                // row index is equal to this row's index
-                                selected: selectedRowIndex == index,
-                                onSelectChanged: (val) {
-                                  setState(() {
-                                    if (val == true) {
-                                      selectedRowIndex = index;
-                                      selectedRowShiftDocRef = docRef;
-                                    } else {
-                                      selectedRowIndex = -1;
-                                      selectedRowShiftDocRef = null;
-                                    }
-                                  });
-                                });
+                    return ListView.separated(
+                      itemCount: todaysShifts.length + 1,
+                      separatorBuilder: tableSeparatorBuilder,
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          // Create the header row
+                          return Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Text('Start', style: tableHeadingStyle),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text('End', style: tableHeadingStyle),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text('Roles', style: tableHeadingStyle),
+                              ),
+                            ],
+                          );
+                        }
+
+                        index--; // To account for the header row index
+
+                        var shiftDocData = todaysShifts[index].data();
+                        var shiftDocRef = todaysShifts[index].reference;
+                        var startTime = dateTimeToTimeString(
+                            shiftDocData['startDateTime'].toDate().toLocal());
+                        var endTime = dateTimeToTimeString(
+                            shiftDocData['endDateTime'].toDate().toLocal());
+                        var roleList =
+                            _getRoleMapString(shiftDocData['rolesNeeded']);
+
+                        // If the row is selected, change its background color
+                        var rowBackgroundColor;
+                        if (index == selectedRowIndex) {
+                          rowBackgroundColor = Colors.lightBlue[100];
+                        } else {
+                          // The default color
+                          rowBackgroundColor =
+                              Theme.of(context).scaffoldBackgroundColor;
+                        }
+
+                        return InkWell(
+                          onTap: () {
+                            setState(() {
+                              selectedRowIndex = index;
+                              selectedRowShiftDocRef = shiftDocRef;
+                            });
                           },
-                        ),
-                      ),
+                          child: Container(
+                            color: rowBackgroundColor,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child:
+                                      Text('$startTime', style: tableBodyStyle),
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child:
+                                      Text('$endTime', style: tableBodyStyle),
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child:
+                                      Text('$roleList', style: tableBodyStyle),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     );
                   }
                 }
@@ -180,16 +216,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
         ElevatedButton(
           child: Text('Add Shift'),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AddShiftWidget(
-                  currentGroupId: widget.currentGroupId,
-                  curWeekScheduleDocRef: curWeekScheduleDocRef,
-                  curDay: today,
-                ),
-              ),
-            );
+            _addShift(today);
           },
         ),
         ElevatedButton(
@@ -213,6 +240,9 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
         children: [
           Expanded(
             child: TabBarView(
+              // Disable swiping between tabs because I can't find a simple way
+              // to reset the selectedRowIndex when swiping to a new tab
+              physics: NeverScrollableScrollPhysics(),
               children: [
                 _getIndividualTab(weekStartDate),
                 _getIndividualTab(weekStartDate.add(Duration(days: 1))),
@@ -232,6 +262,8 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                 MaterialPageRoute(
                   builder: (context) => FinalizeScheduleWidget(
                     currentGroupId: widget.currentGroupId,
+                    curWeekScheduleDocRef: curWeekScheduleDocRef,
+                    weekStartDate: weekStartDate,
                   ),
                 ),
               );
@@ -257,6 +289,12 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
           ),
           bottom: TabBar(
             tabs: dailyTabList,
+            onTap: (num) {
+              setState(() {
+                selectedRowIndex = -1;
+                selectedRowShiftDocRef = null;
+              });
+            },
           ),
         ),
         body: Consumer<AppStateModel>(

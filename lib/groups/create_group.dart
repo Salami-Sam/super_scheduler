@@ -13,17 +13,28 @@ class CreateGroupWidget extends StatefulWidget {
   _CreateGroupWidgetState createState() => _CreateGroupWidgetState();
 }
 
+var db = FirebaseFirestore.instance;
 var newGroupName;
 var newGroupDescription;
-String newGroupCode = Random.secure() as String;
+var newGroupCode;
 
-void addAGroup(newGroupName, newGroupDescription, newGroupCode) async {
-  FirebaseFirestore.instance.collection("groups").doc().set({
+const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+Random _rnd = Random();
+
+String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+    length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+
+void addAGroup(newGroupName, newGroupDescription) async {
+  newGroupCode = getRandomString(6);
+  db.collection("groups").doc().set({
     'name': newGroupName,
     'description': newGroupDescription,
-    'code': newGroupCode
+    'group_code': newGroupCode,
+    'roles': [],
+    'Admins': {},
+    'Managers': {},
+    'Members': {}
   });
-  //newGroupCode = Random.secure() as String;
 }
 
 class _CreateGroupWidgetState extends State<CreateGroupWidget> {
@@ -71,7 +82,7 @@ class _CreateGroupWidgetState extends State<CreateGroupWidget> {
               onPressed: () {
                 newGroupName = groupNameController.text;
                 newGroupDescription = groupDescriptionController.text;
-                addAGroup(newGroupName, newGroupDescription, newGroupCode);
+                addAGroup(newGroupName, newGroupDescription);
                 Navigator.of(context).pop(
                     MaterialPageRoute(builder: (context) => MyGroupsWidget()));
                 //TODO: submit the form

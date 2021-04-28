@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
-import 'scheduling/main_schedule.dart';
-import 'member_management/view_members.dart';
-import 'scheduling/my_availability.dart';
-import 'scheduling/my_schedule.dart';
 
-/* Screens:
- * Group Home Page
+import 'group_management.dart';
+import 'package:super_scheduler/scheduling/main_schedule.dart';
+import 'package:super_scheduler/member_management/member_management.dart';
+import 'package:super_scheduler/scheduling/my_availability.dart';
+import 'package:super_scheduler/scheduling/my_schedule.dart';
+import 'package:super_scheduler/scheduling/primary_scheduler.dart';
+
+/*
+ * Group Home Admin Page
  */
 ///@author: James Chartraw
-class GroupHomeWidget extends StatelessWidget {
+class GroupHomeAdminWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Group Home (Member)'),
+          title: Text('Group Home (Admin)'),
         ),
         body: Center(
             child: Column(
@@ -49,10 +52,25 @@ class GroupHomeWidget extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ViewMembersWidget()));
-                    //TODO: submit the form
+                            builder: (context) => PrimarySchedulerWidget()));
                   },
-                  child: Text('View Members'))
+                  child: Text('Scheduler')),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EditMemberWidget()));
+                  },
+                  child: Text('Edit Members')),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EditGroupWidget()));
+                  },
+                  child: Text('Edit Group'))
             ])));
   }
 }
