@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'main_schedule.dart';
-import 'view_members.dart';
+import 'member_management/view_members.dart';
 import 'my_availability.dart';
 import 'my_schedule.dart';
 
