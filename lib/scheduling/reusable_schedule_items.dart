@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -156,6 +157,24 @@ Future<DocumentReference> createWeeklyScheduleDoc(
     'startDate': Timestamp.fromDate(weekStartDate),
     'published': false,
   }).then((value) => doc);
+}
+
+// Gets the role within the given group
+// of the user that is currently logged in to the app
+Future<String> getCurrentUsersRole({@required DocumentReference groupRef}) {
+  var curUserId = FirebaseAuth.instance.currentUser.uid;
+  return groupRef.get().then((value) {
+    String role = value['Members'][curUserId];
+    // If the user wasn't in the Members map, check the Managers map
+    if (role == null) {
+      role = value['Managers'][curUserId];
+    }
+    // If user wasn't in either above map, check the Admins map
+    if (role == null) {
+      role = value['Admins'][curUserId];
+    }
+    return role;
+  });
 }
 
 ////////////////////////////////////////////////////////////////////////////////
