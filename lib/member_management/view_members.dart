@@ -13,18 +13,52 @@ import '../main.dart';
 
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
+CollectionReference users = db.collection('users');
 
+//standard function to return members from database
 Future<Map> getMembers() async {
   Map returnMap;
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Members'];
+      print("in getMembers()");
       print(returnMap);
     } else {
       print("Error, name not found");
     }
   });
-  return returnMap;
+  return uidToMembers(returnMap);
+}
+
+//fetches username from users collection
+//(users collection is collection that stores members from firebase auth)
+Future<String> uidToMembersHelper(var key) async {
+  String returnString;
+  await users.doc(key).get().then((docref) {
+    if (docref.exists) {
+      returnString = docref['displayName'];
+      print(returnString);
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnString;
+}
+
+//converts database map uids to names
+Future<Map> uidToMembers(Map members) async {
+  List keys = members.keys.toList();
+  String displayName = '';
+  for (int i = 0; i < keys.length; i++) {
+    if (members.containsKey(keys[i])) {
+      displayName = await uidToMembersHelper(keys[i]);
+      String role = members[keys[i]];
+      members.remove(keys[i]);
+      members['$displayName'] = role;
+    }
+  }
+  print(members);
+  return members;
 }
 
 /* ViewMembersWidget is a screen that displays members of a particular group
@@ -81,4 +115,3 @@ Drawer getUnifiedDrawerWidget() {
     child: Text('Drawer placeholder'),
   );
 }
-
