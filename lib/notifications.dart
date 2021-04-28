@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-///Defines the app's notifications screen
+///Defines the app's notifications screen. It updates in real time as the
+///Firestore's notifications collection for FirebaseAuth's current user.
 ///@author: Rudy Fisher
 class NotificationsWidget extends StatefulWidget {
   @override
@@ -10,10 +11,10 @@ class NotificationsWidget extends StatefulWidget {
 }
 
 class _NotificationsWidgetState extends State<NotificationsWidget> {
-  final String tmpCurrentUserID = FirebaseAuth.instance.currentUser.uid;
-
+  final String currentUserID = FirebaseAuth.instance.currentUser.uid;
   final FirebaseFirestore db = FirebaseFirestore.instance;
-  DocumentReference currentUserDocRef;
+  DocumentReference
+      currentUserDocRef; //TODO: -- RUDY -- Check if this field is actually used
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,7 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
       child: StreamBuilder<QuerySnapshot>(
           stream: db
               .collection('users')
-              .doc(tmpCurrentUserID)
+              .doc(currentUserID)
               .collection('notifications')
               .snapshots(),
           builder: (context, snapshot) {
@@ -65,17 +66,44 @@ class Notification extends StatefulWidget {
 
 class _NotificationState extends State<Notification> {
   bool _isInvite = false;
+  String _groupName = '';
 
-  String _getGroupName(String groupId) {
-    //TODO: -- RUDY -- if groupId exists in usergroups, return that to display, otherwise return the id
+  ///Sets the group's name for display in this widget's notification.
+  ///If the group's name doesn't exist in the groups collection, set it
+  ///to the group's ID.
+  void _setGroupName(String groupId) async {
+    //TODO: -- RUDY -- test
 
-    return groupId;
+    DocumentSnapshot doc =
+        await widget.db.collection('groups').doc(groupId).get();
+
+    if (doc.exists) {
+      _groupName = doc['name'];
+    } else {
+      _groupName = groupId;
+    }
+  }
+
+  ///Joins the user to the group of this widget's invite notification,
+  ///if it has one, by adding the groupId to the user's userGroup list.
+  void _joinGroup() async {
+    DocumentSnapshot doc = await widget.db
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .get();
+
+    List<String> groupsIds =
+        doc['userGroups']; // Seems inefficient to get the whole list...
+    groupsIds.add(widget.doc['groupId']);
+    Map<String, List<String>> data = {'userGroups': groupsIds};
+    await doc.reference.update(data);
   }
 
   @override
   void initState() {
     super.initState();
     _isInvite = widget.doc.get('isInvite');
+    _setGroupName(widget.doc.get('groupId'));
   }
 
   void showSnackBar({String message}) {
@@ -84,9 +112,7 @@ class _NotificationState extends State<Notification> {
       duration: Duration(seconds: 7),
       action: SnackBarAction(
         label: 'Confirm Invite',
-        onPressed: () {
-          //TODO -- RUDY -- Add user to group when confirmed
-        },
+        onPressed: _joinGroup,
       ),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
@@ -97,7 +123,7 @@ class _NotificationState extends State<Notification> {
     return ListTile(
       leading: Icon(Icons.notification_important_rounded),
       title: Text(
-        _getGroupName(widget.doc.get('groupId')),
+        _groupName,
       ),
       subtitle: Text(
         widget.doc.get('content'),

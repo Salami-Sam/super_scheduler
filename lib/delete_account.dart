@@ -20,6 +20,7 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
 
   void _deleteAccountAndReturnToSignInScreen() async {
     try {
+      //TODO: -- RUDY -- remove user from users collection in Firestore
       await FirebaseAuth.instance.currentUser.delete();
       Navigator.pushAndRemoveUntil(
         context,

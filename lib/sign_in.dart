@@ -81,6 +81,8 @@ class _SignInWidgetState extends State<SignInWidget> {
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
+  ///Adds the current user to the Firestore's users collection.
+  ///Also see [signIn].
   void addUserToFirestore(DocumentReference docRef) async {
     // Add user to users Firestore collection.
     Map<String, dynamic> data = {'userGroups': []};
@@ -99,6 +101,8 @@ class _SignInWidgetState extends State<SignInWidget> {
           .add(data);
   }
 
+  ///Signs in the user, making sure they have a document in the users
+  ///Firestore collection. If they don't , they are added.
   void signIn() async {
     print('sign in');
     try {
