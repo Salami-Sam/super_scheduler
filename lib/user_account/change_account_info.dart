@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +24,15 @@ class _ChangeNameWidgetState extends State<ChangeNameWidget> {
     try {
       User user = FirebaseAuth.instance.currentUser;
       await user.updateProfile(displayName: _name);
+
+      DocumentReference docRef = FirebaseFirestore.instance
+          .collection(
+            'users',
+          )
+          .doc(
+            '${FirebaseAuth.instance.currentUser.uid}',
+          );
+      await docRef.update({'displayName': _name});
 
       Navigator.pop(context);
       showSnackBar(message: 'Name updated to \'$_name\' successfully.');

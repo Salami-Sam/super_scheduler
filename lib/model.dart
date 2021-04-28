@@ -20,6 +20,11 @@ class AppStateModel extends ChangeNotifier {
     _weekStartDate = _weekStartDate.subtract(Duration(days: 7));
     notifyListeners();
   }
+
+  void resetCurrentWeekToNow() {
+    _weekStartDate = _getSundayMidnightOfThisWeek();
+    notifyListeners();
+  }
 }
 
 // Gets Sunday at midnight (morning) of the current week according to DateTime.now()

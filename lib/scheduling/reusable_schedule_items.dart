@@ -58,10 +58,15 @@ Widget getDateNavigationRow() {
               appStateModel.decreaseCurWeekBy1();
             },
           ),
-          Text(
-            'For the week ${getDateString(appStateModel.curWeekStartDate.toLocal())} ' +
-                'to ${getDateString(weekEndDate.toLocal())}',
-            style: TextStyle(fontSize: 18),
+          InkWell(
+            onLongPress: () {
+              appStateModel.resetCurrentWeekToNow();
+            },
+            child: Text(
+              'For the week ${getDateString(appStateModel.curWeekStartDate.toLocal())} ' +
+                  'to ${getDateString(weekEndDate.toLocal())}',
+              style: TextStyle(fontSize: 18),
+            ),
           ),
           IconButton(
             icon: Icon(Icons.arrow_right),
