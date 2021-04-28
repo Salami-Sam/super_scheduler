@@ -83,8 +83,34 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
     });
   }
 
-  void _publishSchedule() {
+  void _publishSchedule() async {
     widget.curWeekScheduleDocRef.update({'published': true});
+
+    // Get all the users in the current group.
+    Map<String, String> members = (await currentGroupRef.get())['Members'];
+    Map<String, String> managers = (await currentGroupRef.get())['Managers'];
+    Map<String, String> admins = (await currentGroupRef.get())['Admins'];
+
+    // Send the notification to each of the users in the group.
+    _notifyUsers(members);
+    _notifyUsers(managers);
+    _notifyUsers(admins);
+  }
+
+  ///Sends a notification about the posted schedule to the given
+  ///[users] in the current group.
+  void _notifyUsers(Map<String, String> users) async {
+    for (String userID in users.keys) {
+      // This is the notification contents and what-not.
+      Map<String, dynamic> data = {
+        'groupId': widget.currentGroupId,
+        'content': 'A new schedule has been posted for ${widget.weekStartDate.day}.',
+        'isInvite': false,
+      };
+
+      // Send the notification to the user's document in firestore.
+      FirebaseFirestore.instance.collection('users').doc(userID).collection('notifications').add(data);
+    }
   }
 
   // Gets the tab with a particular day's information

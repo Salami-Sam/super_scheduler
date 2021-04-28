@@ -41,15 +41,54 @@ Future<void> addRoles(var roleToAdd) async {
     'roles': FieldValue.arrayUnion([roleToAdd])
   });
 }
+
 //standard function to delete roles from database
 Future<void> deleteRoles(var roleToRemove) async {
   print("${roleToRemove}");
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').update({
     'roles': FieldValue.arrayRemove([roleToRemove])
   });
+  print('got Here');
+  currentMembersWithNowDeletedRoles(roleToRemove);
 }
 
+void currentMembersWithNowDeletedRoles(var roleToRemove) async {
+  Map members = await getMembers();
+  List currentMembers = members.keys.toList();
+  List currentRoles = members.values.toList();
+  List updateMembers = [];
+  print('in helper');
+  print(currentMembers);
+  print(currentRoles);
+  print(members);
+  for (int i = 0; i < currentMembers.length; i++) {
+    if (currentRoles[i] == roleToRemove) {
+      updateMembers.add(currentMembers[i]);
+    }
+  }
+  print(updateMembers);
+  correctRoles(updateMembers);
+}
 
+Future<void> correctRoles(var updateMembers) async {
+  for (int i = 0; i < updateMembers.length; i++) {
+    await group
+        .doc('PCXUSOFVGcmZ8UqK0QnX')
+        .update({'Members.${updateMembers[i]}': 'N\A'});
+  }
+}
+
+Future<Map> getMembers() async {
+  Map returnMap;
+  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+    if (docref.exists) {
+      returnMap = docref['Members'];
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnMap;
+}
 
 class _EditRolesWidgetState extends State<EditRolesWidget> {
   Future<List> futureRoles;
@@ -86,7 +125,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
                                   icon: Icon(Icons.delete),
                                   onPressed: () {
                                     deleteRoles(roles[index]);
-                                    Navigator.pop(context);
+                                    setState(() {});          //resets screen to reflect changes made to rolesARR
                                   }),
                               title: Text('${roles[index]}'),
                             ),
@@ -104,8 +143,8 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
               }),
           ElevatedButton(
               onPressed: () {
-                addRoles(newRole);  //sends new role to database
-                Navigator.pop(context);
+                addRoles(newRole); //sends new role to database
+                setState(() {});
               },
               child: Text('Submit'))
         ]));
