@@ -34,35 +34,66 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
   Widget getIndividualTab(int day) {
     return Container(
       margin: EdgeInsets.all(8),
-      child: SingleChildScrollView(
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            columnSpacing: 20,
-            columns: [
-              DataColumn(label: Text('Start')),
-              DataColumn(label: Text('End')),
-              DataColumn(label: Text('Role')),
-              DataColumn(label: Text('Name')),
-            ],
-            rows: List<DataRow>.generate(15, (index) {
-              return DataRow(
-                cells: [
-                  DataCell(Text(
-                    '${getRandomTime()}',
-                    maxLines: 1,
-                  )),
-                  DataCell(Text(
-                    '${getRandomTime()}',
-                    maxLines: 1,
-                  )),
-                  DataCell(Text('${getRandomRole()}')),
-                  DataCell(Text('${getRandomName()}')),
+      child: ListView.separated(
+        itemCount: 15,
+        separatorBuilder: (context, index) {
+          return Divider(
+            color: Colors.black,
+            thickness: 1.0,
+          );
+        },
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            // Create the header row
+            return Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Text('Start', style: tableHeadingStyle),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text('End', style: tableHeadingStyle),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text('Role', style: tableHeadingStyle),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text('Name', style: tableHeadingStyle),
+                ),
+              ],
+            );
+          } else {
+            index--; // To account for the header row index
+            return GestureDetector(
+              onTap: () {
+                print('Hello');
+              },
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Text('${getRandomTime()}', style: tableBodyStyle),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text('${getRandomTime()}', style: tableBodyStyle),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text('${getRandomRole()}', style: tableBodyStyle),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Text('${getRandomName()}', style: tableBodyStyle),
+                  ),
                 ],
-              );
-            }),
-          ),
-        ),
+              ),
+            );
+          }
+        },
       ),
     );
   }

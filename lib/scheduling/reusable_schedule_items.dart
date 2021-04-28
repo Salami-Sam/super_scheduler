@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'model.dart';
+import '../model.dart';
 
 /* This file contains utility methods for scheduling-related things
  * and methods that are reused by multiple different scheduling-related
@@ -22,6 +22,12 @@ final List<Widget> dailyTabList = [
   Tab(text: 'F'),
   Tab(text: 'Sa'),
 ];
+
+// The styles for text in the scheduling screens' tables
+
+final TextStyle tableHeadingStyle =
+    TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
+final TextStyle tableBodyStyle = TextStyle(fontSize: 16);
 
 // Contains left and right arrows on either side of
 // the Text that lists the dates of the currently displayed week

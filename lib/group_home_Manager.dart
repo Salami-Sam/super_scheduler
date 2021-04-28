@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'main_schedule.dart';
+import 'scheduling/main_schedule.dart';
 import 'member_management/member_management.dart';
-import 'my_availability.dart';
-import 'my_schedule.dart';
-import 'primary_scheduler.dart';
+import 'scheduling/my_availability.dart';
+import 'scheduling/my_schedule.dart';
+import 'scheduling/primary_scheduler.dart';
 
 /*
  * Group Home Manager Page

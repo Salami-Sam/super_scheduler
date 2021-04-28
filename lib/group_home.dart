@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'main_schedule.dart';
+import 'scheduling/main_schedule.dart';
 import 'member_management/view_members.dart';
-import 'my_availability.dart';
-import 'my_schedule.dart';
+import 'scheduling/my_availability.dart';
+import 'scheduling/my_schedule.dart';
 
 /* Screens:
  * Group Home Page
