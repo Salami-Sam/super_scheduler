@@ -13,10 +13,10 @@ class CreateGroupWidget extends StatefulWidget {
   _CreateGroupWidgetState createState() => _CreateGroupWidgetState();
 }
 
+var db = FirebaseFirestore.instance;
 var newGroupName;
 var newGroupDescription;
 var newGroupCode;
-//Random newGroupCode = Random.secure();
 
 const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 Random _rnd = Random();
@@ -26,12 +26,15 @@ String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
 
 void addAGroup(newGroupName, newGroupDescription) async {
   newGroupCode = getRandomString(6);
-  FirebaseFirestore.instance.collection("groups").doc().set({
+  db.collection("groups").doc().set({
     'name': newGroupName,
     'description': newGroupDescription,
-    'group_code': newGroupCode
+    'group_code': newGroupCode,
+    'roles': [],
+    'Admins': {},
+    'Managers': {},
+    'Members': {}
   });
-  //newGroupCode = Random.secure() as String;
 }
 
 class _CreateGroupWidgetState extends State<CreateGroupWidget> {
