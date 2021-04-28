@@ -36,12 +36,7 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
       margin: EdgeInsets.all(8),
       child: ListView.separated(
         itemCount: 15,
-        separatorBuilder: (context, index) {
-          return Divider(
-            color: Colors.black,
-            thickness: 1.0,
-          );
-        },
+        separatorBuilder: tableSeparatorBuilder,
         itemBuilder: (context, index) {
           if (index == 0) {
             // Create the header row
@@ -67,30 +62,25 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
             );
           } else {
             index--; // To account for the header row index
-            return GestureDetector(
-              onTap: () {
-                print('Hello');
-              },
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text('${getRandomTime()}', style: tableBodyStyle),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text('${getRandomTime()}', style: tableBodyStyle),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text('${getRandomRole()}', style: tableBodyStyle),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Text('${getRandomName()}', style: tableBodyStyle),
-                  ),
-                ],
-              ),
+            return Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Text('${getRandomTime()}', style: tableBodyStyle),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text('${getRandomTime()}', style: tableBodyStyle),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text('${getRandomRole()}', style: tableBodyStyle),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text('${getRandomName()}', style: tableBodyStyle),
+                ),
+              ],
             );
           }
         },
