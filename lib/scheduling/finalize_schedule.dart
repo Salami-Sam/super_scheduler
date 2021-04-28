@@ -109,7 +109,7 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
       };
 
       // Send the notification to the user's document in firestore.
-      FirebaseFirestore.instance.collection('users').doc(userID).collection('notifications').add(data);
+      widget.db.collection('users').doc(userID).collection('notifications').add(data);
     }
   }
 
