@@ -85,13 +85,11 @@ class _SignInWidgetState extends State<SignInWidget> {
   ///Also see [signIn].
   void addUserToFirestore(DocumentReference docRef) async {
     // Add user to users Firestore collection.
-    Map<String, dynamic> data = {'userGroups': []};
-    await docRef.set(data);
-
-    Map<String, dynamic> displayName = {
-      'displayName': FirebaseAuth.instance.currentUser.displayName
+    Map<String, dynamic> data = {
+      'userGroups': [],
+      'displayName': FirebaseAuth.instance.currentUser.displayName,
     };
-    await docRef.update(displayName);
+    await docRef.set(data);
 
     // Add sub-collection of notifications to user's document in Firestore
     // with a welcome notification.

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:super_scheduler/user_account/change_account_info.dart';
@@ -120,7 +118,7 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User>(
-        stream: StreamWrapper.stream,
+        stream: FirebaseAuth.instance.userChanges(),
         builder: (context, snapshot) {
           print('I have been rebuilt and snapshot is $snapshot');
           if (snapshot.hasError) {
@@ -129,13 +127,10 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
             return _accountInfoPage(snapshot);
           } else {
             return Center(
-              child: Text('IDK what happened...'),
+              child:
+                  Text('${snapshot.connectionState} ${snapshot.data} $context'),
             );
           }
         });
   }
-}
-
-class StreamWrapper {
-  static final Stream<User> stream = FirebaseAuth.instance.userChanges();
 }

@@ -72,8 +72,6 @@ class _NotificationState extends State<Notification> {
   ///If the group's name doesn't exist in the groups collection, set it
   ///to the group's ID.
   void _setGroupName(String groupId) async {
-    //TODO: -- RUDY -- test
-
     DocumentSnapshot doc =
         await widget.db.collection('groups').doc(groupId).get();
 
