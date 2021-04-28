@@ -7,8 +7,8 @@ import 'package:super_scheduler/notifications.dart';
 import 'drawer.dart';
 import 'forgot_password.dart';
 import 'group_management.dart';
-import 'user_account_widgets/sign_in.dart';
-import 'user_account_widgets/sign_up.dart';
+import 'user_account/sign_in.dart';
+import 'user_account/sign_up.dart';
 
 ///The app's main/home widget, placed just under the app's root in the tree
 ///@author: Rudy Fisher
