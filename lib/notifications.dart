@@ -13,8 +13,6 @@ class NotificationsWidget extends StatefulWidget {
 class _NotificationsWidgetState extends State<NotificationsWidget> {
   final String currentUserID = FirebaseAuth.instance.currentUser.uid;
   final FirebaseFirestore db = FirebaseFirestore.instance;
-  DocumentReference
-      currentUserDocRef; //TODO: -- RUDY -- Check if this field is actually used
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +27,7 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Center(
-                child: Text('Something went wrong.'),
+                child: Text('Something went wrong. ${snapshot.error}'),
               );
             } else if (!snapshot.hasData) {
               return Center(

@@ -141,7 +141,7 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
           pushToWidget: AboutWidget(),
         ),
         DrawerButtonWidget(
-          buttonLabel: 'Logout',
+          buttonLabel: 'Sign Out',
           navigationCallBack: _goToSignInScreen,
         ),
       ];

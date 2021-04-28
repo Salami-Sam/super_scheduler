@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:super_scheduler/home_widget.dart';
@@ -18,10 +19,18 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
+  Future<void> _deleteUserDocFromFirestore() {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .delete();
+  }
+
   void _deleteAccountAndReturnToSignInScreen() async {
     try {
-      //TODO: -- RUDY -- remove user from users collection in Firestore
-      await FirebaseAuth.instance.currentUser.delete();
+      await _deleteUserDocFromFirestore().then((value) {
+        return FirebaseAuth.instance.currentUser.delete();
+      });
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
