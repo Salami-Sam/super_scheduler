@@ -7,19 +7,13 @@ import 'member_management.dart';
 /* Screen:
  * Edit Roles
  * 
- * Writen by Mike Schommer
- * version 2.0
- * 4/14/21
+ * @author Mike Schommer
+ * version 3.0
+ * 4/28/21
  */
 
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
-
-//EditRolesWidget allows admin to create or deleted roles with a group
-class EditRolesWidget extends StatefulWidget {
-  @override
-  _EditRolesWidgetState createState() => _EditRolesWidgetState();
-}
 
 //standard function to return roles from database
 Future<List> getRoles() async {
@@ -52,6 +46,7 @@ Future<void> deleteRoles(var roleToRemove) async {
   currentMembersWithNowDeletedRoles(roleToRemove);
 }
 
+//lists every member whose role has been deleted from deleteRoles
 void currentMembersWithNowDeletedRoles(var roleToRemove) async {
   Map members = await getMembers();
   List currentMembers = members.keys.toList();
@@ -70,6 +65,7 @@ void currentMembersWithNowDeletedRoles(var roleToRemove) async {
   correctRoles(updateMembers);
 }
 
+//assigns every member with a deleted role as NA
 Future<void> correctRoles(var updateMembers) async {
   for (int i = 0; i < updateMembers.length; i++) {
     await group
@@ -78,6 +74,7 @@ Future<void> correctRoles(var updateMembers) async {
   }
 }
 
+//standard function getting members from database
 Future<Map> getMembers() async {
   Map returnMap;
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
@@ -88,6 +85,12 @@ Future<Map> getMembers() async {
     }
   });
   return returnMap;
+}
+
+//EditRolesWidget allows admin to create or deleted roles with a group
+class EditRolesWidget extends StatefulWidget {
+  @override
+  _EditRolesWidgetState createState() => _EditRolesWidgetState();
 }
 
 class _EditRolesWidgetState extends State<EditRolesWidget> {
@@ -102,8 +105,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
-                //back to edit member screen
-                Navigator.pop(context);
+                Navigator.pop(context);   //back to edit member screen
               },
             )),
         drawer: getUnifiedDrawerWidget(),
@@ -125,7 +127,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
                                   icon: Icon(Icons.delete),
                                   onPressed: () {
                                     deleteRoles(roles[index]);
-                                    setState(() {});          //resets screen to reflect changes made to rolesARR
+                                    setState(() {});          //resets screen to reflect changes made to database roles array
                                   }),
                               title: Text('${roles[index]}'),
                             ),
@@ -143,7 +145,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
               }),
           ElevatedButton(
               onPressed: () {
-                addRoles(newRole); //sends new role to database
+                addRoles(newRole);    //sends new role to database
                 setState(() {});
               },
               child: Text('Submit'))

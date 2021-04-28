@@ -9,10 +9,11 @@ import 'package:email_validator/email_validator.dart';
 /* Screen:
  * Invite Members
  * 
- * Writen by Mike Schommer
- * version 2.0
- * 4/14/21
+ * @author Mike Schommer
+ * @version 3.0
+ * 4/28/21
  */
+
 
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
@@ -141,7 +142,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                       }
                     } else {
                       var snackBar =
-                          SnackBar(content: Text('You Must Choose a Role'));      //don't want to send without choosing role first
+                          SnackBar(content: Text('You Must Choose a Role'));     
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     }
                   },
