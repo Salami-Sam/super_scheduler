@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,6 +37,13 @@ class _SignUpScreenWidgetState extends State<SignUpScreenWidget> {
             child: Text('Back to Sign In'),
             onPressed: widget.signInButtonCallBack,
           ),
+          Divider(
+            height: 24,
+          ),
+          Text(
+            'Password requirements (set by Google):\n\t1. At least 6 characters long.', //\nNote: Password requirements determined by Google.',
+            style: TextStyle(fontSize: 16),
+          ),
         ],
       ),
     );
@@ -73,9 +79,12 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   }
 
   bool passwordsMatch() {
-    print(widget._password1.string);
-    print(widget._password2.string);
-    print(widget._password1.string != widget._password2.string);
+    //TODO: -- RUDY -- Delete this debug code fore security
+    // print('${widget._name.hashCode}' + ' ' + widget._name.string);
+    // print('${widget._email.hashCode}' + ' ' + widget._email.string);
+    // print('${widget._password1.hashCode}' + ' ' + widget._password1.string);
+    // print('${widget._password2.hashCode}' + ' ' + widget._password2.string);
+    // print(widget._password1.string != widget._password2.string);
     if (widget._password1.string != widget._password2.string) {
       showSnackBar(message: 'Passwords don\'t match. Please re-enter.');
       return false;
@@ -87,7 +96,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
     if (widget._name.string.trim().isEmpty) {
       showSnackBar(
           message:
-              'Please enter your name. Alphabet characters are preferred, but feel free to get crazy with it ;)');
+              'Please enter your name. Alphabetical characters are preferred, but feel free to get crazy with it ;)');
       return false;
     }
     return true;
@@ -110,7 +119,8 @@ class _SignUpWidgetState extends State<SignUpWidget> {
       showSnackBar(message: 'Please check your email to finish signing up.');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        showSnackBar(message: 'The password provided is too weak.');
+        showSnackBar(
+            message: 'The password provided is too weak. ${e.message}');
       } else if (e.code == 'email-already-in-use') {
         showSnackBar(message: 'The account already exists for that email.');
       } else if (e.code == 'invalid-email') {
@@ -126,10 +136,10 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   @override
   void initState() {
     super.initState();
-    widget._email.string = '';
-    widget._name.string = '';
-    widget._password1.string = '';
-    widget._password2.string = '';
+    // widget._email.string = ''; //TODO: -- RUDY -- REMOVE TEST DATA
+    // widget._name.string = ''; //TODO: -- RUDY -- REMOVE TEST DATA
+    // widget._password1.string = ''; //TODO: -- RUDY -- REMOVE TEST DATA
+    // widget._password2.string = ''; //TODO: -- RUDY -- REMOVE TEST DATA
   }
 
   @override
@@ -140,25 +150,23 @@ class _SignUpWidgetState extends State<SignUpWidget> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           TextFormField(
-            controller: TextEditingController(text: widget._name.string),
+            //controller: TextEditingController(text: widget._name.string),
             decoration: InputDecoration(
               labelText: 'Name',
               hintText: 'e.g. Spongebob Squarepants',
             ),
             onChanged: (value) {
               widget._name.string = value;
-              print(widget._name.string);
             },
           ),
           TextFormField(
-            controller: TextEditingController(text: widget._email.string),
+            //controller: TextEditingController(text: widget._email.string),
             decoration: InputDecoration(
               labelText: 'Email',
               hintText: 'e.g. spongebob@thekrustykrab.com',
             ),
             onChanged: (value) {
               widget._email.string = value;
-              print(widget._email.string);
             },
           ),
           Consumer<BooleanByReference>(
@@ -171,7 +179,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
           Consumer<BooleanByReference>(
             builder: (context, booleanByReference, child) =>
                 PasswordFieldWidget(
-              password: widget._password1,
+              password: widget._password2,
               obscurePassword: booleanByReference,
             ),
           ),

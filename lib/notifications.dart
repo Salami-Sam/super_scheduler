@@ -77,11 +77,13 @@ class _NotificationState extends State<Notification> {
     DocumentSnapshot doc =
         await widget.db.collection('groups').doc(groupId).get();
 
-    if (doc.exists) {
-      _groupName = doc['name'];
-    } else {
-      _groupName = groupId;
-    }
+    setState(() {
+      if (doc.exists) {
+        _groupName = doc['name'];
+      } else {
+        _groupName = groupId;
+      }
+    });
   }
 
   ///Joins the user to the group of this widget's invite notification,
@@ -101,9 +103,9 @@ class _NotificationState extends State<Notification> {
 
   @override
   void initState() {
-    super.initState();
     _isInvite = widget.doc.get('isInvite');
     _setGroupName(widget.doc.get('groupId'));
+    super.initState();
   }
 
   void showSnackBar({String message}) {

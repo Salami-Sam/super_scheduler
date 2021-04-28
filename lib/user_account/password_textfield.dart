@@ -47,7 +47,7 @@ class _PasswordFieldWidgetState extends State<PasswordFieldWidget> {
     return Column(
       children: [
         TextFormField(
-          controller: TextEditingController(text: widget.password.string),
+          //controller: TextEditingController(text: widget.password.string),
           decoration: InputDecoration(
             suffix: InkWell(
               onTap: _toggleObscurePassword,
@@ -59,7 +59,6 @@ class _PasswordFieldWidgetState extends State<PasswordFieldWidget> {
           obscureText: widget.obscurePassword.boolean,
           onChanged: (value) {
             widget.password.string = value;
-            print(widget.password.string);
           },
         ),
       ],

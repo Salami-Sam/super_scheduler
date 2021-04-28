@@ -149,14 +149,18 @@ class _SignInWidgetState extends State<SignInWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    widget.email.string = 'fisher97@uwosh.edu'; // REMOVE/CHANGE THIS TEST DATA
-    widget.password.string = 'hi@!!!';
+  void initState() {
+    super.initState();
+    widget.email.string = ''; //TODO: -- RUDY -- REMOVE TEST DATA
+    widget.password.string = ''; //TODO: -- RUDY -- REMOVE TEST DATA
     passwordFieldWidget = PasswordFieldWidget(
       password: widget.password,
       obscurePassword: BooleanByReference(boolean: true),
     );
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
