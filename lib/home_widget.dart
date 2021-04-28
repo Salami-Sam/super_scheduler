@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:super_scheduler/about.dart';
-import 'package:super_scheduler/user_account_widgets/my_account.dart';
+import 'package:super_scheduler/user_account/my_account.dart';
 import 'package:super_scheduler/notifications.dart';
 
 import 'drawer.dart';
