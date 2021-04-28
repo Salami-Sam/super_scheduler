@@ -155,14 +155,14 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                         } else {
                           index--; // To account for the header row index
 
-                          var docData = todaysShifts[index].data();
-                          var docRef = todaysShifts[index].reference;
+                          var shiftDocData = todaysShifts[index].data();
+                          var shiftDocRef = todaysShifts[index].reference;
                           var startTime = dateTimeToTimeString(
-                              docData['startDateTime'].toDate().toLocal());
+                              shiftDocData['startDateTime'].toDate().toLocal());
                           var endTime = dateTimeToTimeString(
-                              docData['endDateTime'].toDate().toLocal());
+                              shiftDocData['endDateTime'].toDate().toLocal());
                           var roleList =
-                              _getRoleMapString(docData['rolesNeeded']);
+                              _getRoleMapString(shiftDocData['rolesNeeded']);
 
                           // If the row is selected, change its background color
                           var rowBackgroundColor;
@@ -178,7 +178,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                             onTap: () {
                               setState(() {
                                 selectedRowIndex = index;
-                                selectedRowShiftDocRef = docRef;
+                                selectedRowShiftDocRef = shiftDocRef;
                               });
                             },
                             child: Container(
