@@ -47,18 +47,19 @@ class _PasswordFieldWidgetState extends State<PasswordFieldWidget> {
     return Column(
       children: [
         TextFormField(
-          initialValue: widget.password.string,
+          controller: TextEditingController(text: widget.password.string),
           decoration: InputDecoration(
             suffix: InkWell(
               onTap: _toggleObscurePassword,
               child: getEyeSuffix(),
             ),
             labelText: widget.textLabel,
-            hintText: 'e.g. Krustykrabpi22a1sthepizz@foryou@ndme',
+            hintText: 'e.g. Krustykrabpi22a1sthepizz@foryou@ndme!',
           ),
           obscureText: widget.obscurePassword.boolean,
           onChanged: (value) {
             widget.password.string = value;
+            print(widget.password.string);
           },
         ),
       ],

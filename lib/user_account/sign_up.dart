@@ -73,6 +73,9 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   }
 
   bool passwordsMatch() {
+    print(widget._password1.string);
+    print(widget._password2.string);
+    print(widget._password1.string != widget._password2.string);
     if (widget._password1.string != widget._password2.string) {
       showSnackBar(message: 'Passwords don\'t match. Please re-enter.');
       return false;
@@ -121,35 +124,41 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    widget._email.string = 'fisher97@uwosh.edu';
-    widget._name.string = ''; //'Spongebob Squarepants';
-    widget._password1.string = 'hi@!!!';
-    widget._password2.string = 'hi@!!!';
+  void initState() {
+    super.initState();
+    widget._email.string = '';
+    widget._name.string = '';
+    widget._password1.string = '';
+    widget._password2.string = '';
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => widget._obscurePasswords,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           TextFormField(
-            initialValue: widget._name.string,
+            controller: TextEditingController(text: widget._name.string),
             decoration: InputDecoration(
               labelText: 'Name',
               hintText: 'e.g. Spongebob Squarepants',
             ),
             onChanged: (value) {
               widget._name.string = value;
+              print(widget._name.string);
             },
           ),
           TextFormField(
-            initialValue: widget._email.string,
+            controller: TextEditingController(text: widget._email.string),
             decoration: InputDecoration(
               labelText: 'Email',
               hintText: 'e.g. spongebob@thekrustykrab.com',
             ),
             onChanged: (value) {
               widget._email.string = value;
+              print(widget._email.string);
             },
           ),
           Consumer<BooleanByReference>(
