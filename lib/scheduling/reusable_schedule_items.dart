@@ -132,9 +132,19 @@ String getDateString(DateTime date) {
   return '${date.month}/${date.day}/$twoDigitYear';
 }
 
+// A pair where:
+// the first item is a DocumentReference for a weekly schedule
+// the second item is a boolean for whether that schedule is published or not
+class SchedulePublishedPair {
+  DocumentReference weeklySchedule;
+  bool isPublished;
+  SchedulePublishedPair(this.weeklySchedule, this.isPublished);
+}
+
 // Get weekly schedule doc, if it exists
-// If it does not, return null
-Future<DocumentReference> getWeeklyScheduleDoc(
+// Return a pair of the weekly schedule doc and whether it is published or not
+// If it does not exist, return null
+Future<SchedulePublishedPair> getWeeklyScheduleDoc(
     {@required DocumentReference groupRef, @required DateTime weekStartDate}) {
   var existsQuery =
       groupRef.collection('WeeklySchedules').where('startDate', isEqualTo: Timestamp.fromDate(weekStartDate));
@@ -143,8 +153,12 @@ Future<DocumentReference> getWeeklyScheduleDoc(
       // If no WeeklySchedule doc has this start date, it doesn't exist
       return null;
     } else {
-      // Return the first and only doc with this date
-      return snapshot.docs.first.reference;
+      // Get the first and only doc with this date
+      QueryDocumentSnapshot scheduleSnapshot = snapshot.docs.first;
+      // Check whether the schedule is published
+      bool isPublished = scheduleSnapshot['published'];
+
+      return SchedulePublishedPair(scheduleSnapshot.reference, isPublished);
     }
   });
 }

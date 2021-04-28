@@ -97,11 +97,8 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
               stream: curWeekScheduleDocRef.collection('Shifts').snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Center(
-                      child: Text(
-                          'There was an error in retrieving the schedule.'));
-                } else if (snapshot.connectionState ==
-                    ConnectionState.waiting) {
+                  return Center(child: Text('There was an error in retrieving the schedule.'));
+                } else if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: Text('Retrieving schedule...'));
                 } else {
                   var docsList = snapshot.data.docs;
@@ -109,9 +106,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                   // Get only shifts for the current day
                   var todaysShifts = docsList.where((element) {
                     DateTime shiftDate = element['startDateTime'].toDate();
-                    if (shiftDate.year == today.year &&
-                        shiftDate.month == today.month &&
-                        shiftDate.day == today.day) {
+                    if (shiftDate.year == today.year && shiftDate.month == today.month && shiftDate.day == today.day) {
                       return true;
                     }
                     return false;
@@ -125,8 +120,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                   });
 
                   if (todaysShifts.isEmpty) {
-                    return Center(
-                        child: Text('There are no shifts on this day.'));
+                    return Center(child: Text('There are no shifts on this day.'));
                   } else {
                     // The actual schedule part
 
@@ -158,12 +152,9 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
 
                         var shiftDocData = todaysShifts[index].data();
                         var shiftDocRef = todaysShifts[index].reference;
-                        var startTime = dateTimeToTimeString(
-                            shiftDocData['startDateTime'].toDate().toLocal());
-                        var endTime = dateTimeToTimeString(
-                            shiftDocData['endDateTime'].toDate().toLocal());
-                        var roleList =
-                            _getRoleMapString(shiftDocData['rolesNeeded']);
+                        var startTime = dateTimeToTimeString(shiftDocData['startDateTime'].toDate().toLocal());
+                        var endTime = dateTimeToTimeString(shiftDocData['endDateTime'].toDate().toLocal());
+                        var roleList = _getRoleMapString(shiftDocData['rolesNeeded']);
 
                         // If the row is selected, change its background color
                         var rowBackgroundColor;
@@ -171,8 +162,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                           rowBackgroundColor = Colors.lightBlue[100];
                         } else {
                           // The default color
-                          rowBackgroundColor =
-                              Theme.of(context).scaffoldBackgroundColor;
+                          rowBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
                         }
 
                         return InkWell(
@@ -188,18 +178,15 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                               children: [
                                 Expanded(
                                   flex: 2,
-                                  child:
-                                      Text('$startTime', style: tableBodyStyle),
+                                  child: Text('$startTime', style: tableBodyStyle),
                                 ),
                                 Expanded(
                                   flex: 2,
-                                  child:
-                                      Text('$endTime', style: tableBodyStyle),
+                                  child: Text('$endTime', style: tableBodyStyle),
                                 ),
                                 Expanded(
                                   flex: 2,
-                                  child:
-                                      Text('$roleList', style: tableBodyStyle),
+                                  child: Text('$roleList', style: tableBodyStyle),
                                 ),
                               ],
                             ),
@@ -222,9 +209,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
         ElevatedButton(
           child: Text('Remove Selected Shift'),
           // Disable the button if no shift is currently selected
-          onPressed: (selectedRowShiftDocRef == null)
-              ? null
-              : _removeSelectedShiftFromDb,
+          onPressed: (selectedRowShiftDocRef == null) ? null : _removeSelectedShiftFromDb,
         ),
       ],
     );
@@ -298,17 +283,14 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
           ),
         ),
         body: Consumer<AppStateModel>(
-          builder: (context, appStateModel, child) =>
-              FutureBuilder<DocumentReference>(
+          builder: (context, appStateModel, child) => FutureBuilder<SchedulePublishedPair>(
             future: getWeeklyScheduleDoc(
               groupRef: currentGroupRef,
               weekStartDate: appStateModel.curWeekStartDate,
             ),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return Center(
-                    child: Text(
-                        'There was an error in checking this week\'s schedule.'));
+                return Center(child: Text('There was an error in checking this week\'s schedule.'));
               } else if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: Text('Preparing schedule...'));
               } else {
@@ -322,23 +304,19 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                     ),
                     builder: (context, snapshot) {
                       if (snapshot.hasError) {
-                        return Center(
-                            child: Text(
-                                'There was an error in creating this week\'s schedule.'));
-                      } else if (snapshot.connectionState ==
-                          ConnectionState.waiting) {
+                        return Center(child: Text('There was an error in creating this week\'s schedule.'));
+                      } else if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(child: Text('Preparing schedule...'));
                       } else {
                         // Save the schedule ref in a var and return screen contents
                         curWeekScheduleDocRef = snapshot.data;
-                        return _getScreenContents(
-                            appStateModel.curWeekStartDate);
+                        return _getScreenContents(appStateModel.curWeekStartDate);
                       }
                     },
                   );
                 } else {
                   // Did exist, so save it in a variable and return screen contents
-                  curWeekScheduleDocRef = snapshot.data;
+                  curWeekScheduleDocRef = snapshot.data.weeklySchedule;
                   return _getScreenContents(appStateModel.curWeekStartDate);
                 }
               }

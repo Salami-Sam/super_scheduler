@@ -40,9 +40,6 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
   DocumentReference selectedRowShiftDocRef;
   String selectedRowRole;
 
-  // Placeholder list of names
-  List<String> names = ['Spongebob Squarepants', 'Squidward Tentacles', 'Patrick Star', 'Eugene Krabs'];
-
   // Gets all users within the given group who have the given role
   // The Map contains pairs, where
   // the first item is the user's uid

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'reusable_schedule_items.dart';
 
@@ -21,15 +22,7 @@ class MyScheduleWidget extends StatefulWidget {
   // Need to change to @required and remove default value
   MyScheduleWidget({this.currentGroupId = 'RsTjd6INQsNa6RvSTeUX'});
 
-  final List<String> days = [
-    'Sunday:',
-    'Monday:',
-    'Tuesday:',
-    'Wednesday:',
-    'Thursday:',
-    'Friday:',
-    'Saturday:'
-  ];
+  final List<String> days = ['Sunday:', 'Monday:', 'Tuesday:', 'Wednesday:', 'Thursday:', 'Friday:', 'Saturday:'];
 
   @override
   _MyScheduleWidgetState createState() => _MyScheduleWidgetState();
@@ -71,7 +64,7 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Spongebob\'s Schedule',
+              '${FirebaseAuth.instance.currentUser.displayName}\'s Schedule',
               style: TextStyle(fontSize: 26),
             ),
             Divider(
