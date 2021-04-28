@@ -1,14 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:super_scheduler/about.dart';
-import 'package:super_scheduler/my_account.dart';
+import 'package:super_scheduler/user_account_widgets/my_account.dart';
 import 'package:super_scheduler/notifications.dart';
 
 import 'drawer.dart';
 import 'forgot_password.dart';
 import 'group_management.dart';
-import 'sign_in.dart';
-import 'sign_up.dart';
+import 'user_account_widgets/sign_in.dart';
+import 'user_account_widgets/sign_up.dart';
 
 ///The app's main/home widget, placed just under the app's root in the tree
 ///@author: Rudy Fisher

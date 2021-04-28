@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'entered_user_info.dart';
-import 'password_textfield.dart';
+import '../password_textfield.dart';
 
 ///Defines the Sign In screen for the app.
 ///[signUpButtonOnPressedCallback] and

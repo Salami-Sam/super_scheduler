@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:super_scheduler/change_account_info.dart';
-import 'package:super_scheduler/delete_account.dart';
+import 'package:super_scheduler/user_account_widgets/change_account_info.dart';
+import 'package:super_scheduler/user_account_widgets/delete_account.dart';
 
 ///Defines a screen that displays the user's account info
 ///@author: Rudy Fisher
