@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -13,12 +15,15 @@ class CreateGroupWidget extends StatefulWidget {
 
 var newGroupName;
 var newGroupDescription;
+String newGroupCode = Random.secure() as String;
 
-void addAGroup(newGroupName, newGroupDescription) async {
-  FirebaseFirestore.instance
-      .collection("groups")
-      .doc()
-      .set({'name': newGroupName, 'description': newGroupDescription});
+void addAGroup(newGroupName, newGroupDescription, newGroupCode) async {
+  FirebaseFirestore.instance.collection("groups").doc().set({
+    'name': newGroupName,
+    'description': newGroupDescription,
+    'code': newGroupCode
+  });
+  //newGroupCode = Random.secure() as String;
 }
 
 class _CreateGroupWidgetState extends State<CreateGroupWidget> {
@@ -66,7 +71,7 @@ class _CreateGroupWidgetState extends State<CreateGroupWidget> {
               onPressed: () {
                 newGroupName = groupNameController.text;
                 newGroupDescription = groupDescriptionController.text;
-                addAGroup(newGroupName, newGroupDescription);
+                addAGroup(newGroupName, newGroupDescription, newGroupCode);
                 Navigator.of(context).pop(
                     MaterialPageRoute(builder: (context) => MyGroupsWidget()));
                 //TODO: submit the form

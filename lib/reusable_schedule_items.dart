@@ -3,11 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'model.dart';
 
-/* This file contains scheduling-related things that are reused
- * by multiple different parts of the app
+/* This file contains utility methods for scheduling-related things
+ * and methods that are reused by multiple different scheduling-related
+ * parts of the app
  * 
  * Author: Dylan Schulz
  */
@@ -40,7 +40,8 @@ Widget getDateNavigationRow() {
             },
           ),
           Text(
-            'For the week ${getDateString(appStateModel.curWeekStartDate)} to ${getDateString(weekEndDate)}',
+            'For the week ${getDateString(appStateModel.curWeekStartDate.toLocal())} ' +
+                'to ${getDateString(weekEndDate.toLocal())}',
             style: TextStyle(fontSize: 18),
           ),
           IconButton(
@@ -57,11 +58,11 @@ Widget getDateNavigationRow() {
 
 // Gets the title of a screen in the following format:
 // screenName: currentGroupRefName
-StreamBuilder<DocumentSnapshot> getScreenTitle(
+FutureBuilder<DocumentSnapshot> getScreenTitle(
     {@required DocumentReference currentGroupRef,
     @required String screenName}) {
-  return StreamBuilder<DocumentSnapshot>(
-    stream: currentGroupRef.snapshots(),
+  return FutureBuilder<DocumentSnapshot>(
+    future: currentGroupRef.get(),
     builder: (context, snapshot) {
       if (snapshot.hasError) {
         return Text('$screenName');
@@ -75,38 +76,15 @@ StreamBuilder<DocumentSnapshot> getScreenTitle(
   );
 }
 
-// Gets text nicely formatted for use in a table in the schedule screens
-Widget getFormattedTextForTable(String contents) {
-  return Padding(
-      child: Text(
-        contents,
-        style: TextStyle(
-          fontSize: 14,
-        ),
-      ),
-      padding: EdgeInsets.all(5));
-}
-
-// Converts a map of needed roles to a nice String
-// rolesMap should be of the type Map<String, int>
-String getRoleMapString(Map<String, dynamic> rolesMap) {
-  var toReturn = '';
-  for (var mapEntry in rolesMap.entries) {
-    var role = mapEntry.key;
-    var numNeeded = mapEntry.value;
-    if (toReturn != '') {
-      toReturn = '$toReturn, ';
-    }
-    toReturn = '$toReturn$role ($numNeeded)';
-  }
-  return toReturn;
-}
-
 // Converts a TimeOfDay into a nice String of the form H:MM AM or H:MM PM
 String timeOfDayToTimeString(TimeOfDay time) {
   int hour = time.hourOfPeriod;
   int minute = time.minute;
   DayPeriod amOrPm = time.period;
+
+  if (hour == 0) {
+    hour = 12;
+  }
 
   String minuteStr = minute < 10 ? '0$minute' : '$minute';
   String amOrPmStr;

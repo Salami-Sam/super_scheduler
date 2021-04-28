@@ -30,7 +30,7 @@ DateTime _getSundayMidnightOfThisWeek() {
     print(correctDay);
     correctDay = correctDay.subtract(Duration(days: 1));
   }
-  return DateTime(correctDay.year, correctDay.month, correctDay.day);
+  return DateTime(correctDay.year, correctDay.month, correctDay.day).toUtc();
 }
 
 /*Future<void> access() async {

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'edit_individual.dart';
 import 'edit_roles.dart';
@@ -17,20 +18,55 @@ import 'main.dart';
 List permissions = ['Member', 'Manager', 'Admin'];
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
+CollectionReference users = db.collection('users');
 
+//standard function to return members from database
 Future<Map> getMembers() async {
   Map returnMap;
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Members'];
+      print("in getMembers()");
       print(returnMap);
     } else {
       print("Error, name not found");
     }
   });
-  return returnMap;
+  return uidToMembers(returnMap);
 }
 
+//fetches username from users collection 
+//(users collection is collection that stores members from firebase auth)
+Future<String> uidToMembersHelper(var key) async {
+  String returnString;
+  await users.doc(key).get().then((docref) {
+    if (docref.exists) {
+      returnString = docref['displayName'];
+      print(returnString);
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnString;
+}
+
+//converts database map uids to names
+Future<Map> uidToMembers(Map members) async {
+  List keys = members.keys.toList();
+  String displayName = '';
+  for (int i = 0; i < keys.length; i++) {
+    if (members.containsKey(keys[i])) {
+      displayName = await uidToMembersHelper(keys[i]);
+      String role = members[keys[i]];
+      members.remove(keys[i]);
+      members['$displayName'] = role;
+    }
+  }
+  print(members);
+  return members;
+}
+
+//deletes member from database map
 Future<void> deleteMember(var memberToRemove) async {
   print(memberToRemove);
   await group
@@ -55,7 +91,7 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Edit Members'),
+          title: Text('Edit Current Members'),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -77,15 +113,15 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                       return Text('Error');
                     }
                     Map members = snapshot.data;
-                    List names = members.keys.toList();
-                    List roles = members.values.toList();
+                    List names = members.keys.toList();     //these are used for printing
+                    List roles = members.values.toList();   // easier to use than maps as Lists are naturally indexed
                     return ListView.separated(
                         itemBuilder: (context, index) => ListTile(
                             leading: IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
-                                  deleteMember(names[index]);
-                                  setState(() {
+                                  deleteMember(names[index]); 
+                                  setState(() {       //changes state to reflect any deleted member
                                     names.length;
                                   });
                                 }),
@@ -99,10 +135,10 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   EditIndividualMemberWidget(
-                                                      index: index,
+                                                      index: index,   //index of which member is clicked on
                                                       members: members)))
                                       .then((value) {
-                                    setState(() {});
+                                    setState(() {});  //this is here to ensure any change on EditIndividualMemberWidget is reflected back here
                                   });
                                 })),
                         separatorBuilder: (context, int) =>
@@ -116,7 +152,7 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                   MaterialPageRoute(builder: (context) => InviteMemberWidget()),
                 );
               },
-              child: Text('Invite Members')),
+              child: Text('Invite New Members')),
           ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -124,7 +160,7 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                   MaterialPageRoute(builder: (context) => EditRolesWidget()),
                 );
               },
-              child: Text('Edit Roles')),
+              child: Text('Edit Group Roles')),
         ]));
   }
 }

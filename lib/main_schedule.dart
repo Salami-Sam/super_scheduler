@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'reusable_schedule_items.dart';
 
 /* Screens:
@@ -15,11 +16,10 @@ import 'reusable_schedule_items.dart';
 class MainScheduleWidget extends StatefulWidget {
   final db = FirebaseFirestore.instance;
 
-  // Temporarily set to constant value
-  // Eventually should be passed in from the Group Home Page
-  final String currentGroupId = 'RsTjd6INQsNa6RvSTeUX';
+  final String currentGroupId;
 
-  //MainScheduleWidget({@required this.currentGroupId});
+  // Need to change to @required and remove default value
+  MainScheduleWidget({this.currentGroupId = 'RsTjd6INQsNa6RvSTeUX'});
 
   @override
   _MainScheduleWidgetState createState() => _MainScheduleWidgetState();
@@ -35,26 +35,33 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
     return Container(
       margin: EdgeInsets.all(8),
       child: SingleChildScrollView(
-        child: Table(
-          border: TableBorder.all(),
-          children: [
-            TableRow(
-              children: [
-                getFormattedTextForTable('Start'),
-                getFormattedTextForTable('End'),
-                getFormattedTextForTable('Role'),
-                getFormattedTextForTable('Name'),
-              ],
-            ),
-            TableRow(
-              children: [
-                getFormattedTextForTable('${getRandomTime()}'),
-                getFormattedTextForTable('${getRandomTime()}'),
-                getFormattedTextForTable('${getRandomRole()}'),
-                getFormattedTextForTable('${getRandomName()}'),
-              ],
-            ),
-          ],
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columnSpacing: 20,
+            columns: [
+              DataColumn(label: Text('Start')),
+              DataColumn(label: Text('End')),
+              DataColumn(label: Text('Role')),
+              DataColumn(label: Text('Name')),
+            ],
+            rows: List<DataRow>.generate(15, (index) {
+              return DataRow(
+                cells: [
+                  DataCell(Text(
+                    '${getRandomTime()}',
+                    maxLines: 1,
+                  )),
+                  DataCell(Text(
+                    '${getRandomTime()}',
+                    maxLines: 1,
+                  )),
+                  DataCell(Text('${getRandomRole()}')),
+                  DataCell(Text('${getRandomName()}')),
+                ],
+              );
+            }),
+          ),
         ),
       ),
     );

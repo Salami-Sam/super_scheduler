@@ -31,6 +31,18 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
     'Eugene Krabs'
   ];
 
+  // Gets text nicely formatted for use in a table
+  Widget getFormattedTextForTable(String contents) {
+    return Padding(
+        child: Text(
+          contents,
+          style: TextStyle(
+            fontSize: 14,
+          ),
+        ),
+        padding: EdgeInsets.all(5));
+  }
+
   // Gets the tab with a particular day's information
   Widget getIndividualTab(int day) {
     return Container(

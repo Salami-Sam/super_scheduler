@@ -88,6 +88,11 @@ class _SignInWidgetState extends State<SignInWidget> {
     Map<String, dynamic> data = {'userGroups': []};
     await docRef.set(data);
 
+    Map<String, dynamic> displayName = {
+      'displayName': FirebaseAuth.instance.currentUser.displayName
+    };
+    await docRef.update(displayName);
+
     // Add sub-collection of notifications to user's document in Firestore
     // with a welcome notification.
     data = {
@@ -95,6 +100,7 @@ class _SignInWidgetState extends State<SignInWidget> {
       'content': 'Now you can join and create groups! It\'s a good day!',
       'isInvite': false,
     };
+
     widget.db.collection('users')
       ..doc(FirebaseAuth.instance.currentUser.uid)
           .collection('notifications')

@@ -15,11 +15,10 @@ import 'add_shift.dart';
 class PrimarySchedulerWidget extends StatefulWidget {
   final db = FirebaseFirestore.instance;
 
-  // Temporarily set to constant value
-  // Eventually should be passed in from the Group Home Page
-  final String currentGroupId = 'RsTjd6INQsNa6RvSTeUX';
+  final String currentGroupId;
 
-  //PrimarySchedulerWidget({@required this.currentGroupId});
+  // Need to change to @required and remove default value
+  PrimarySchedulerWidget({this.currentGroupId = 'RsTjd6INQsNa6RvSTeUX'});
 
   @override
   _PrimarySchedulerWidgetState createState() => _PrimarySchedulerWidgetState();
@@ -29,74 +28,183 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
   CollectionReference groups;
   DocumentReference currentGroupRef;
   DocumentReference curWeekScheduleDocRef;
+  int selectedRowIndex = -1;
+  DocumentReference selectedRowShiftDocRef;
+
+  // Converts a map of needed roles to a nice String
+  // rolesMap should be of the type Map<String, int>
+  String _getRoleMapString(Map<String, dynamic> rolesMap) {
+    var toReturn = '';
+    for (var mapEntry in rolesMap.entries) {
+      var role = mapEntry.key;
+      var numNeeded = mapEntry.value;
+      // If this role is not needed, don't add it to the String
+      if (numNeeded > 0) {
+        // Add a separator if this is not the first iteration
+        if (toReturn != '') {
+          toReturn = '$toReturn, ';
+        }
+        // Add the value
+        toReturn = '$toReturn$role ($numNeeded)';
+      }
+    }
+
+    if (toReturn == '') {
+      return 'No roles needed';
+    } else {
+      return toReturn;
+    }
+  }
+
+  // Removes the Shift referred to by selectedRowShiftDocRef,
+  // i.e. the shift the user has selected,
+  // from the database
+  void _removeSelectedShiftFromDb() {
+    selectedRowShiftDocRef.delete();
+    setState(() {
+      selectedRowIndex = -1;
+    });
+  }
 
   // Gets the tab with a particular day's information
-  Widget getIndividualTab(DateTime today) {
-    return Container(
-      margin: EdgeInsets.all(5),
-      child: StreamBuilder<QuerySnapshot>(
-        stream: curWeekScheduleDocRef.collection('Shifts').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-                child: Text('There was an error in retrieving the schedule.'));
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: Text('Retrieving schedule...'));
-          } else {
-            var docsList = snapshot.data.docs;
-            var todaysShifts = docsList.where((element) {
-              DateTime shiftDate = element['startDateTime'].toDate().toUtc();
-              if (shiftDate.year == today.year &&
-                  shiftDate.month == today.month &&
-                  shiftDate.day == today.day) {
-                return true;
-              }
-              return false;
-            }).toList();
-            if (todaysShifts.isEmpty) {
-              return Center(child: Text('There are no shifts on this day.'));
-            } else {
-              return SingleChildScrollView(
-                child: Table(
-                  border: TableBorder.all(),
-                  children: [
-                        TableRow(children: [
-                          getFormattedTextForTable('Start'),
-                          getFormattedTextForTable('End'),
-                          getFormattedTextForTable('Roles'),
-                        ])
-                      ] +
-                      List<TableRow>.generate(
-                        todaysShifts.length,
-                        (index) {
-                          var docData = todaysShifts[index].data();
-                          var startTime = dateTimeToTimeString(
-                              docData['startDateTime'].toDate().toUtc());
-                          var endTime = dateTimeToTimeString(
-                              docData['endDateTime'].toDate().toUtc());
-                          var roleList =
-                              getRoleMapString(docData['rolesNeeded']);
+  Widget _getIndividualTab(DateTime today) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Container(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: curWeekScheduleDocRef.collection('Shifts').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                      child: Text(
+                          'There was an error in retrieving the schedule.'));
+                } else if (snapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return Center(child: Text('Retrieving schedule...'));
+                } else {
+                  var docsList = snapshot.data.docs;
 
-                          return TableRow(
-                            children: [
-                              getFormattedTextForTable("$startTime"),
-                              getFormattedTextForTable("$endTime"),
-                              getFormattedTextForTable("$roleList"),
-                            ],
-                          );
+                  // Get only shifts for the current day
+                  var todaysShifts = docsList.where((element) {
+                    DateTime shiftDate = element['startDateTime'].toDate();
+                    if (shiftDate.year == today.year &&
+                        shiftDate.month == today.month &&
+                        shiftDate.day == today.day) {
+                      return true;
+                    }
+                    return false;
+                  }).toList();
+
+                  // Sort the shifts in order of start time
+                  todaysShifts.sort((shift1, shift2) {
+                    var shift1StartDate = shift1['startDateTime'].toDate();
+                    var shift2StartDate = shift2['startDateTime'].toDate();
+                    return shift1StartDate.compareTo(shift2StartDate);
+                  });
+
+                  if (todaysShifts.isEmpty) {
+                    return Center(
+                        child: Text('There are no shifts on this day.'));
+                  } else {
+                    return SingleChildScrollView(
+                      child: DataTable(
+                        showCheckboxColumn: false,
+                        columnSpacing: 20,
+                        // make dataRowHeight slightly larger than the default to add
+                        // extra padding between rows
+                        dataRowHeight: kMinInteractiveDimension + 5,
+                        onSelectAll: (val) {
+                          // When the user unselects all rows via the checkbox,
+                          // unselect the current row in our state
+                          setState(() {
+                            selectedRowIndex = -1;
+                          });
                         },
+                        columns: [
+                          DataColumn(label: Text('Start')),
+                          DataColumn(label: Text('End')),
+                          DataColumn(label: Text('Roles')),
+                        ],
+                        rows: List<DataRow>.generate(
+                          todaysShifts.length,
+                          (index) {
+                            var docData = todaysShifts[index].data();
+                            var docRef = todaysShifts[index].reference;
+                            var startTime = dateTimeToTimeString(
+                                docData['startDateTime'].toDate().toLocal());
+                            var endTime = dateTimeToTimeString(
+                                docData['endDateTime'].toDate().toLocal());
+                            var roleList =
+                                _getRoleMapString(docData['rolesNeeded']);
+
+                            return DataRow(
+                                cells: [
+                                  DataCell(Text(
+                                    "$startTime",
+                                    maxLines: 1,
+                                  )),
+                                  DataCell(Text(
+                                    "$endTime",
+                                    maxLines: 1,
+                                  )),
+                                  DataCell(Text("$roleList")),
+                                ],
+                                // Only allow one row to be selected at a time
+                                // This row is selected if the currently selected
+                                // row index is equal to this row's index
+                                selected: selectedRowIndex == index,
+                                onSelectChanged: (val) {
+                                  setState(() {
+                                    if (val == true) {
+                                      selectedRowIndex = index;
+                                      selectedRowShiftDocRef = docRef;
+                                    } else {
+                                      selectedRowIndex = -1;
+                                      selectedRowShiftDocRef = null;
+                                    }
+                                  });
+                                });
+                          },
+                        ),
                       ),
+                    );
+                  }
+                }
+              },
+            ),
+          ),
+        ),
+        ElevatedButton(
+          child: Text('Add Shift'),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddShiftWidget(
+                  currentGroupId: widget.currentGroupId,
+                  curWeekScheduleDocRef: curWeekScheduleDocRef,
+                  curDay: today,
                 ),
-              );
-            }
-          }
-        },
-      ),
+              ),
+            );
+          },
+        ),
+        ElevatedButton(
+          child: Text('Remove Selected Shift'),
+          // Disable the button if no shift is currently selected
+          onPressed: (selectedRowShiftDocRef == null)
+              ? null
+              : _removeSelectedShiftFromDb,
+        ),
+      ],
     );
   }
 
   // Return the main contents of this screen
-  Widget getScreenContents(DateTime weekStartDate) {
+  Widget _getScreenContents(DateTime weekStartDate) {
     return Container(
       margin: EdgeInsets.all(8),
       child: Column(
@@ -106,32 +214,15 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
           Expanded(
             child: TabBarView(
               children: [
-                getIndividualTab(weekStartDate),
-                getIndividualTab(weekStartDate.add(Duration(days: 1))),
-                getIndividualTab(weekStartDate.add(Duration(days: 2))),
-                getIndividualTab(weekStartDate.add(Duration(days: 3))),
-                getIndividualTab(weekStartDate.add(Duration(days: 4))),
-                getIndividualTab(weekStartDate.add(Duration(days: 5))),
-                getIndividualTab(weekStartDate.add(Duration(days: 6))),
+                _getIndividualTab(weekStartDate),
+                _getIndividualTab(weekStartDate.add(Duration(days: 1))),
+                _getIndividualTab(weekStartDate.add(Duration(days: 2))),
+                _getIndividualTab(weekStartDate.add(Duration(days: 3))),
+                _getIndividualTab(weekStartDate.add(Duration(days: 4))),
+                _getIndividualTab(weekStartDate.add(Duration(days: 5))),
+                _getIndividualTab(weekStartDate.add(Duration(days: 6))),
               ],
             ),
-          ),
-          ElevatedButton(
-            child: Text('Add Shift'),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddShiftWidget(
-                    currentGroupId: widget.currentGroupId,
-                  ),
-                ),
-              );
-            },
-          ),
-          ElevatedButton(
-            child: Text('Remove Selected Shift'),
-            onPressed: null,
           ),
           ElevatedButton(
             child: Text('Finalize Schedule'),
@@ -202,7 +293,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                       } else {
                         // Save the schedule ref in a var and return screen contents
                         curWeekScheduleDocRef = snapshot.data;
-                        return getScreenContents(
+                        return _getScreenContents(
                             appStateModel.curWeekStartDate);
                       }
                     },
@@ -210,7 +301,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                 } else {
                   // Did exist, so save it in a variable and return screen contents
                   curWeekScheduleDocRef = snapshot.data;
-                  return getScreenContents(appStateModel.curWeekStartDate);
+                  return _getScreenContents(appStateModel.curWeekStartDate);
                 }
               }
             },
