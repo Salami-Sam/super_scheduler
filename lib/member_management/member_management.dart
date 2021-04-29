@@ -21,9 +21,9 @@ CollectionReference group = db.collection('groups');
 CollectionReference users = db.collection('users');
 
 //standard function to return members from database
-Future<Map> getMembers() async {
+Future<Map> getMembers(String currentGroupId) async {
   Map returnMap;
-  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+  await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Members'];
       print("in getMembers()");
@@ -67,10 +67,10 @@ Future<Map> uidToMembers(Map members) async {
 }
 
 //deletes member from database map
-Future<void> deleteMember(var memberToRemove) async {
+Future<void> deleteMember(var memberToRemove, String currentGroupId) async {
   print(memberToRemove);
   await group
-      .doc('PCXUSOFVGcmZ8UqK0QnX')
+      .doc('$currentGroupId')
       .update({'Members.${memberToRemove}': FieldValue.delete()});
 }
 
@@ -81,12 +81,18 @@ Future<void> deleteMember(var memberToRemove) async {
  * todo: Should NOT be able to be accessed by members, only admins 
 */
 class EditMemberWidget extends StatefulWidget {
+  final String currentGroupId;
+  EditMemberWidget({this.currentGroupId = 'RsTjd6INQsNa6RvSTeUX'});
   @override
-  _EditMemberWidgetState createState() => _EditMemberWidgetState();
+  _EditMemberWidgetState createState() =>
+      _EditMemberWidgetState(currentGroupId);
 }
 
 class _EditMemberWidgetState extends State<EditMemberWidget> {
   Future<Map> futureMembers;
+  String currentGroupId;
+  _EditMemberWidgetState(this.currentGroupId);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,7 +110,7 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
         body: Column(children: [
           Flexible(
               child: FutureBuilder<Map>(
-                  future: futureMembers = getMembers(),
+                  future: futureMembers = getMembers(currentGroupId),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return CircularProgressIndicator();
@@ -122,7 +128,7 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                             leading: IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
-                                  deleteMember(names[index]);
+                                  deleteMember(names[index], currentGroupId);
                                   setState(() {
                                     //changes state to reflect any deleted member
                                     names.length;
@@ -140,7 +146,7 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                                               EditIndividualMemberWidget(
                                                   index:
                                                       index, //index of which member is clicked on
-                                                  members: members))).then(
+                                                  members: members, currentGroupId: currentGroupId))).then(
                                       (value) {
                                     setState(
                                         () {}); //this is here to ensure any change on EditIndividualMemberWidget is reflected back here
@@ -154,7 +160,7 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => InviteMemberWidget()),
+                  MaterialPageRoute(builder: (context) => InviteMemberWidget(currentGroupId: currentGroupId)),
                 );
               },
               child: Text('Invite New Members')),
@@ -162,9 +168,11 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
               onPressed: () {
                 Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => EditRolesWidget())).then((value) {
-                      setState(() {}); //this is here to ensure any change on EditRolesWidget is reflected back here
-                    });
+                    MaterialPageRoute(
+                        builder: (context) => EditRolesWidget(currentGroupId: currentGroupId))).then((value) {
+                  setState(
+                      () {}); //this is here to ensure any change on EditRolesWidget is reflected back here
+                });
               },
               child: Text('Edit Group Roles')),
         ]));

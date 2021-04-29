@@ -14,7 +14,6 @@ import 'package:email_validator/email_validator.dart';
  * 4/28/21
  */
 
-
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
 String groupName;
@@ -39,9 +38,9 @@ Future<void> send(String recipient, String role) async {
 }
 
 //standard function to return roles from database
-Future<List> getRoles() async {
+Future<List> getRoles(String currentGroupId) async {
   List returnList = [];
-  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+  await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
       returnList = docref['roles'];
       groupName = docref['name'];
@@ -58,15 +57,21 @@ Future<List> getRoles() async {
  * code that will allow user to group
  */
 class InviteMemberWidget extends StatefulWidget {
+  final String currentGroupId;
+  InviteMemberWidget({this.currentGroupId});
+
   @override
-  _InviteMemberWidgetState createState() => _InviteMemberWidgetState();
+  _InviteMemberWidgetState createState() =>
+      _InviteMemberWidgetState(currentGroupId);
 }
 
 class _InviteMemberWidgetState extends State<InviteMemberWidget> {
   String newMember = '';
-  String selectedRole;
+  String selectedRole, currentGroupId;
   bool roleChosen = false;
   Future<List> futureRoles;
+  _InviteMemberWidgetState(this.currentGroupId);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,7 +108,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
             ),
           ),
           FutureBuilder<List>(
-              future: futureRoles = getRoles(),
+              future: futureRoles = getRoles(currentGroupId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return CircularProgressIndicator();
@@ -137,12 +142,14 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                       if (EmailValidator.validate(newMember)) {
                         send(newMember, selectedRole);
                       } else {
-                        var snackBar = SnackBar(content: Text('Invalid Email'));  //don't want to send to invaild email
+                        var snackBar = SnackBar(
+                            content: Text(
+                                'Invalid Email')); //don't want to send to invaild email
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       }
                     } else {
                       var snackBar =
-                          SnackBar(content: Text('You Must Choose a Role'));     
+                          SnackBar(content: Text('You Must Choose a Role'));
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     }
                   },

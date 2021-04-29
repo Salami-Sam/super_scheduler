@@ -16,9 +16,10 @@ var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
 
 //standard function to return roles from database
-Future<List> getRoles() async {
+Future<List> getRoles(String currentGroupId) async {
+  print(currentGroupId);
   List returnList = [];
-  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+  await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
       returnList = docref['roles'];
       print(returnList);
@@ -30,25 +31,26 @@ Future<List> getRoles() async {
 }
 
 //need to not have doc be a string, should be variable
-Future<void> addRoles(var roleToAdd) async {
-  await group.doc('PCXUSOFVGcmZ8UqK0QnX').update({
+Future<void> addRoles(var roleToAdd, String currentGroupId) async {
+  await group.doc('$currentGroupId').update({
     'roles': FieldValue.arrayUnion([roleToAdd])
   });
 }
 
 //standard function to delete roles from database
-Future<void> deleteRoles(var roleToRemove) async {
+Future<void> deleteRoles(var roleToRemove, String currentGroupId) async {
   print("${roleToRemove}");
-  await group.doc('PCXUSOFVGcmZ8UqK0QnX').update({
+  await group.doc('$currentGroupId').update({
     'roles': FieldValue.arrayRemove([roleToRemove])
   });
   print('got Here');
-  currentMembersWithNowDeletedRoles(roleToRemove);
+  currentMembersWithNowDeletedRoles(roleToRemove, currentGroupId);
 }
 
 //lists every member whose role has been deleted from deleteRoles
-void currentMembersWithNowDeletedRoles(var roleToRemove) async {
-  Map members = await getMembers();
+void currentMembersWithNowDeletedRoles(
+    var roleToRemove, String currentGroupId) async {
+  Map members = await getMembers(currentGroupId);
   List currentMembers = members.keys.toList();
   List currentRoles = members.values.toList();
   List updateMembers = [];
@@ -62,22 +64,22 @@ void currentMembersWithNowDeletedRoles(var roleToRemove) async {
     }
   }
   print(updateMembers);
-  correctRoles(updateMembers);
+  correctRoles(updateMembers, currentGroupId);
 }
 
 //assigns every member with a deleted role as NA
-Future<void> correctRoles(var updateMembers) async {
+Future<void> correctRoles(var updateMembers, String currentGroupId) async {
   for (int i = 0; i < updateMembers.length; i++) {
     await group
-        .doc('PCXUSOFVGcmZ8UqK0QnX')
+        .doc('$currentGroupId')
         .update({'Members.${updateMembers[i]}': 'N\A'});
   }
 }
 
 //standard function getting members from database
-Future<Map> getMembers() async {
+Future<Map> getMembers(String currentGroupId) async {
   Map returnMap;
-  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+  await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Members'];
     } else {
@@ -89,13 +91,19 @@ Future<Map> getMembers() async {
 
 //EditRolesWidget allows admin to create or deleted roles with a group
 class EditRolesWidget extends StatefulWidget {
+  final String currentGroupId;
+  EditRolesWidget({this.currentGroupId});
+
   @override
-  _EditRolesWidgetState createState() => _EditRolesWidgetState();
+  _EditRolesWidgetState createState() => _EditRolesWidgetState(currentGroupId);
 }
 
 class _EditRolesWidgetState extends State<EditRolesWidget> {
   Future<List> futureRoles;
   String newRole = '';
+  String currentGroupId;
+  _EditRolesWidgetState(this.currentGroupId);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,14 +113,14 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
-                Navigator.pop(context);   //back to edit member screen
+                Navigator.pop(context); //back to edit member screen
               },
             )),
         drawer: getUnifiedDrawerWidget(),
         body: Column(children: [
           Flexible(
               child: FutureBuilder<List>(
-                  future: futureRoles = getRoles(),
+                  future: futureRoles = getRoles(currentGroupId),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return CircularProgressIndicator();
@@ -126,8 +134,9 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
                               leading: IconButton(
                                   icon: Icon(Icons.delete),
                                   onPressed: () {
-                                    deleteRoles(roles[index]);
-                                    setState(() {});          //resets screen to reflect changes made to database roles array
+                                    deleteRoles(roles[index], currentGroupId);
+                                    setState(
+                                        () {}); //resets screen to reflect changes made to database roles array
                                   }),
                               title: Text('${roles[index]}'),
                             ),
@@ -145,7 +154,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
               }),
           ElevatedButton(
               onPressed: () {
-                addRoles(newRole);    //sends new role to database
+                addRoles(newRole, currentGroupId); //sends new role to database
                 setState(() {});
               },
               child: Text('Submit'))

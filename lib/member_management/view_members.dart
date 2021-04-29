@@ -16,9 +16,10 @@ CollectionReference group = db.collection('groups');
 CollectionReference users = db.collection('users');
 
 //standard function to return members from database
-Future<Map> getMembers() async {
+Future<Map> getMembers(String currentGroupId) async {
   Map returnMap;
-  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+  print(currentGroupId);
+  await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Members'];
       print("in getMembers()");
@@ -63,16 +64,24 @@ Future<Map> uidToMembers(Map members) async {
 
 /* ViewMembersWidget is a screen that displays members of a particular group
  */
+
 class ViewMembersWidget extends StatefulWidget {
+  final String currentGroupId;
+  ViewMembersWidget({this.currentGroupId});
+
   @override
-  _ViewMembersWidgetState createState() => _ViewMembersWidgetState();
+  _ViewMembersWidgetState createState() =>
+      _ViewMembersWidgetState(currentGroupId);
 }
 
 class _ViewMembersWidgetState extends State<ViewMembersWidget> {
   Future<Map> futureMembers;
+  String currentGroupId;
+  _ViewMembersWidgetState(this.currentGroupId);
 
   @override
   Widget build(BuildContext context) {
+    print('$currentGroupId');
     return Scaffold(
         appBar: AppBar(
           title: Text('Members'),
@@ -87,7 +96,7 @@ class _ViewMembersWidgetState extends State<ViewMembersWidget> {
         ),
         drawer: getUnifiedDrawerWidget(),
         body: FutureBuilder<Map>(
-            future: futureMembers = getMembers(),
+            future: futureMembers = getMembers(currentGroupId),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();

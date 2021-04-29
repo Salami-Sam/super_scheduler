@@ -20,9 +20,9 @@ List permissions = ['Member', 'Manager', 'Admin']; //tmp
 List uids;  //this stores any uids before they are converted into display names
 
 //standard function to return roles from database
-Future<List> getRoles() async {
+Future<List> getRoles(String currentGroupId) async {
   List returnList = [];
-  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+  await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
       returnList = docref['roles'];
       print("in getRoles() " + "$returnList");
@@ -34,9 +34,9 @@ Future<List> getRoles() async {
 }
 
 //standard function to return members from database
-Future<Map> getMembers() async {
+Future<Map> getMembers(String currentGroupId) async {
   Map returnMap;
-  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+  await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Members'];
       uids = returnMap.keys.toList();
@@ -80,11 +80,11 @@ Future<Map> uidToMembers(Map members) async {
   return members;
 }
 
-Future<void> editRole(var memberChosen, var newRole) async {
+Future<void> editRole(var memberChosen, var newRole, String currentGroupId) async {
   print(memberChosen);
   print(newRole);
   await group
-      .doc('PCXUSOFVGcmZ8UqK0QnX')
+      .doc('$currentGroupId')
       .update({'Members.$memberChosen': '$newRole'});
 }
 
@@ -96,11 +96,12 @@ Future<void> editRole(var memberChosen, var newRole) async {
 class EditIndividualMemberWidget extends StatefulWidget {
   final Map members;
   final int index;
-  EditIndividualMemberWidget({this.members, this.index});
+  final String currentGroupId;
+  EditIndividualMemberWidget({this.members, this.index, this.currentGroupId});
 
   @override
   _EditIndividualMemberWidgetState createState() =>
-      _EditIndividualMemberWidgetState(members, index);
+      _EditIndividualMemberWidgetState(members, index, currentGroupId);
 }
 
 class _EditIndividualMemberWidgetState
@@ -108,16 +109,16 @@ class _EditIndividualMemberWidgetState
   Future<Map> futureMembers;
   Future<List> futureRoles;
   List names, roles;
-  Map members;                                  //this map is used for the display of member in title box
-  String selectedRole, selectedPermission;      //these strings are used by the drop menu, will see similar strings in other widgets
+  Map members;                                                  //this map is used for the display of member in title box
+  String selectedRole, selectedPermission, currentGroupId;      //these strings are used by the drop menu, will see similar strings in other widgets
   int index;
-  _EditIndividualMemberWidgetState(this.members, this.index);    //this members map is used for the dropdown menu
+  _EditIndividualMemberWidgetState(this.members, this.index, this.currentGroupId);    //this members map is used for the dropdown menu
   @override                                                      //for some reason the dropdown kept returning null
   Widget build(BuildContext context) {                           //the only way around it was to have two different maps
     return Scaffold(                                             //this is fine as the first members map is only used for printing
         appBar: AppBar(
             title: FutureBuilder<Map>(
-                future: futureMembers = getMembers(),
+                future: futureMembers = getMembers(currentGroupId),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return CircularProgressIndicator();
@@ -146,7 +147,7 @@ class _EditIndividualMemberWidgetState
             ),
           ),
           FutureBuilder<List>(
-              future: futureRoles = getRoles(),
+              future: futureRoles = getRoles(currentGroupId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return CircularProgressIndicator();
@@ -165,7 +166,7 @@ class _EditIndividualMemberWidgetState
                     setState(() {
                       print('in role change drop menu\n');
                       print(uids);
-                      editRole(uids[index], newRole);
+                      editRole(uids[index], newRole, currentGroupId);
                       selectedRole = newRole;
                     });
                   },

@@ -127,9 +127,6 @@ Widget _getAllGroups() {
       });
 }
 
-getGroups(AsyncSnapshot<QuerySnapshot> snapshot) {
-  return snapshot.data.docs.map((doc) => new ListTile(title: new Text(doc["name"]))).toList();
-}
 
 //   getGroups(AsyncSnapshot<QuerySnapshot> snapshot) {
 //     return snapshot.data.docs

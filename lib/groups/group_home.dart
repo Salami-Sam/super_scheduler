@@ -40,7 +40,7 @@ class GroupHomeWidget extends StatelessWidget {
               child: Text('Main Schedule')),
           ElevatedButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ViewMembersWidget()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ViewMembersWidget(currentGroupId: groupId)));
                 //TODO: submit the form
               },
               child: Text('View Members'))

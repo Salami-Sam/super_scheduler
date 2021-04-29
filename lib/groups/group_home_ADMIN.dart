@@ -49,7 +49,7 @@ class GroupHomeAdminWidget extends StatelessWidget {
               child: Text('Scheduler')),
           ElevatedButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => EditMemberWidget()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => EditMemberWidget(currentGroupId: groupId)));
               },
               child: Text('Edit Members')),
           ElevatedButton(
