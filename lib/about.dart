@@ -43,10 +43,15 @@ class AboutWidget extends StatelessWidget {
                   ListTile(
                     leading: Icon(Icons.privacy_tip_rounded),
                     title: TextButton(
-                      child: Text('Privacy Policy'),
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Privacy Policy',
+                        ),
+                      ),
                       onPressed: _launchInBrowser,
                     ),
-                    subtitle: Text(''),
+                    subtitle: Text('Tap above to open on the web. Use device back button to return.'),
                   ),
                   ListTile(
                     leading: Icon(Icons.copyright_rounded),
