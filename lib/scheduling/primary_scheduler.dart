@@ -58,7 +58,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
 
   // Creates a weekly schedule document with the given info
   // Returns the created document
-  Future<DocumentReference> _createWeeklyScheduleDoc(
+  Future<DocumentReference> createWeeklyScheduleDoc(
       {@required DocumentReference groupRef, @required DateTime weekStartDate}) {
     var doc = groupRef.collection('WeeklySchedules').doc();
     return doc.set({
@@ -110,7 +110,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                 if (snapshot.hasError) {
                   return Center(child: Text('There was an error in retrieving the schedule.'));
                 } else if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: Text('Retrieving schedule...'));
+                  return Center(child: CircularProgressIndicator());
                 } else {
                   var docsList = snapshot.data.docs;
 
@@ -303,13 +303,13 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
               if (snapshot.hasError) {
                 return Center(child: Text('There was an error in checking this week\'s schedule.'));
               } else if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: Text('Preparing schedule...'));
+                return Center(child: CircularProgressIndicator());
               } else {
                 // Check if the schedule existed when checked
                 if (snapshot.data == null) {
                   // Did not exist, so create it in a Future
                   return FutureBuilder<DocumentReference>(
-                    future: _createWeeklyScheduleDoc(
+                    future: createWeeklyScheduleDoc(
                       groupRef: currentGroupRef,
                       weekStartDate: appStateModel.curWeekStartDate,
                     ),
@@ -317,7 +317,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                       if (snapshot.hasError) {
                         return Center(child: Text('There was an error in creating this week\'s schedule.'));
                       } else if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: Text('Preparing schedule...'));
+                        return Center(child: CircularProgressIndicator());
                       } else {
                         // Save the schedule ref in a var and return screen contents
                         curWeekScheduleDocRef = snapshot.data;

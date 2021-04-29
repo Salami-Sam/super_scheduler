@@ -42,7 +42,7 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
           if (snapshot.hasError) {
             return Center(child: Text('There was an error in retrieving the schedule.'));
           } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: Text('Retrieving schedule...'));
+            return Center(child: CircularProgressIndicator());
           } else {
             var docsList = snapshot.data.docs;
 
@@ -205,7 +205,7 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
               if (snapshot.hasError) {
                 return Center(child: Text('There was an error in checking this week\'s schedule.'));
               } else if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: Text('Retrieving schedule...'));
+                return Center(child: CircularProgressIndicator());
               } else {
                 // Check the schedule for this week
                 if (snapshot.data == null) {
