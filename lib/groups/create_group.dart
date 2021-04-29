@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'group_management.dart';
@@ -17,6 +18,7 @@ var db = FirebaseFirestore.instance;
 var newGroupName;
 var newGroupDescription;
 var newGroupCode;
+var uid = FirebaseAuth.instance.currentUser.uid;
 
 const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 Random _rnd = Random();
@@ -31,11 +33,15 @@ void addAGroup(newGroupName, newGroupDescription) async {
     'description': newGroupDescription,
     'group_code': newGroupCode,
     'roles': [],
-    'Admins': {},
+    'Admins': {'UserID': uid},
     'Managers': {},
     'Members': {}
   });
 }
+
+/* void addGrouptoUser() async {
+
+} */
 
 class _CreateGroupWidgetState extends State<CreateGroupWidget> {
   final groupNameController = new TextEditingController();
@@ -85,7 +91,6 @@ class _CreateGroupWidgetState extends State<CreateGroupWidget> {
                 addAGroup(newGroupName, newGroupDescription);
                 Navigator.of(context).pop(
                     MaterialPageRoute(builder: (context) => MyGroupsWidget()));
-                //TODO: submit the form
               },
               child: Text('Create Group')),
         ])));
