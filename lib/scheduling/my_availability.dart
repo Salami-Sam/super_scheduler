@@ -74,7 +74,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
           if (snapshot.hasError) {
             return Center(child: Text('There was an error in retrieving this week\'s schedule.'));
           } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: Text('Retrieving schedule...'));
+            return Center(child: CircularProgressIndicator());
           } else {
             var docsList = snapshot.data.docs;
 
@@ -150,7 +150,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
         if (snapshot.hasError) {
           return Center(child: Text('There was an error in accessing the current user\'s role.'));
         } else if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: Text('Preparing schedule...'));
+          return Center(child: CircularProgressIndicator());
         } else {
           currentUsersRole = snapshot.data;
           return TabBarView(
@@ -189,7 +189,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
           ),
         ),
         body: Consumer<AppStateModel>(
-          builder: (context, appStateModel, child) => FutureBuilder<DocumentReference>(
+          builder: (context, appStateModel, child) => FutureBuilder<SchedulePublishedPair>(
             future: getWeeklyScheduleDoc(
               groupRef: currentGroupRef,
               weekStartDate: appStateModel.curWeekStartDate,
@@ -198,31 +198,15 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
               if (snapshot.hasError) {
                 return Center(child: Text('There was an error in checking this week\'s schedule.'));
               } else if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: Text('Preparing schedule...'));
+                return Center(child: CircularProgressIndicator());
               } else {
                 // Check if the schedule existed when checked
                 if (snapshot.data == null) {
-                  // Did not exist, so create it in a Future
-                  return FutureBuilder<DocumentReference>(
-                    future: createWeeklyScheduleDoc(
-                      groupRef: currentGroupRef,
-                      weekStartDate: appStateModel.curWeekStartDate,
-                    ),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return Center(child: Text('There was an error in creating this week\'s schedule.'));
-                      } else if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: Text('Preparing schedule...'));
-                      } else {
-                        // Save the schedule ref in a var and return screen contents
-                        curWeekScheduleDocRef = snapshot.data;
-                        return _getScreenContents(appStateModel.curWeekStartDate);
-                      }
-                    },
-                  );
+                  // Did not exist
+                  return Center(child: Text('There is no schedule created for this week.'));
                 } else {
                   // Did exist, so save it in a variable and return screen contents
-                  curWeekScheduleDocRef = snapshot.data;
+                  curWeekScheduleDocRef = snapshot.data.weeklySchedule;
                   return _getScreenContents(appStateModel.curWeekStartDate);
                 }
               }
