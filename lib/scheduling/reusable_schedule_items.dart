@@ -130,6 +130,43 @@ String getDateString(DateTime date) {
   return '${date.month}/${date.day}/$twoDigitYear';
 }
 
+// Converts the given weekday int to the name of the day it represents
+// A weekday of 0 is Sunday, and a weekday of 6 is Saturday
+String weekdayIntToString(int weekday) {
+  switch (weekday) {
+    case (0):
+      return 'Sunday';
+    case (1):
+      return 'Monday';
+    case (2):
+      return 'Tuesday';
+    case (3):
+      return 'Wednesday';
+    case (4):
+      return 'Thursday';
+    case (5):
+      return 'Friday';
+    case (6):
+      return 'Saturday';
+    default:
+      return 'Error';
+  }
+}
+
+// When getting the weekday of a DateTime, a number is returned:
+// a weekday of 1 is Monday, and a weekday of 7 is Sunday
+// This method converts such a number into a more useable format, such that:
+// a weekday of 0 is Sunday, and a weekday of 6 is Saturday
+int weekdayIntConversion(int weekday) {
+  switch (weekday) {
+    // Sunday is really the only day that needs to change
+    case (DateTime.sunday):
+      return 0;
+    default:
+      return weekday;
+  }
+}
+
 // A pair where:
 // the first item is a DocumentReference for a weekly schedule
 // the second item is a boolean for whether that schedule is published or not
