@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'group_management.dart';
 
 ///A screen where a users can create their own group.
-///They give their group a name and description and then it is created.
+///They give their new group a name and description and then it is created
+///in the firebase and the user is returned to the home screen
 ///@author: James Chartraw
 class CreateGroupWidget extends StatefulWidget {
   @override
@@ -27,6 +28,9 @@ String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
     length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
 void addAGroup(newGroupName, newGroupDescription) async {
+  /* if (!newGroupName || !newGroupDescription) {
+    return;
+  } else */
   newGroupCode = getRandomString(6);
   db.collection("groups").doc().set({
     'name': newGroupName,
