@@ -9,6 +9,8 @@ import 'package:super_scheduler/scheduling/my_schedule.dart';
  */
 ///@author: James Chartraw
 class GroupHomeWidget extends StatelessWidget {
+  final String groupId;
+  GroupHomeWidget(this.groupId);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,43 +18,32 @@ class GroupHomeWidget extends StatelessWidget {
           title: Text('Group Home (Member)'),
         ),
         body: Center(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-              Container(
-                  child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MyAvailabilityWidget()));
-                      },
-                      child: Text('My Availability'))),
-              ElevatedButton(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
+          Container(
+              child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MyScheduleWidget()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => MyAvailabilityWidget(currentGroupId: groupId)));
                   },
-                  child: Text('My Schedules')),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MainScheduleWidget()));
-                  },
-                  child: Text('Main Schedule')),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ViewMembersWidget()));
-                    //TODO: submit the form
-                  },
-                  child: Text('View Members'))
-            ])));
+                  child: Text('My Availability'))),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => MyScheduleWidget(currentGroupId: groupId)));
+              },
+              child: Text('My Schedules')),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => MainScheduleWidget(currentGroupId: groupId)));
+              },
+              child: Text('Main Schedule')),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ViewMembersWidget()));
+                //TODO: submit the form
+              },
+              child: Text('View Members'))
+        ])));
   }
 }

@@ -23,8 +23,8 @@ var uid = FirebaseAuth.instance.currentUser.uid;
 const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 Random _rnd = Random();
 
-String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
-    length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+String getRandomString(int length) =>
+    String.fromCharCodes(Iterable.generate(length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
 void addAGroup(newGroupName, newGroupDescription) async {
   newGroupCode = getRandomString(6);
@@ -33,7 +33,7 @@ void addAGroup(newGroupName, newGroupDescription) async {
     'description': newGroupDescription,
     'group_code': newGroupCode,
     'roles': [],
-    'Admins': {'UserID': uid},
+    'Admins': {uid: 'N\A'},
     'Managers': {},
     'Members': {}
   });
@@ -89,8 +89,7 @@ class _CreateGroupWidgetState extends State<CreateGroupWidget> {
                 newGroupName = groupNameController.text;
                 newGroupDescription = groupDescriptionController.text;
                 addAGroup(newGroupName, newGroupDescription);
-                Navigator.of(context).pop(
-                    MaterialPageRoute(builder: (context) => MyGroupsWidget()));
+                Navigator.of(context).pop(MaterialPageRoute(builder: (context) => MyGroupsWidget()));
               },
               child: Text('Create Group')),
         ])));

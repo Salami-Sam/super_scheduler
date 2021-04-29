@@ -23,75 +23,60 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Center(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-          Container(
-              margin: EdgeInsets.all(20),
-              child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => JoinGroupWidget()));
-                  },
-                  child: Text('Join Group'))),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => CreateGroupWidget()));
-            },
-            child: Text('Create Group'),
-          ),
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[Text("TEST Groups:")],
-            ),
-          ),
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => GroupHomeWidget()));
-                    },
-                    child: Text('Group Home (Member)')),
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => GroupHomeAdminWidget()));
-                    },
-                    child: Text('Group Home (Admin)')),
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => GroupHomeManagerWidget()));
-                    },
-                    child: Text('Group Home (Manager)')),
-              ],
-            ),
-          ),
-          Container(
-            child: Column(
-              children: <Widget>[Text("Your Groups:")],
-            ),
-          ),
-          Flexible(
-            child: Container(
-                decoration:
-                    BoxDecoration(border: Border.all(color: Colors.black)),
-                child: _getAllGroups()),
-          )
-        ])));
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
+      Container(
+          margin: EdgeInsets.all(20),
+          child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => JoinGroupWidget()));
+              },
+              child: Text('Join Group'))),
+      ElevatedButton(
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateGroupWidget()));
+        },
+        child: Text('Create Group'),
+      ),
+      Container(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[Text("TEST Groups:")],
+        ),
+      ),
+      Container(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => GroupHomeWidget('RsTjd6INQsNa6RvSTeUX')));
+                },
+                child: Text('Group Home (Member)')),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => GroupHomeAdminWidget('RsTjd6INQsNa6RvSTeUX')));
+                },
+                child: Text('Group Home (Admin)')),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => GroupHomeManagerWidget('RsTjd6INQsNa6RvSTeUX')));
+                },
+                child: Text('Group Home (Manager)')),
+          ],
+        ),
+      ),
+      Container(
+        child: Column(
+          children: <Widget>[Text("Your Groups:")],
+        ),
+      ),
+      Flexible(
+        child: Container(decoration: BoxDecoration(border: Border.all(color: Colors.black)), child: _getAllGroups()),
+      )
+    ])));
   }
 }
 
@@ -100,14 +85,45 @@ Widget _getAllGroups() {
       stream: FirebaseFirestore.instance.collection("groups").snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (!snapshot.hasData) return new Text("There are no groups");
-        return new ListView(children: getGroups(snapshot));
+
+        List allGroups = snapshot.data.docs;
+        Map curUsersGroups = {};
+
+        for (QueryDocumentSnapshot group in allGroups) {
+          if (group['Members'].containsKey(uid)) {
+            curUsersGroups[group] = 'Member';
+          }
+          if (group['Managers'].containsKey(uid)) {
+            curUsersGroups[group] = 'Manager';
+          }
+          if (group['Admins'].containsKey(uid)) {
+            curUsersGroups[group] = 'Admin';
+          }
+        }
+
+        return ListView.builder(
+          itemCount: curUsersGroups.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: Text(curUsersGroups.keys.elementAt(index)['name']),
+              onTap: () {
+                QueryDocumentSnapshot group = curUsersGroups.keys.elementAt(index);
+                if (curUsersGroups.values.elementAt(index) == 'Admin') {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => GroupHomeAdminWidget(group.id)));
+                } else if (curUsersGroups.values.elementAt(index) == 'Manager') {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => GroupHomeManagerWidget(group.id)));
+                } else {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => GroupHomeWidget(group.id)));
+                }
+              },
+            );
+          },
+        );
       });
 }
 
 getGroups(AsyncSnapshot<QuerySnapshot> snapshot) {
-  return snapshot.data.docs
-      .map((doc) => new ListTile(title: new Text(doc["name"])))
-      .toList();
+  return snapshot.data.docs.map((doc) => new ListTile(title: new Text(doc["name"]))).toList();
 }
 
 /* class CreateGroupWidget extends StatelessWidget {
