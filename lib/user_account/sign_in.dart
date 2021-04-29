@@ -150,8 +150,8 @@ class _SignInWidgetState extends State<SignInWidget> {
   @override
   void initState() {
     super.initState();
-    widget.email.string = ''; //TODO: -- RUDY -- REMOVE TEST DATA
-    widget.password.string = ''; //TODO: -- RUDY -- REMOVE TEST DATA
+    //widget.email.string = ''; //RUDY -- REMOVE TEST DATA
+    //widget.password.string = ''; //RUDY -- REMOVE TEST DATA
     passwordFieldWidget = PasswordFieldWidget(
       password: widget.password,
       obscurePassword: BooleanByReference(boolean: true),

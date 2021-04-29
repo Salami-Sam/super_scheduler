@@ -79,7 +79,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   }
 
   bool passwordsMatch() {
-    //TODO: -- RUDY -- Delete this debug code for security
+    //RUDY -- Delete this debug code for security
     // print('${widget._name.hashCode}' + ' ' + widget._name.string);
     // print('${widget._email.hashCode}' + ' ' + widget._email.string);
     // print('${widget._password1.hashCode}' + ' ' + widget._password1.string);
@@ -136,10 +136,10 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   @override
   void initState() {
     super.initState();
-    // widget._email.string = ''; //TODO: -- RUDY -- REMOVE TEST DATA
-    // widget._name.string = ''; //TODO: -- RUDY -- REMOVE TEST DATA
-    // widget._password1.string = ''; //TODO: -- RUDY -- REMOVE TEST DATA
-    // widget._password2.string = ''; //TODO: -- RUDY -- REMOVE TEST DATA
+    // widget._email.string = ''; //RUDY -- REMOVE TEST DATA
+    // widget._name.string = ''; //RUDY -- REMOVE TEST DATA
+    // widget._password1.string = ''; //RUDY -- REMOVE TEST DATA
+    // widget._password2.string = ''; //RUDY -- REMOVE TEST DATA
   }
 
   @override
