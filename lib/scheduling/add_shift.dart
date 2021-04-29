@@ -16,10 +16,7 @@ class AddShiftWidget extends StatefulWidget {
   final DocumentReference curWeekScheduleDocRef;
   final DateTime curDay;
 
-  AddShiftWidget(
-      {@required this.currentGroupId,
-      @required this.curWeekScheduleDocRef,
-      @required this.curDay});
+  AddShiftWidget({@required this.currentGroupId, @required this.curWeekScheduleDocRef, @required this.curDay});
 
   @override
   _AddShiftWidgetState createState() => _AddShiftWidgetState();
@@ -61,11 +58,9 @@ class _AddShiftWidgetState extends State<AddShiftWidget> {
       stream: currentGroupRef.snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Center(
-              child:
-                  Text('There was an error in retrieving the list of roles.'));
+          return Center(child: Text('There was an error in retrieving the list of roles.'));
         } else if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: Text('Retrieving list of roles...'));
+          return Center(child: CircularProgressIndicator());
         } else {
           // Update the list of roles needed by
           // getting the total list of roles,
@@ -131,21 +126,17 @@ class _AddShiftWidgetState extends State<AddShiftWidget> {
   // Returns true if success, false if not
   bool _addShiftToDb() {
     // Check if start time is less than end time
-    if ((startTime.hour > endTime.hour) ||
-        (startTime.hour == endTime.hour &&
-            startTime.minute >= endTime.minute)) {
-      SnackBar snackBar =
-          SnackBar(content: Text('Start time must be before end time.'));
+    if ((startTime.hour > endTime.hour) || (startTime.hour == endTime.hour && startTime.minute >= endTime.minute)) {
+      SnackBar snackBar = SnackBar(content: Text('Start time must be before end time.'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return false;
     } else {
       var shiftDoc = widget.curWeekScheduleDocRef.collection('Shifts').doc();
-      DateTime startDateTime = DateTime(widget.curDay.year, widget.curDay.month,
-              widget.curDay.day, startTime.hour, startTime.minute)
-          .toUtc();
-      DateTime endDateTime = DateTime(widget.curDay.year, widget.curDay.month,
-              widget.curDay.day, endTime.hour, endTime.minute)
-          .toUtc();
+      DateTime startDateTime =
+          DateTime(widget.curDay.year, widget.curDay.month, widget.curDay.day, startTime.hour, startTime.minute)
+              .toUtc();
+      DateTime endDateTime =
+          DateTime(widget.curDay.year, widget.curDay.month, widget.curDay.day, endTime.hour, endTime.minute).toUtc();
 
       shiftDoc.set({
         'startDateTime': Timestamp.fromDate(startDateTime),

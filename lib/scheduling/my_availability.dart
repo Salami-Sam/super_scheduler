@@ -74,7 +74,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
           if (snapshot.hasError) {
             return Center(child: Text('There was an error in retrieving this week\'s schedule.'));
           } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: Text('Retrieving schedule...'));
+            return Center(child: CircularProgressIndicator());
           } else {
             var docsList = snapshot.data.docs;
 
@@ -150,7 +150,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
         if (snapshot.hasError) {
           return Center(child: Text('There was an error in accessing the current user\'s role.'));
         } else if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: Text('Preparing schedule...'));
+          return Center(child: CircularProgressIndicator());
         } else {
           currentUsersRole = snapshot.data;
           return TabBarView(
@@ -198,7 +198,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
               if (snapshot.hasError) {
                 return Center(child: Text('There was an error in checking this week\'s schedule.'));
               } else if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: Text('Preparing schedule...'));
+                return Center(child: CircularProgressIndicator());
               } else {
                 // Check if the schedule existed when checked
                 if (snapshot.data == null) {

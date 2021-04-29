@@ -87,7 +87,7 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
           if (shiftSnapshot.hasError) {
             return Center(child: Text('There was an error in retrieving the schedule.'));
           } else if (shiftSnapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: Text('Retrieving schedule...'));
+            return Center(child: Center(child: CircularProgressIndicator()));
           } else {
             var docsList = shiftSnapshot.data.docs;
 
@@ -241,7 +241,7 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                         } else if (usersSnapshot.hasError) {
                           return Center(child: Text('There was an error in retrieving the list of members.'));
                         } else if (usersSnapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: Text('Retrieving list of members...'));
+                          return Center(child: CircularProgressIndicator());
                         } else {
                           // Get map of users with the role for the selected row
                           Map<String, String> usersWithRole = usersSnapshot.data;
