@@ -35,7 +35,7 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
   // Gets the tab with a particular day's scheduling information
   Widget _getIndividualTab(DateTime today) {
     return Container(
-      margin: EdgeInsets.all(8),
+      margin: EdgeInsets.all(16),
       child: StreamBuilder<QuerySnapshot>(
         stream: curWeekScheduleDocRef.collection('Shifts').snapshots(),
         builder: (context, snapshot) {
@@ -64,68 +64,99 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
 
             if (todaysShifts.isEmpty) {
               return Center(child: Text('There are no shifts on this day.'));
-            } else {
-              // The actual schedule part
-
-              return ListView.separated(
-                itemCount: todaysShifts.length + 1,
-                separatorBuilder: tableSeparatorBuilder,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    // Create the header row
-                    return Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Text('Start', style: tableHeadingStyle),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('End', style: tableHeadingStyle),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Role', style: tableHeadingStyle),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Text('Assignee', style: tableHeadingStyle),
-                        ),
-                      ],
-                    );
-                  }
-
-                  index--; // To account for the header row index
-
-                  var shiftDocData = todaysShifts[index].data();
-                  var startTime = dateTimeToTimeString(shiftDocData['startDateTime'].toDate().toLocal());
-                  var endTime = dateTimeToTimeString(shiftDocData['endDateTime'].toDate().toLocal());
-
-                  return Container(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Text('$startTime', style: tableBodyStyle),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('$endTime', style: tableBodyStyle),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('${getRandomRole()}', style: tableBodyStyle),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Text('${getRandomName()}', style: tableBodyStyle),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              );
             }
+
+            // Separate the roles that each shift needs out
+            // so that you have list of shift-role-numNeeded tuples
+            List<ShiftRoleTuple> shiftRoleTuples = separateIntoShiftRoleTuples(todaysShifts);
+
+            // The actual schedule part
+
+            return ListView.separated(
+              itemCount: shiftRoleTuples.length + 1,
+              separatorBuilder: tableSeparatorBuilder,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  // Create the header row
+                  return Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text('Start', style: tableHeadingStyle),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Text('End', style: tableHeadingStyle),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text('Role', style: tableHeadingStyle),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text('Assignees', style: tableHeadingStyle),
+                      ),
+                    ],
+                  );
+                }
+
+                index--; // To account for the header row index
+
+                var shiftRoleTuple = shiftRoleTuples[index];
+
+                var shiftDocData = shiftRoleTuple.shift.data();
+                var role = shiftRoleTuple.role;
+                var numNeeded = shiftRoleTuple.numNeeded;
+
+                var startTime = dateTimeToTimeString(shiftDocData['startDateTime'].toDate().toLocal());
+                var endTime = dateTimeToTimeString(shiftDocData['endDateTime'].toDate().toLocal());
+                List allAssignees = shiftDocData['assignees'];
+
+                return Container(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text('$startTime', style: tableBodyStyle),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Text('$endTime', style: tableBodyStyle),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text('$role ($numNeeded)', style: tableBodyStyle),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        // Need to get the list of display names of only assignees with this role
+                        child: FutureBuilder<Map<String, String>>(
+                          future: getUsersWithRole(groupRef: currentGroupRef, neededRole: role),
+                          builder: (context, usersSnapshot) {
+                            if (usersSnapshot.hasError) {
+                              return Text('Error.', style: tableBodyStyle);
+                            } else if (usersSnapshot.connectionState == ConnectionState.waiting) {
+                              return Text('Retrieving...', style: tableBodyStyle);
+                            } else {
+                              // Get map of users with the role for the shift
+                              Map<String, String> users = usersSnapshot.data;
+
+                              // Remove users from this list who are not assigned to this shift
+                              users.removeWhere((key, value) => allAssignees.contains(key) == false);
+
+                              if (users.isEmpty) {
+                                return Text('');
+                              }
+                              return Text(users.values.toList().join(', '), style: tableBodyStyle);
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
           }
         },
       ),

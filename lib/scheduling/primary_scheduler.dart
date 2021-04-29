@@ -56,6 +56,17 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
     }
   }
 
+  // Creates a weekly schedule document with the given info
+  // Returns the created document
+  Future<DocumentReference> _createWeeklyScheduleDoc(
+      {@required DocumentReference groupRef, @required DateTime weekStartDate}) {
+    var doc = groupRef.collection('WeeklySchedules').doc();
+    return doc.set({
+      'startDate': Timestamp.fromDate(weekStartDate),
+      'published': false,
+    }).then((value) => doc);
+  }
+
   // Removes the Shift referred to by selectedRowShiftDocRef,
   // i.e. the shift the user has selected,
   // from the database
@@ -298,7 +309,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                 if (snapshot.data == null) {
                   // Did not exist, so create it in a Future
                   return FutureBuilder<DocumentReference>(
-                    future: createWeeklyScheduleDoc(
+                    future: _createWeeklyScheduleDoc(
                       groupRef: currentGroupRef,
                       weekStartDate: appStateModel.curWeekStartDate,
                     ),
