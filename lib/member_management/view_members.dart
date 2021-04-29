@@ -6,9 +6,9 @@ import '../main.dart';
 /* Screen:
  * View Members
  * 
- * Writen by Mike Schommer
- * version 2.0
- * 4/14/21
+ * @author Mike Schommer
+ * @version 3.0
+ * 4/28/21
  */
 
 var db = FirebaseFirestore.instance;

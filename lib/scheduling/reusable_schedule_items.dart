@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../model.dart';
@@ -132,9 +130,19 @@ String getDateString(DateTime date) {
   return '${date.month}/${date.day}/$twoDigitYear';
 }
 
+// A pair where:
+// the first item is a DocumentReference for a weekly schedule
+// the second item is a boolean for whether that schedule is published or not
+class SchedulePublishedPair {
+  DocumentReference weeklySchedule;
+  bool isPublished;
+  SchedulePublishedPair(this.weeklySchedule, this.isPublished);
+}
+
 // Get weekly schedule doc, if it exists
-// If it does not, return null
-Future<DocumentReference> getWeeklyScheduleDoc(
+// Return a pair of the weekly schedule doc and whether it is published or not
+// If it does not exist, return null
+Future<SchedulePublishedPair> getWeeklyScheduleDoc(
     {@required DocumentReference groupRef, @required DateTime weekStartDate}) {
   var existsQuery =
       groupRef.collection('WeeklySchedules').where('startDate', isEqualTo: Timestamp.fromDate(weekStartDate));
@@ -143,56 +151,70 @@ Future<DocumentReference> getWeeklyScheduleDoc(
       // If no WeeklySchedule doc has this start date, it doesn't exist
       return null;
     } else {
-      // Return the first and only doc with this date
-      return snapshot.docs.first.reference;
+      // Get the first and only doc with this date
+      QueryDocumentSnapshot scheduleSnapshot = snapshot.docs.first;
+      // Check whether the schedule is published
+      bool isPublished = scheduleSnapshot['published'];
+
+      return SchedulePublishedPair(scheduleSnapshot.reference, isPublished);
     }
   });
 }
 
-// Creates a weekly schedule document with the given info
-// Returns the created document
-Future<DocumentReference> createWeeklyScheduleDoc(
-    {@required DocumentReference groupRef, @required DateTime weekStartDate}) {
-  var doc = groupRef.collection('WeeklySchedules').doc();
-  return doc.set({
-    'startDate': Timestamp.fromDate(weekStartDate),
-    'published': false,
-  }).then((value) => doc);
+// A 3-tuple where:
+// the first item is a QueryDocumentSnapshot of a shift
+// the second item is a String representing a role
+// the third item is an int representing the number needed of that role
+class ShiftRoleTuple {
+  QueryDocumentSnapshot shift;
+  String role;
+  int numNeeded;
+  ShiftRoleTuple(this.shift, this.role, this.numNeeded);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-// Used for placeholder dates until the actual model and database are set up
-String getRandomTime() {
-  var hour = Random().nextInt(12) + 1;
-  var minute = Random().nextInt(60);
-  var amOrPm = Random().nextBool() ? 'AM' : 'PM';
-
-  return '$hour:$minute $amOrPm';
-}
-
-// Used for placeholder names until the actual model and database are set up
-String getRandomName() {
-  var names = ['Spongebob Squarepants', 'Patrick Star', 'Squidward Tentacles', 'Eugene Krabs'];
-  return names[Random().nextInt(4)];
-}
-
-// Used for placeholder roles until the actual model and database are set up
-String getRandomRole() {
-  var roles = ['Cashier', 'Fry Cook', 'Busboy', 'GM'];
-  return roles[Random().nextInt(4)];
-}
-
-// Used for placeholder sets of roles in scheduler
-// until the actual model and database are set up
-String getRandomRoleset() {
-  var roles = ['Cashier', 'Fry Cook', 'Busboy', 'GM'];
-
-  var toReturn = '';
-  for (int i = 0; i < Random().nextInt(4) + 1; i++) {
-    var role = roles[Random().nextInt(roles.length)];
-    toReturn = '$role (${Random().nextInt(2) + 1}), $toReturn';
-    roles.remove(role);
+// Separate the roles that each given shift needs out
+// so that you have list of shift-role-numNeeded tuples
+List<ShiftRoleTuple> separateIntoShiftRoleTuples(List<QueryDocumentSnapshot> shifts) {
+  List<ShiftRoleTuple> shiftRoleTuples = [];
+  for (var shift in shifts) {
+    var shiftDocData = shift.data();
+    Map rolesNeeded = shiftDocData['rolesNeeded'];
+    for (MapEntry roleEntry in rolesNeeded.entries) {
+      if (roleEntry.value > 0) {
+        shiftRoleTuples.add(ShiftRoleTuple(
+          shift,
+          roleEntry.key,
+          roleEntry.value,
+        ));
+      }
+    }
   }
-  return toReturn.substring(0, toReturn.length - 2);
+  return shiftRoleTuples;
+}
+
+// Gets all users within the given group who have the given role
+// The Map contains pairs, where
+// the first item is the user's uid
+// the second item is the user's displayName
+Future<Map<String, String>> getUsersWithRole({@required DocumentReference groupRef, @required String neededRole}) {
+  return groupRef.get().then((curGroupSnapshot) {
+    return FirebaseFirestore.instance.collection('users').get().then((allUsers) {
+      var allUserDocs = allUsers.docs;
+      Map<String, String> usersWithRole = {};
+
+      void forEachCallback(userId, userRole) {
+        if (userRole == neededRole) {
+          var userDoc = allUserDocs.firstWhere((element) => element.id == userId);
+          var userDisplayName = userDoc['displayName'];
+          usersWithRole[userId] = userDisplayName;
+        }
+      }
+
+      curGroupSnapshot['Members'].forEach(forEachCallback);
+      curGroupSnapshot['Managers'].forEach(forEachCallback);
+      curGroupSnapshot['Admins'].forEach(forEachCallback);
+
+      return usersWithRole;
+    });
+  });
 }

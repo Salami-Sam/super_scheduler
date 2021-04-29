@@ -9,17 +9,6 @@ import 'reusable_schedule_items.dart';
  * Author: Dylan Schulz
  */
 
-// A 3-tuple where:
-// the first item is a QueryDocumentSnapshot of a shift
-// the second item is a String representing a role
-// the third item is an int representing the number needed of that role
-class _ShiftRoleTuple {
-  QueryDocumentSnapshot shift;
-  String role;
-  int numNeeded;
-  _ShiftRoleTuple(this.shift, this.role, this.numNeeded);
-}
-
 class FinalizeScheduleWidget extends StatefulWidget {
   final db = FirebaseFirestore.instance;
   final String currentGroupId;
@@ -39,36 +28,7 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
   int selectedRowIndex = -1;
   DocumentReference selectedRowShiftDocRef;
   String selectedRowRole;
-
-  // Placeholder list of names
-  List<String> names = ['Spongebob Squarepants', 'Squidward Tentacles', 'Patrick Star', 'Eugene Krabs'];
-
-  // Gets all users within the given group who have the given role
-  // The Map contains pairs, where
-  // the first item is the user's uid
-  // the second item is the user's displayName
-  Future<Map<String, String>> _getUsersWithRole(String neededRole) {
-    return currentGroupRef.get().then((curGroupSnapshot) {
-      return widget.db.collection('users').get().then((allUsers) {
-        var allUserDocs = allUsers.docs;
-        Map<String, String> usersWithRole = {};
-
-        void forEachCallback(userId, userRole) {
-          if (userRole == neededRole) {
-            var userDoc = allUserDocs.firstWhere((element) => element.id == userId);
-            var userDisplayName = userDoc['displayName'];
-            usersWithRole[userId] = userDisplayName;
-          }
-        }
-
-        curGroupSnapshot['Members'].forEach(forEachCallback);
-        curGroupSnapshot['Managers'].forEach(forEachCallback);
-        curGroupSnapshot['Admins'].forEach(forEachCallback);
-
-        return usersWithRole;
-      });
-    });
-  }
+  int selectedRowNumNeeded;
 
   // Assigns or unassigns the user with userId
   // to the currently selected shift, referred to by selectedRowShiftDocRef
@@ -86,8 +46,37 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
     });
   }
 
-  void _publishSchedule() {
+  // Authors: Dylan Schulz and Rudy Fisher
+  void _publishSchedule() async {
     widget.curWeekScheduleDocRef.update({'published': true});
+
+    // Get all the users in the current group.
+    Map<String, dynamic> members = (await currentGroupRef.get())['Members'];
+    Map<String, dynamic> managers = (await currentGroupRef.get())['Managers'];
+    Map<String, dynamic> admins = (await currentGroupRef.get())['Admins'];
+
+    // Send the notification to each of the users in the group.
+    _notifyUsers(members);
+    _notifyUsers(managers);
+    _notifyUsers(admins);
+  }
+
+  // Authors: Rudy Fisher and Dylan Schulz
+  ///Sends a notification about the posted schedule to the given
+  ///[users] in the current group.
+  ///[users] should be a Map<String, String>
+  void _notifyUsers(Map<String, dynamic> users) async {
+    for (String userID in users.keys) {
+      // This is the notification contents and what-not.
+      Map<String, dynamic> data = {
+        'groupId': widget.currentGroupId,
+        'content': 'A new schedule has been posted for the week of ${getDateString(widget.weekStartDate.toLocal())}.',
+        'isInvite': false,
+      };
+
+      // Send the notification to the user's document in firestore.
+      widget.db.collection('users').doc(userID).collection('notifications').add(data);
+    }
   }
 
   // Gets the tab with a particular day's information
@@ -124,139 +113,128 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
 
             // Separate the roles that each shift needs out
             // so that you have list of shift-role-numNeeded tuples
-            List<_ShiftRoleTuple> shiftRoleTuples = [];
-            for (var shift in todaysShifts) {
-              var shiftDocData = shift.data();
-              Map rolesNeeded = shiftDocData['rolesNeeded'];
-              for (MapEntry roleEntry in rolesNeeded.entries) {
-                if (roleEntry.value > 0) {
-                  shiftRoleTuples.add(_ShiftRoleTuple(
-                    shift,
-                    roleEntry.key,
-                    roleEntry.value,
-                  ));
-                }
-              }
-            }
+            List<ShiftRoleTuple> shiftRoleTuples = separateIntoShiftRoleTuples(todaysShifts);
 
             // The actual schedule part
 
             return Column(
               children: [
                 Expanded(
-                    flex: 2, // 2/3 of the available space
-                    child: Container(
-                      margin: EdgeInsets.all(8),
-                      child: ListView.separated(
-                        itemCount: shiftRoleTuples.length + 1,
-                        separatorBuilder: tableSeparatorBuilder,
-                        itemBuilder: (context, index) {
-                          if (index == 0) {
-                            // Create the header row
-                            return Row(
+                  flex: 2, // 2/3 of the available space
+                  child: Container(
+                    margin: EdgeInsets.all(8),
+                    child: ListView.separated(
+                      itemCount: shiftRoleTuples.length + 1,
+                      separatorBuilder: tableSeparatorBuilder,
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          // Create the header row
+                          return Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Text('Start', style: tableHeadingStyle),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text('End', style: tableHeadingStyle),
+                              ),
+                              Expanded(
+                                flex: 3,
+                                child: Text('Role', style: tableHeadingStyle),
+                              ),
+                              Expanded(
+                                flex: 3,
+                                child: Text('Assignees', style: tableHeadingStyle),
+                              ),
+                            ],
+                          );
+                        }
+                        index--; // To account for the header row index
+
+                        var shiftRoleTuple = shiftRoleTuples[index];
+
+                        var shiftDocData = shiftRoleTuple.shift.data();
+                        var shiftDocRef = shiftRoleTuple.shift.reference;
+                        var role = shiftRoleTuple.role;
+                        var numNeeded = shiftRoleTuple.numNeeded;
+
+                        var startTime = dateTimeToTimeString(shiftDocData['startDateTime'].toDate().toLocal());
+                        var endTime = dateTimeToTimeString(shiftDocData['endDateTime'].toDate().toLocal());
+                        List allAssignees = shiftDocData['assignees'];
+
+                        // If the row is selected, change its background color
+                        var rowBackgroundColor;
+                        if (index == selectedRowIndex) {
+                          rowBackgroundColor = Colors.lightBlue[100];
+                        } else {
+                          // The default color
+                          rowBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
+                        }
+
+                        return InkWell(
+                          onTap: () {
+                            setState(() {
+                              selectedRowIndex = index;
+                              selectedRowShiftDocRef = shiftDocRef;
+                              selectedRowRole = role;
+                              selectedRowNumNeeded = numNeeded;
+                            });
+                          },
+                          child: Container(
+                            color: rowBackgroundColor,
+                            child: Row(
                               children: [
                                 Expanded(
                                   flex: 2,
-                                  child: Text('Start', style: tableHeadingStyle),
+                                  child: Text('$startTime', style: tableBodyStyle),
                                 ),
                                 Expanded(
                                   flex: 2,
-                                  child: Text('End', style: tableHeadingStyle),
+                                  child: Text('$endTime', style: tableBodyStyle),
                                 ),
                                 Expanded(
                                   flex: 3,
-                                  child: Text('Role', style: tableHeadingStyle),
+                                  child: Text('$role ($numNeeded)', style: tableBodyStyle),
                                 ),
                                 Expanded(
                                   flex: 3,
-                                  child: Text('Assignees', style: tableHeadingStyle),
+                                  // Need to get the list of display names of only assignees with this role
+                                  child: FutureBuilder<Map<String, String>>(
+                                    future: getUsersWithRole(groupRef: currentGroupRef, neededRole: role),
+                                    builder: (context, usersSnapshot) {
+                                      if (usersSnapshot.hasError) {
+                                        return Text('Error.', style: tableBodyStyle);
+                                      } else if (usersSnapshot.connectionState == ConnectionState.waiting) {
+                                        return Text('Retrieving...', style: tableBodyStyle);
+                                      } else {
+                                        // Get map of users with the role for the shift
+                                        Map<String, String> users = usersSnapshot.data;
+
+                                        // Remove users from this list who are not assigned to this shift
+                                        users.removeWhere((key, value) => allAssignees.contains(key) == false);
+
+                                        if (users.isEmpty) {
+                                          return Text('');
+                                        }
+                                        return Text(users.values.toList().join(', '), style: tableBodyStyle);
+                                      }
+                                    },
+                                  ),
                                 ),
                               ],
-                            );
-                          }
-                          index--; // To account for the header row index
-
-                          var shiftRoleTuple = shiftRoleTuples[index];
-
-                          var shiftDocData = shiftRoleTuple.shift.data();
-                          var shiftDocRef = shiftRoleTuple.shift.reference;
-                          var role = shiftRoleTuple.role;
-                          var numNeeded = shiftRoleTuple.numNeeded;
-
-                          var startTime = dateTimeToTimeString(shiftDocData['startDateTime'].toDate().toLocal());
-                          var endTime = dateTimeToTimeString(shiftDocData['endDateTime'].toDate().toLocal());
-                          List allAssignees = shiftDocData['assignees'];
-
-                          // If the row is selected, change its background color
-                          var rowBackgroundColor;
-                          if (index == selectedRowIndex) {
-                            rowBackgroundColor = Colors.lightBlue[100];
-                          } else {
-                            // The default color
-                            rowBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
-                          }
-
-                          return InkWell(
-                            onTap: () {
-                              setState(() {
-                                selectedRowIndex = index;
-                                selectedRowShiftDocRef = shiftDocRef;
-                                selectedRowRole = role;
-                              });
-                            },
-                            child: Container(
-                              color: rowBackgroundColor,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text('$startTime', style: tableBodyStyle),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text('$endTime', style: tableBodyStyle),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Text('$role ($numNeeded)', style: tableBodyStyle),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    // Need to get the list of display names of only assignees with this role
-                                    child: FutureBuilder<Map<String, String>>(
-                                      future: _getUsersWithRole(role),
-                                      builder: (context, usersSnapshot) {
-                                        if (usersSnapshot.hasError) {
-                                          return Text('Error.', style: tableBodyStyle);
-                                        } else if (usersSnapshot.connectionState == ConnectionState.waiting) {
-                                          return Text('Retrieving...', style: tableBodyStyle);
-                                        } else {
-                                          // Get map of users with the role for the shift
-                                          Map<String, String> users = usersSnapshot.data;
-
-                                          // Remove users from this list who are not assigned to this shift
-                                          users.removeWhere((key, value) => allAssignees.contains(key) == false);
-
-                                          if (users.isEmpty) {
-                                            return Text('');
-                                          }
-                                          return Text(users.values.toList().join(', '), style: tableBodyStyle);
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ),
-                          );
-                        },
-                      ),
-                    )),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
                 // The selector area for choosing assignees
                 Expanded(
                   flex: 1, // 1/3 of the available space
                   child: FutureBuilder<Map<String, String>>(
-                      future: _getUsersWithRole(selectedRowRole),
+                      future: getUsersWithRole(groupRef: currentGroupRef, neededRole: selectedRowRole),
                       builder: (context, usersSnapshot) {
                         if (selectedRowIndex == -1) {
                           return Center(child: Text('Select a shift to assign members.'));
@@ -266,9 +244,9 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                           return Center(child: Text('Retrieving list of members...'));
                         } else {
                           // Get map of users with the role for the selected row
-                          Map<String, String> users = usersSnapshot.data;
+                          Map<String, String> usersWithRole = usersSnapshot.data;
 
-                          if (users.isEmpty) {
+                          if (usersWithRole.isEmpty) {
                             return Center(child: Text('There are no members with the necessary role.'));
                           }
 
@@ -276,10 +254,17 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                           List unavailableUsers = thisShift['unavailableUsers'];
                           List assignees = thisShift['assignees'];
 
+                          // Get a list of the assignees that have the needed role
+                          List assigneesWithRole = [];
+                          assigneesWithRole.addAll(usersWithRole.keys);
+                          assigneesWithRole.removeWhere((element) => !assignees.contains(element));
+
+                          print(assigneesWithRole);
+
                           return ListView.builder(
-                            itemCount: users.length,
+                            itemCount: usersWithRole.length,
                             itemBuilder: (context, index) {
-                              var userMapEntry = users.entries.elementAt(index);
+                              var userMapEntry = usersWithRole.entries.elementAt(index);
 
                               var title;
                               var subtitle;
@@ -307,7 +292,18 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                                 child: CheckboxListTile(
                                   value: assignees.contains(userMapEntry.key),
                                   onChanged: (isSelected) {
-                                    _assignOrUnassignUserToShift(userMapEntry.key, isSelected);
+                                    print(assigneesWithRole);
+                                    print(selectedRowNumNeeded);
+                                    print(isSelected);
+                                    if (isSelected == true && assigneesWithRole.length == selectedRowNumNeeded) {
+                                      // Don't assign this user because the max number of assignments
+                                      // has been reached
+                                      SnackBar snackBar =
+                                          SnackBar(content: Text('No more users with that role are needed.'));
+                                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                    } else {
+                                      _assignOrUnassignUserToShift(userMapEntry.key, isSelected);
+                                    }
                                   },
                                   title: title,
                                   subtitle: subtitle,
@@ -344,6 +340,7 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                 selectedRowIndex = -1;
                 selectedRowShiftDocRef = null;
                 selectedRowRole = "";
+                selectedRowNumNeeded = -1;
               });
             },
           ),

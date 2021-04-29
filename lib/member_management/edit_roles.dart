@@ -7,19 +7,13 @@ import 'member_management.dart';
 /* Screen:
  * Edit Roles
  * 
- * Writen by Mike Schommer
- * version 2.0
- * 4/14/21
+ * @author Mike Schommer
+ * version 3.0
+ * 4/28/21
  */
 
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
-
-//EditRolesWidget allows admin to create or deleted roles with a group
-class EditRolesWidget extends StatefulWidget {
-  @override
-  _EditRolesWidgetState createState() => _EditRolesWidgetState();
-}
 
 //standard function to return roles from database
 Future<List> getRoles() async {
@@ -41,15 +35,63 @@ Future<void> addRoles(var roleToAdd) async {
     'roles': FieldValue.arrayUnion([roleToAdd])
   });
 }
+
 //standard function to delete roles from database
 Future<void> deleteRoles(var roleToRemove) async {
   print("${roleToRemove}");
   await group.doc('PCXUSOFVGcmZ8UqK0QnX').update({
     'roles': FieldValue.arrayRemove([roleToRemove])
   });
+  print('got Here');
+  currentMembersWithNowDeletedRoles(roleToRemove);
 }
 
+//lists every member whose role has been deleted from deleteRoles
+void currentMembersWithNowDeletedRoles(var roleToRemove) async {
+  Map members = await getMembers();
+  List currentMembers = members.keys.toList();
+  List currentRoles = members.values.toList();
+  List updateMembers = [];
+  print('in helper');
+  print(currentMembers);
+  print(currentRoles);
+  print(members);
+  for (int i = 0; i < currentMembers.length; i++) {
+    if (currentRoles[i] == roleToRemove) {
+      updateMembers.add(currentMembers[i]);
+    }
+  }
+  print(updateMembers);
+  correctRoles(updateMembers);
+}
 
+//assigns every member with a deleted role as NA
+Future<void> correctRoles(var updateMembers) async {
+  for (int i = 0; i < updateMembers.length; i++) {
+    await group
+        .doc('PCXUSOFVGcmZ8UqK0QnX')
+        .update({'Members.${updateMembers[i]}': 'N\A'});
+  }
+}
+
+//standard function getting members from database
+Future<Map> getMembers() async {
+  Map returnMap;
+  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
+    if (docref.exists) {
+      returnMap = docref['Members'];
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnMap;
+}
+
+//EditRolesWidget allows admin to create or deleted roles with a group
+class EditRolesWidget extends StatefulWidget {
+  @override
+  _EditRolesWidgetState createState() => _EditRolesWidgetState();
+}
 
 class _EditRolesWidgetState extends State<EditRolesWidget> {
   Future<List> futureRoles;
@@ -63,8 +105,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
-                //back to edit member screen
-                Navigator.pop(context);
+                Navigator.pop(context);   //back to edit member screen
               },
             )),
         drawer: getUnifiedDrawerWidget(),
@@ -86,7 +127,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
                                   icon: Icon(Icons.delete),
                                   onPressed: () {
                                     deleteRoles(roles[index]);
-                                    Navigator.pop(context);
+                                    setState(() {});          //resets screen to reflect changes made to database roles array
                                   }),
                               title: Text('${roles[index]}'),
                             ),
@@ -104,8 +145,8 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
               }),
           ElevatedButton(
               onPressed: () {
-                addRoles(newRole);  //sends new role to database
-                Navigator.pop(context);
+                addRoles(newRole);    //sends new role to database
+                setState(() {});
               },
               child: Text('Submit'))
         ]));

@@ -1,9 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 ///Defines the app's about screen
 ///@author: Rudy Fisher
 class AboutWidget extends StatelessWidget {
   final double margin = 16.0;
+  final String privacyPolicyUrl =
+      'https://docs.google.com/document/d/10VCnZkIwAFCfP_fG73n66pcr5tdcet8aKNhaD-Cz09E/edit?usp=sharing';
+
+  Future<void> _launchInBrowser() async {
+    try {
+      if (await canLaunch(privacyPolicyUrl)) {
+        await launch(
+          privacyPolicyUrl,
+          forceSafariVC: true,
+          forceWebView: true,
+        );
+      } else {
+        throw 'Could not launch $privacyPolicyUrl';
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,15 +42,17 @@ class AboutWidget extends StatelessWidget {
                 children: [
                   ListTile(
                     leading: Icon(Icons.privacy_tip_rounded),
-                    title: Text('Privacy Policy'),
-                    subtitle: Text(
-                        'We are unethical. You have no privacy. muahahaha'),
+                    title: TextButton(
+                      child: Text('Privacy Policy'),
+                      onPressed: _launchInBrowser,
+                    ),
+                    subtitle: Text(''),
                   ),
                   ListTile(
                     leading: Icon(Icons.copyright_rounded),
                     title: Text('Copyright Info'),
                     subtitle: Text(
-                        'This app was created by:\nJames Chartaw\nRajesh Dhirar\nRudy Fisher\nDylan Schulz\nMike Schommer'),
+                        'This app was created by:\n\tJames Chartaw\n\tRajesh Dhirar\n\tRudy Fisher\n\tDylan Schulz\n\tMike Schommer'),
                   ),
                 ],
               ),

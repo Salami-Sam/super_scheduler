@@ -10,9 +10,9 @@ import '../main.dart';
 /* Screen:
  * Edit Members
  * 
- * Writen by Mike Schommer
- * version 2.0
- * 4/14/21
+ * @author Mike Schommer
+ * @version 3.0
+ * 4/28/21
  */
 
 List permissions = ['Member', 'Manager', 'Admin'];
@@ -35,7 +35,7 @@ Future<Map> getMembers() async {
   return uidToMembers(returnMap);
 }
 
-//fetches username from users collection 
+//fetches username from users collection
 //(users collection is collection that stores members from firebase auth)
 Future<String> uidToMembersHelper(var key) async {
   String returnString;
@@ -113,15 +113,18 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                       return Text('Error');
                     }
                     Map members = snapshot.data;
-                    List names = members.keys.toList();     //these are used for printing
-                    List roles = members.values.toList();   // easier to use than maps as Lists are naturally indexed
+                    List names =
+                        members.keys.toList(); //these are used for printing
+                    List roles = members.values
+                        .toList(); // easier to use than maps as Lists are naturally indexed
                     return ListView.separated(
                         itemBuilder: (context, index) => ListTile(
                             leading: IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
-                                  deleteMember(names[index]); 
-                                  setState(() {       //changes state to reflect any deleted member
+                                  deleteMember(names[index]);
+                                  setState(() {
+                                    //changes state to reflect any deleted member
                                     names.length;
                                   });
                                 }),
@@ -131,14 +134,16 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                                 icon: Icon(Icons.more_vert),
                                 onPressed: () {
                                   Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  EditIndividualMemberWidget(
-                                                      index: index,   //index of which member is clicked on
-                                                      members: members)))
-                                      .then((value) {
-                                    setState(() {});  //this is here to ensure any change on EditIndividualMemberWidget is reflected back here
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              EditIndividualMemberWidget(
+                                                  index:
+                                                      index, //index of which member is clicked on
+                                                  members: members))).then(
+                                      (value) {
+                                    setState(
+                                        () {}); //this is here to ensure any change on EditIndividualMemberWidget is reflected back here
                                   });
                                 })),
                         separatorBuilder: (context, int) =>
@@ -156,9 +161,10 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
           ElevatedButton(
               onPressed: () {
                 Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EditRolesWidget()),
-                );
+                    context,
+                    MaterialPageRoute(builder: (context) => EditRolesWidget())).then((value) {
+                      setState(() {}); //this is here to ensure any change on EditRolesWidget is reflected back here
+                    });
               },
               child: Text('Edit Group Roles')),
         ]));

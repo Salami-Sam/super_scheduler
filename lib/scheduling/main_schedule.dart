@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:provider/provider.dart';
+import '../model.dart';
 import 'reusable_schedule_items.dart';
 
 /* Screens:
@@ -28,62 +30,151 @@ class MainScheduleWidget extends StatefulWidget {
 class _MainScheduleWidgetState extends State<MainScheduleWidget> {
   CollectionReference groups;
   DocumentReference currentGroupRef;
-  DateTime curWeekStartDate;
+  DocumentReference curWeekScheduleDocRef;
 
   // Gets the tab with a particular day's scheduling information
-  Widget getIndividualTab(int day) {
+  Widget _getIndividualTab(DateTime today) {
     return Container(
-      margin: EdgeInsets.all(8),
-      child: ListView.separated(
-        itemCount: 15,
-        separatorBuilder: tableSeparatorBuilder,
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            // Create the header row
-            return Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Text('Start', style: tableHeadingStyle),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text('End', style: tableHeadingStyle),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text('Role', style: tableHeadingStyle),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text('Name', style: tableHeadingStyle),
-                ),
-              ],
+      margin: EdgeInsets.all(16),
+      child: StreamBuilder<QuerySnapshot>(
+        stream: curWeekScheduleDocRef.collection('Shifts').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('There was an error in retrieving the schedule.'));
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: Text('Retrieving schedule...'));
+          } else {
+            var docsList = snapshot.data.docs;
+
+            // Get only shifts for the current day
+            var todaysShifts = docsList.where((element) {
+              DateTime shiftDate = element['startDateTime'].toDate();
+              if (shiftDate.year == today.year && shiftDate.month == today.month && shiftDate.day == today.day) {
+                return true;
+              }
+              return false;
+            }).toList();
+
+            // Sort the shifts in order of start time
+            todaysShifts.sort((shift1, shift2) {
+              var shift1StartDate = shift1['startDateTime'].toDate();
+              var shift2StartDate = shift2['startDateTime'].toDate();
+              return shift1StartDate.compareTo(shift2StartDate);
+            });
+
+            if (todaysShifts.isEmpty) {
+              return Center(child: Text('There are no shifts on this day.'));
+            }
+
+            // Separate the roles that each shift needs out
+            // so that you have list of shift-role-numNeeded tuples
+            List<ShiftRoleTuple> shiftRoleTuples = separateIntoShiftRoleTuples(todaysShifts);
+
+            // The actual schedule part
+
+            return ListView.separated(
+              itemCount: shiftRoleTuples.length + 1,
+              separatorBuilder: tableSeparatorBuilder,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  // Create the header row
+                  return Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text('Start', style: tableHeadingStyle),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Text('End', style: tableHeadingStyle),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text('Role', style: tableHeadingStyle),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text('Assignees', style: tableHeadingStyle),
+                      ),
+                    ],
+                  );
+                }
+
+                index--; // To account for the header row index
+
+                var shiftRoleTuple = shiftRoleTuples[index];
+
+                var shiftDocData = shiftRoleTuple.shift.data();
+                var role = shiftRoleTuple.role;
+                var numNeeded = shiftRoleTuple.numNeeded;
+
+                var startTime = dateTimeToTimeString(shiftDocData['startDateTime'].toDate().toLocal());
+                var endTime = dateTimeToTimeString(shiftDocData['endDateTime'].toDate().toLocal());
+                List allAssignees = shiftDocData['assignees'];
+
+                return Container(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text('$startTime', style: tableBodyStyle),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Text('$endTime', style: tableBodyStyle),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text('$role ($numNeeded)', style: tableBodyStyle),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        // Need to get the list of display names of only assignees with this role
+                        child: FutureBuilder<Map<String, String>>(
+                          future: getUsersWithRole(groupRef: currentGroupRef, neededRole: role),
+                          builder: (context, usersSnapshot) {
+                            if (usersSnapshot.hasError) {
+                              return Text('Error.', style: tableBodyStyle);
+                            } else if (usersSnapshot.connectionState == ConnectionState.waiting) {
+                              return Text('Retrieving...', style: tableBodyStyle);
+                            } else {
+                              // Get map of users with the role for the shift
+                              Map<String, String> users = usersSnapshot.data;
+
+                              // Remove users from this list who are not assigned to this shift
+                              users.removeWhere((key, value) => allAssignees.contains(key) == false);
+
+                              if (users.isEmpty) {
+                                return Text('');
+                              }
+                              return Text(users.values.toList().join(', '), style: tableBodyStyle);
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             );
           }
-          index--; // To account for the header row index
-          return Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: Text('${getRandomTime()}', style: tableBodyStyle),
-              ),
-              Expanded(
-                flex: 2,
-                child: Text('${getRandomTime()}', style: tableBodyStyle),
-              ),
-              Expanded(
-                flex: 2,
-                child: Text('${getRandomRole()}', style: tableBodyStyle),
-              ),
-              Expanded(
-                flex: 3,
-                child: Text('${getRandomName()}', style: tableBodyStyle),
-              ),
-            ],
-          );
         },
       ),
+    );
+  }
+
+  // Return the main contents of this screen
+  Widget _getScreenContents(DateTime weekStartDate) {
+    return TabBarView(
+      children: [
+        _getIndividualTab(weekStartDate),
+        _getIndividualTab(weekStartDate.add(Duration(days: 1))),
+        _getIndividualTab(weekStartDate.add(Duration(days: 2))),
+        _getIndividualTab(weekStartDate.add(Duration(days: 3))),
+        _getIndividualTab(weekStartDate.add(Duration(days: 4))),
+        _getIndividualTab(weekStartDate.add(Duration(days: 5))),
+        _getIndividualTab(weekStartDate.add(Duration(days: 6))),
+      ],
     );
   }
 
@@ -104,16 +195,33 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
             tabs: dailyTabList,
           ),
         ),
-        body: TabBarView(
-          children: [
-            getIndividualTab(0),
-            getIndividualTab(1),
-            getIndividualTab(2),
-            getIndividualTab(3),
-            getIndividualTab(4),
-            getIndividualTab(5),
-            getIndividualTab(6),
-          ],
+        body: Consumer<AppStateModel>(
+          builder: (context, appStateModel, child) => FutureBuilder<SchedulePublishedPair>(
+            future: getWeeklyScheduleDoc(
+              groupRef: currentGroupRef,
+              weekStartDate: appStateModel.curWeekStartDate,
+            ),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(child: Text('There was an error in checking this week\'s schedule.'));
+              } else if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: Text('Retrieving schedule...'));
+              } else {
+                // Check the schedule for this week
+                if (snapshot.data == null) {
+                  // Did not exist when checked
+                  return Center(child: Text('There is no schedule created for this week.'));
+                } else if (snapshot.data.isPublished == false) {
+                  // The schedule for this week is not published
+                  return Center(child: Text('The schedule for this week is not published.'));
+                } else {
+                  // Did exist and is published, so save it in a variable and return screen contents
+                  curWeekScheduleDocRef = snapshot.data.weeklySchedule;
+                  return _getScreenContents(appStateModel.curWeekStartDate);
+                }
+              }
+            },
+          ),
         ),
         bottomNavigationBar: getDateNavigationRow(),
       ),

@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../model.dart';
 import 'reusable_schedule_items.dart';
 
 /* Screens:
@@ -21,16 +24,6 @@ class MyScheduleWidget extends StatefulWidget {
   // Need to change to @required and remove default value
   MyScheduleWidget({this.currentGroupId = 'RsTjd6INQsNa6RvSTeUX'});
 
-  final List<String> days = [
-    'Sunday:',
-    'Monday:',
-    'Tuesday:',
-    'Wednesday:',
-    'Thursday:',
-    'Friday:',
-    'Saturday:'
-  ];
-
   @override
   _MyScheduleWidgetState createState() => _MyScheduleWidgetState();
 }
@@ -38,19 +31,67 @@ class MyScheduleWidget extends StatefulWidget {
 class _MyScheduleWidgetState extends State<MyScheduleWidget> {
   CollectionReference groups;
   DocumentReference currentGroupRef;
-  DateTime curWeekStartDate;
+  DocumentReference curWeekScheduleDocRef;
 
-  // Placeholder times for now
-  // Will eventually call methods to get actual times
-  final List<String> dailyTimes = [
-    'OFF',
-    '10:00 AM - 6:00 PM',
-    '11:00 AM - 7:00 PM',
-    'OFF',
-    '8:00 AM - 5:00 PM',
-    '8:00 AM - 6:00 PM',
-    '7:00 AM - 4:00 PM'
-  ];
+  // Gets the actual schedule portion of the screen
+  Widget _getScreenContents(DateTime weekStartDate) {
+    return StreamBuilder<QuerySnapshot>(
+        stream: curWeekScheduleDocRef.collection('Shifts').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('There was an error in retrieving the schedule.'));
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: Text('Retrieving schedule...'));
+          } else {
+            var shiftDocsList = snapshot.data.docs;
+            var thisUsersId = FirebaseAuth.instance.currentUser.uid;
+
+            // Get a list of shifts where the current user is in the list of assignees
+            List thisUsersShifts =
+                shiftDocsList.where((element) => element['assignees'].contains(thisUsersId)).toList();
+
+            // Sort the shifts in order of start time
+            thisUsersShifts.sort((shift1, shift2) {
+              var shift1StartDate = shift1['startDateTime'].toDate();
+              var shift2StartDate = shift2['startDateTime'].toDate();
+              return shift1StartDate.compareTo(shift2StartDate);
+            });
+
+            Map<String, String> dailyShifts = {
+              'Sunday:': 'OFF',
+              'Monday:': 'OFF',
+              'Tuesday:': 'OFF',
+              'Wednesday:': 'OFF',
+              'Thursday:': 'OFF',
+              'Friday:': 'OFF',
+              'Saturday:': 'OFF',
+            };
+
+            return ListView.separated(
+              itemCount: dailyShifts.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(
+                    dailyShifts.keys.elementAt(index),
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  trailing: Text(
+                    dailyShifts.values.elementAt(index),
+                    style: TextStyle(fontSize: 18),
+                  ),
+                );
+              },
+              separatorBuilder: (context, int) {
+                return Divider(
+                  color: Colors.black,
+                  thickness: 1.0,
+                  height: 1.0,
+                );
+              },
+            );
+          }
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +112,7 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Spongebob\'s Schedule',
+              '${FirebaseAuth.instance.currentUser.displayName}\'s Schedule',
               style: TextStyle(fontSize: 26),
             ),
             Divider(
@@ -80,27 +121,33 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
               height: 30.0,
             ),
             Expanded(
-              child: ListView.separated(
-                itemCount: DateTime.daysPerWeek,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(
-                      widget.days[index],
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    trailing: Text(
-                      dailyTimes[index],
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  );
-                },
-                separatorBuilder: (context, int) {
-                  return Divider(
-                    color: Colors.black,
-                    thickness: 1.0,
-                    height: 1.0,
-                  );
-                },
+              child: Consumer<AppStateModel>(
+                builder: (context, appStateModel, child) => FutureBuilder<SchedulePublishedPair>(
+                  future: getWeeklyScheduleDoc(
+                    groupRef: currentGroupRef,
+                    weekStartDate: appStateModel.curWeekStartDate,
+                  ),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(child: Text('There was an error in checking this week\'s schedule.'));
+                    } else if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: Text('Retrieving schedule...'));
+                    } else {
+                      // Check the schedule for this week
+                      if (snapshot.data == null) {
+                        // Did not exist when checked
+                        return Center(child: Text('There is no schedule created for this week.'));
+                      } else if (snapshot.data.isPublished == false) {
+                        // The schedule for this week is not published
+                        return Center(child: Text('The schedule for this week is not published.'));
+                      } else {
+                        // Did exist and is published, so save it in a variable and return screen contents
+                        curWeekScheduleDocRef = snapshot.data.weeklySchedule;
+                        return _getScreenContents(appStateModel.curWeekStartDate);
+                      }
+                    }
+                  },
+                ),
               ),
             ),
           ],

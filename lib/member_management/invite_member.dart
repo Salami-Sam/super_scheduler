@@ -4,14 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import '../main.dart';
 import 'member_management.dart';
+import 'package:email_validator/email_validator.dart';
 
 /* Screen:
  * Invite Members
  * 
- * Writen by Mike Schommer
- * version 2.0
- * 4/14/21
+ * @author Mike Schommer
+ * @version 3.0
+ * 4/28/21
  */
+
 
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
@@ -91,7 +93,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                   hintText: 'spongebob123@bikinimail.com',
                   contentPadding: EdgeInsets.all(20.0)),
               onChanged: (text) {
-                newMember = text;   //will need to use email authentication here
+                newMember = text; //will need to use email authentication here
               }),
           ListTile(
             title: Center(
@@ -117,7 +119,8 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                   onChanged: (newRole) {
                     setState(() {
                       selectedRole = newRole;
-                      roleChosen = true;    //I don't want user to send an email without a role being assigned
+                      roleChosen =
+                          true; //I don't want user to send an email without a role being assigned
                     });
                   },
                   items: roles.map((role) {
@@ -130,11 +133,16 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
               height: 50.0,
               child: ElevatedButton(
                   onPressed: () {
-                    if (roleChosen) {                         
-                      send(newMember, selectedRole);  //I would .pop(context) here, but user can back out of email app
-                    } else {                          //Can retry from invite screen without losing any typed in progress
+                    if (roleChosen) {
+                      if (EmailValidator.validate(newMember)) {
+                        send(newMember, selectedRole);
+                      } else {
+                        var snackBar = SnackBar(content: Text('Invalid Email'));  //don't want to send to invaild email
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      }
+                    } else {
                       var snackBar =
-                          SnackBar(content: Text('You Must Choose a Role'));
+                          SnackBar(content: Text('You Must Choose a Role'));     
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     }
                   },
