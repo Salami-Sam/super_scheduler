@@ -16,19 +16,25 @@ import 'package:email_validator/email_validator.dart';
 
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
-String groupName;
-String accessCode = 'abc123'; //should be passed in from group creation
+String groupName, groupCode;
 
 //pretty basic email sender, uses default email from users phone, works
 //just fine for our purposes
-Future<void> send(String recipient, String role) async {
+Future<void> send(String recipient, String role, String currentGroupId) async {
   List<String> recipientList = [recipient];
+  await group.doc('$currentGroupId').get().then((docref) {
+    if (docref.exists) {
+      groupCode = docref['group_code'];
+      print("in send() " + "$groupCode");
+    } else {
+      print("Error, name not found");
+    }
+  });
   Email email = Email(
-      subject: 'Invitaion to join group $groupName',
+      subject: 'Invitaion to join group $groupName on Super Scheduler',
       body:
-          'You have been invited to join: $groupName on Super Scheduler! \n Here is your access code: \n $accessCode\n\n',
+          'Here is your access code: $groupCode\n',
       recipients: recipientList);
-
   try {
     await FlutterEmailSender.send(email);
     print('Success');
@@ -140,7 +146,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                   onPressed: () {
                     if (roleChosen) {
                       if (EmailValidator.validate(newMember)) {
-                        send(newMember, selectedRole);
+                        send(newMember, selectedRole, currentGroupId);
                       } else {
                         var snackBar = SnackBar(
                             content: Text(
