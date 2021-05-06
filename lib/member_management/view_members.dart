@@ -32,12 +32,9 @@ class _ViewMembersWidgetState extends State<ViewMembersWidget> {
   //standard function to return members from database
   Future<Map> getMembers(String currentGroupId) async {
     Map returnMap;
-    print(currentGroupId);
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         returnMap = docref['Members'];
-        print("in getMembers()");
-        print(returnMap);
       } else {
         print("Error, name not found");
       }
@@ -52,7 +49,6 @@ class _ViewMembersWidgetState extends State<ViewMembersWidget> {
     await users.doc(key).get().then((docref) {
       if (docref.exists) {
         returnString = docref['displayName'];
-        print(returnString);
       } else {
         print("Error, name not found");
       }
@@ -72,7 +68,6 @@ class _ViewMembersWidgetState extends State<ViewMembersWidget> {
         members['$displayName'] = role;
       }
     }
-    print(members);
     return members;
   }
 
@@ -84,7 +79,6 @@ class _ViewMembersWidgetState extends State<ViewMembersWidget> {
 
   @override
   Widget build(BuildContext context) {
-    print('$currentGroupId');
     return Scaffold(
         appBar: AppBar(
           title: Text('Members'),

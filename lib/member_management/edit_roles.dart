@@ -29,12 +29,10 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
 
 //standard function to return roles from database
   Future<List> getRoles(String currentGroupId) async {
-    print(currentGroupId);
     List returnList = [];
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         returnList = docref['roles'];
-        print(returnList);
       } else {
         print("Error, name not found");
       }
@@ -51,11 +49,9 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
 
 //standard function to delete roles from database
   Future<void> deleteRoles(var roleToRemove, String currentGroupId) async {
-    print("$roleToRemove");
     await group.doc('$currentGroupId').update({
       'roles': FieldValue.arrayRemove([roleToRemove])
     });
-    print('got Here');
     currentMembersWithNowDeletedRoles(roleToRemove, currentGroupId);
   }
 
@@ -65,16 +61,11 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
     List currentMembers = members.keys.toList();
     List currentRoles = members.values.toList();
     List updateMembers = [];
-    print('in helper');
-    print(currentMembers);
-    print(currentRoles);
-    print(members);
     for (int i = 0; i < currentMembers.length; i++) {
       if (currentRoles[i] == roleToRemove) {
         updateMembers.add(currentMembers[i]);
       }
     }
-    print(updateMembers);
     correctRoles(updateMembers, currentGroupId);
   }
 

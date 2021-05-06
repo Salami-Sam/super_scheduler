@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'edit_individual.dart';
-import 'edit_roles.dart';
 import 'invite_member.dart';
 
 /* Screen:
@@ -23,8 +22,6 @@ Future<Map> getMembers(String currentGroupId) async {
   await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Members'];
-      print("in getMembers()");
-      print(returnMap);
     } else {
       print("Error, name not found");
     }
@@ -39,7 +36,6 @@ Future<String> uidToMembersHelper(var key) async {
   await users.doc(key).get().then((docref) {
     if (docref.exists) {
       returnString = docref['displayName'];
-      print(returnString);
     } else {
       print("Error, name not found");
     }
@@ -59,13 +55,11 @@ Future<Map> uidToMembers(Map members) async {
       members['$displayName'] = role;
     }
   }
-  print(members);
   return members;
 }
 
 //deletes member from database map
 Future<void> deleteMember(var memberToRemove, String currentGroupId) async {
-  print(memberToRemove);
   await group.doc('$currentGroupId').update({'Members.$memberToRemove': FieldValue.delete()});
 }
 

@@ -43,7 +43,6 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
       if (docref.exists) {
         groupCode = docref['group_code'];
         groupName = docref['name'];
-        print("in send() " + "$groupCode");
       } else {
         print("Error, name not found");
       }
@@ -54,7 +53,6 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
         recipients: recipientList);
     try {
       await FlutterEmailSender.send(email);
-      print('Success');
     } catch (error) {
       print('Error, something went wrong!');
     }
@@ -98,7 +96,6 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
               child: ElevatedButton(
                   onPressed: () {
                     if (EmailValidator.validate(newMember)) {
-                      print(currentGroupId);
                       send(newMember, currentGroupId);
                     } else {
                       var snackBar = SnackBar(content: Text('Invalid email')); //don't want to send to invaild email
