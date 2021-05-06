@@ -1,11 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'edit_individual.dart';
 import 'edit_roles.dart';
 import 'invite_member.dart';
-import '../main.dart';
 
 /* Screen:
  * Edit Members
@@ -69,9 +66,7 @@ Future<Map> uidToMembers(Map members) async {
 //deletes member from database map
 Future<void> deleteMember(var memberToRemove, String currentGroupId) async {
   print(memberToRemove);
-  await group
-      .doc('$currentGroupId')
-      .update({'Members.${memberToRemove}': FieldValue.delete()});
+  await group.doc('$currentGroupId').update({'Members.$memberToRemove': FieldValue.delete()});
 }
 
 /* EditMemberWidget screen acts like the "main" screen for most member management 
@@ -84,14 +79,19 @@ class EditMemberWidget extends StatefulWidget {
   final String currentGroupId;
   EditMemberWidget({this.currentGroupId = 'RsTjd6INQsNa6RvSTeUX'});
   @override
-  _EditMemberWidgetState createState() =>
-      _EditMemberWidgetState(currentGroupId);
+  _EditMemberWidgetState createState() => _EditMemberWidgetState(currentGroupId);
 }
 
 class _EditMemberWidgetState extends State<EditMemberWidget> {
   Future<Map> futureMembers;
   String currentGroupId;
   _EditMemberWidgetState(this.currentGroupId);
+
+  Drawer getUnifiedDrawerWidget() {
+    return Drawer(
+      child: Text('Drawer placeholder'),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,10 +119,8 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                       return Text('Error');
                     }
                     Map members = snapshot.data;
-                    List names =
-                        members.keys.toList(); //these are used for printing
-                    List roles = members.values
-                        .toList(); // easier to use than maps as Lists are naturally indexed
+                    List names = members.keys.toList(); //these are used for printing
+                    List roles = members.values.toList(); // easier to use than maps as Lists are naturally indexed
                     return ListView.separated(
                         itemBuilder: (context, index) => ListTile(
                             leading: IconButton(
@@ -142,18 +140,15 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              EditIndividualMemberWidget(
-                                                  index:
-                                                      index, //index of which member is clicked on
-                                                  members: members, currentGroupId: currentGroupId))).then(
-                                      (value) {
+                                          builder: (context) => EditIndividualMemberWidget(
+                                              index: index, //index of which member is clicked on
+                                              members: members,
+                                              currentGroupId: currentGroupId))).then((value) {
                                     setState(
                                         () {}); //this is here to ensure any change on EditIndividualMemberWidget is reflected back here
                                   });
                                 })),
-                        separatorBuilder: (context, int) =>
-                            Divider(thickness: 1.0, height: 1.0),
+                        separatorBuilder: (context, int) => Divider(thickness: 1.0, height: 1.0),
                         itemCount: names.length);
                   })),
           ElevatedButton(
@@ -166,10 +161,4 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
               child: Text('Invite New Members')),
         ]));
   }
-}
-
-Drawer getUnifiedDrawerWidget() {
-  return Drawer(
-    child: Text('Drawer placeholder'),
-  );
 }
