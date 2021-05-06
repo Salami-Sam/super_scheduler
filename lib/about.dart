@@ -36,11 +36,11 @@ class AboutWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Card(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  ListTile(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Card(
+                  child: ListTile(
                     leading: Icon(Icons.privacy_tip_rounded),
                     title: TextButton(
                       child: Container(
@@ -53,14 +53,16 @@ class AboutWidget extends StatelessWidget {
                     ),
                     subtitle: Text('Tap above to open on the web. Use device back button to return.'),
                   ),
-                  ListTile(
+                ),
+                Card(
+                  child: ListTile(
                     leading: Icon(Icons.copyright_rounded),
                     title: Text('Copyright Info'),
                     subtitle: Text(
                         'This app was created by:\n\tJames Chartaw\n\tRajesh Dhirar\n\tRudy Fisher\n\tDylan Schulz\n\tMike Schommer'),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),

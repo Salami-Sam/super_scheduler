@@ -107,13 +107,13 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
           centerTitle: true,
         ),
         drawer: getUnifiedDrawerWidget(),
-        body: Column(children: [
-          Flexible(
+        body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Expanded(
               child: FutureBuilder<Map>(
                   future: futureMembers = getMembers(currentGroupId),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return Center(child: CircularProgressIndicator());
                     }
                     if (snapshot.hasError) {
                       return Text('Error');
@@ -151,23 +151,29 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                         separatorBuilder: (context, int) => Divider(thickness: 1.0, height: 1.0),
                         itemCount: names.length);
                   })),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => InviteMemberWidget(currentGroupId: currentGroupId)),
-                );
-              },
-              child: Text('Invite New Members')),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => EditRolesWidget(currentGroupId: currentGroupId)))
-                    .then((value) {
-                  setState(() {}); //this is here to ensure any change on EditRolesWidget is reflected back here
-                });
-              },
-              child: Text('Edit Group Roles')),
+          Container(
+            margin: EdgeInsets.only(left: 8, right: 8),
+            child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => InviteMemberWidget(currentGroupId: currentGroupId)),
+                  );
+                },
+                child: Text('Invite New Members')),
+          ),
+          Container(
+            margin: EdgeInsets.only(left: 8, right: 8, bottom: 8),
+            child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => EditRolesWidget(currentGroupId: currentGroupId)))
+                      .then((value) {
+                    setState(() {}); //this is here to ensure any change on EditRolesWidget is reflected back here
+                  });
+                },
+                child: Text('Edit Group Roles')),
+          ),
         ]));
   }
 }

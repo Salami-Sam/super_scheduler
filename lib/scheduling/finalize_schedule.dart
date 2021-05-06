@@ -87,7 +87,7 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
           if (shiftSnapshot.hasError) {
             return Center(child: Text('There was an error in retrieving the schedule.'));
           } else if (shiftSnapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: Center(child: CircularProgressIndicator()));
+            return Center(child: CircularProgressIndicator());
           } else {
             var docsList = shiftSnapshot.data.docs;
 

@@ -99,11 +99,16 @@ class _SignInWidgetState extends State<SignInWidget> {
       'isInvite': false,
     };
 
-    widget.db
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser.uid)
-        .collection('notifications')
-        .add(data);
+    widget.db.collection('users').doc(FirebaseAuth.instance.currentUser.uid).collection('notifications').add(data);
+
+    // Add tips and tricks notifications
+    data = {
+      'groupId': 'Tips & Tricks',
+      'content': 'Long press on the \'For the week\' selector on any schedule screen to return to the current week!',
+      'isInvite': false,
+    };
+
+    widget.db.collection('users').doc(FirebaseAuth.instance.currentUser.uid).collection('notifications').add(data);
   }
 
   ///Signs in the user, making sure they have a document in the users
@@ -111,8 +116,7 @@ class _SignInWidgetState extends State<SignInWidget> {
   void signIn() async {
     print('sign in');
     try {
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: widget.email.string,
         password: widget.password.string,
       );

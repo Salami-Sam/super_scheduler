@@ -66,36 +66,40 @@ class _CreateGroupWidgetState extends State<CreateGroupWidget> {
         appBar: AppBar(
           title: Text('Create Group'),
         ),
-        body: Center(
-            child: Column(children: <Widget>[
-          Container(
-              margin: EdgeInsets.all(20),
-              child: TextField(
-                controller: groupNameController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Group Name',
-                ),
-                onChanged: (text) {},
-              )),
-          Container(
-              margin: EdgeInsets.all(20),
-              child: TextField(
-                controller: groupDescriptionController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Group Description',
-                ),
-                onChanged: (text) {},
-              )),
-          ElevatedButton(
-              onPressed: () {
-                newGroupName = groupNameController.text;
-                newGroupDescription = groupDescriptionController.text;
-                addAGroup(newGroupName, newGroupDescription);
-                Navigator.of(context).pop(MaterialPageRoute(builder: (context) => MyGroupsWidget()));
-              },
-              child: Text('Create Group')),
-        ])));
+        body: Container(
+            margin: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Container(
+                    margin: EdgeInsets.only(top: 20, bottom: 10),
+                    child: TextField(
+                      controller: groupNameController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Group Name',
+                      ),
+                      onChanged: (text) {},
+                    )),
+                Container(
+                    margin: EdgeInsets.only(top: 10, bottom: 20),
+                    child: TextField(
+                      controller: groupDescriptionController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Group Description',
+                      ),
+                      onChanged: (text) {},
+                    )),
+                ElevatedButton(
+                    onPressed: () {
+                      newGroupName = groupNameController.text;
+                      newGroupDescription = groupDescriptionController.text;
+                      addAGroup(newGroupName, newGroupDescription);
+                      Navigator.of(context).pop(MaterialPageRoute(builder: (context) => MyGroupsWidget()));
+                    },
+                    child: Text('Create Group')),
+              ],
+            )));
   }
 }

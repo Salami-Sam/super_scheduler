@@ -146,58 +146,63 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
                   Navigator.pop(context);
                 })),
         drawer: getUnifiedDrawerWidget(),
-        body: Column(children: [
-          ListTile(
-            title: Center(
-              child: Text('Role', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+        body: Container(
+          margin: EdgeInsets.only(top: 20, bottom: 20, left: 40, right: 40),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            ListTile(
+              title: Center(
+                child: Text('Role', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+              ),
             ),
-          ),
-          FutureBuilder<List>(
-              future: futureRoles = getRoles(currentGroupId),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                }
-                if (snapshot.hasError) {
-                  return Text('Error');
-                }
-                List roles = snapshot.data;
-                //print("in dropdown " + "$members");
-                names = members.keys.toList();
-                //print("in dropdown " + 'members[${names[index]}');
-                return DropdownButton(
-                  hint: Text(members['${names[index]}']),
-                  value: selectedRole,
-                  onChanged: (newRole) {
-                    setState(() {
-                      print('in role change drop menu\n');
-                      print(uids);
-                      editRole(uids[index], newRole, currentGroupId);
-                      selectedRole = newRole;
-                    });
-                  },
-                  items: roles.map((role) {
-                    return DropdownMenuItem(child: new Text(role), value: role);
-                  }).toList(),
-                );
-              }),
-          ListTile(
-            title: Center(
-              child: Text('Permissions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+            FutureBuilder<List>(
+                future: futureRoles = getRoles(currentGroupId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error');
+                  }
+                  List roles = snapshot.data;
+                  //print("in dropdown " + "$members");
+                  names = members.keys.toList();
+                  //print("in dropdown " + 'members[${names[index]}');
+                  return DropdownButton(
+                    hint: Text(members['${names[index]}']),
+                    value: selectedRole,
+                    onChanged: (newRole) {
+                      setState(() {
+                        print('in role change drop menu\n');
+                        print(uids);
+                        editRole(uids[index], newRole, currentGroupId);
+                        selectedRole = newRole;
+                      });
+                    },
+                    items: roles.map((role) {
+                      return DropdownMenuItem(child: new Text(role), value: role);
+                    }).toList(),
+                  );
+                }),
+            // An invisible divider to provide space
+            Divider(height: 20.0, color: Theme.of(context).scaffoldBackgroundColor),
+            ListTile(
+              title: Center(
+                child: Text('Permissions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+              ),
             ),
-          ),
-          DropdownButton(
-            hint: Text('${permissions[0]}'),
-            value: selectedPermission,
-            onChanged: (newPermissions) {
-              setState(() {
-                selectedPermission = newPermissions;
-              });
-            },
-            items: permissions.map((permission) {
-              return DropdownMenuItem(child: new Text(permission), value: permission);
-            }).toList(),
-          )
-        ]));
+            DropdownButton(
+              hint: Text('${permissions[0]}'),
+              value: selectedPermission,
+              onChanged: (newPermissions) {
+                setState(() {
+                  selectedPermission = newPermissions;
+                });
+              },
+              items: permissions.map((permission) {
+                return DropdownMenuItem(child: new Text(permission), value: permission);
+              }).toList(),
+            )
+          ]),
+        ));
   }
 }

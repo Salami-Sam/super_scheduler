@@ -17,34 +17,35 @@ class GroupHomeWidget extends StatelessWidget {
         appBar: AppBar(
           title: Text('$groupName (Member)'),
         ),
-        body: Center(
+        body: Container(
+            margin: EdgeInsets.all(8),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
-          Container(
-              child: ElevatedButton(
+              Container(
+                  child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => MyAvailabilityWidget(currentGroupId: groupId)));
+                      },
+                      child: Text('My Availability'))),
+              ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => MyAvailabilityWidget(currentGroupId: groupId)));
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => MyScheduleWidget(currentGroupId: groupId)));
                   },
-                  child: Text('My Availability'))),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => MyScheduleWidget(currentGroupId: groupId)));
-              },
-              child: Text('My Schedules')),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => MainScheduleWidget(currentGroupId: groupId)));
-              },
-              child: Text('Main Schedule')),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => ViewMembersWidget(currentGroupId: groupId)));
-                //TO DO ?: submit the form
-              },
-              child: Text('View Members'))
-        ])));
+                  child: Text('My Schedules')),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => MainScheduleWidget(currentGroupId: groupId)));
+                  },
+                  child: Text('Main Schedule')),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => ViewMembersWidget(currentGroupId: groupId)));
+                    //TO DO ?: submit the form
+                  },
+                  child: Text('View Members'))
+            ])));
   }
 }

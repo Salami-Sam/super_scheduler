@@ -92,33 +92,38 @@ class _JoinGroupWidgetState extends State<JoinGroupWidget> {
         appBar: AppBar(
           title: Text('Join Group'),
         ),
-        body: Center(
-            child: Column(children: <Widget>[
-          Container(
-              margin: EdgeInsets.all(20),
-              child: TextField(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Group Code',
-                ),
-                onChanged: (text) {
-                  groupCode = text;
-                },
-              )),
-          ElevatedButton(
-              onPressed: () async {
-                bool goodJoin = await findGroup(groupCode);
-                if (goodJoin) {
-                  var snackBar =
-                      SnackBar(content: Text('Join was successful! Welcome!')); //don't want to send to invaild email
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                } else {
-                  var snackBar = SnackBar(
-                      content: Text('Invalid code! Make sure code is correct')); //don't want to send to invaild email
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                }
-              },
-              child: Text('Join Group')),
-        ])));
+        body: Container(
+            margin: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Container(
+                    margin: EdgeInsets.only(top: 20, bottom: 20),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Group Code',
+                      ),
+                      onChanged: (text) {
+                        groupCode = text;
+                      },
+                    )),
+                ElevatedButton(
+                    onPressed: () async {
+                      bool goodJoin = await findGroup(groupCode);
+                      if (goodJoin) {
+                        var snackBar = SnackBar(
+                            content: Text('Join was successful! Welcome!')); //don't want to send to invaild email
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      } else {
+                        var snackBar = SnackBar(
+                            content:
+                                Text('Invalid code! Make sure code is correct')); //don't want to send to invaild email
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      }
+                    },
+                    child: Text('Join Group')),
+              ],
+            )));
   }
 }

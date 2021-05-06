@@ -102,7 +102,7 @@ class _ViewMembersWidgetState extends State<ViewMembersWidget> {
             future: futureMembers = getMembers(currentGroupId),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
                 return Text('Error');

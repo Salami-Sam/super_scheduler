@@ -19,38 +19,40 @@ class GroupHomeManagerWidget extends StatelessWidget {
         appBar: AppBar(
           title: Text('$groupName (Manager)'),
         ),
-        body: Center(
+        body: Container(
+            margin: EdgeInsets.all(8),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
-          Container(
-              child: ElevatedButton(
+              Container(
+                  child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => MyAvailabilityWidget(currentGroupId: groupId)));
+                      },
+                      child: Text('My Availability'))),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => MyScheduleWidget(currentGroupId: groupId)));
+                  },
+                  child: Text('My Schedules')),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => MainScheduleWidget(currentGroupId: groupId)));
+                  },
+                  child: Text('Main Schedule')),
+              ElevatedButton(
                   onPressed: () {
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => MyAvailabilityWidget(currentGroupId: groupId)));
+                        MaterialPageRoute(builder: (context) => PrimarySchedulerWidget(currentGroupId: groupId)));
                   },
-                  child: Text('My Availability'))),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => MyScheduleWidget(currentGroupId: groupId)));
-              },
-              child: Text('My Schedules')),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => MainScheduleWidget(currentGroupId: groupId)));
-              },
-              child: Text('Main Schedule')),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => PrimarySchedulerWidget(currentGroupId: groupId)));
-              },
-              child: Text('Scheduler')),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => EditMemberWidget(currentGroupId: groupId)));
-              },
-              child: Text('Edit Members'))
-        ])));
+                  child: Text('Scheduler')),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => EditMemberWidget(currentGroupId: groupId)));
+                  },
+                  child: Text('Edit Members'))
+            ])));
   }
 }

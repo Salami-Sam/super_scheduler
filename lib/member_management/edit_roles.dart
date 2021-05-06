@@ -117,13 +117,13 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
               },
             )),
         drawer: getUnifiedDrawerWidget(),
-        body: Column(children: [
-          Flexible(
+        body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Expanded(
               child: FutureBuilder<List>(
                   future: futureRoles = getRoles(currentGroupId),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return Center(child: CircularProgressIndicator());
                     }
                     if (snapshot.hasError) {
                       return Text('Error');
@@ -145,18 +145,26 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
                         separatorBuilder: (context, int) => Divider(thickness: 1.0, height: 1.0),
                         itemCount: roles.length);
                   })),
-          TextField(
-              decoration: InputDecoration(
-                  labelText: 'New Role', hintText: 'e.g. Dishwasher, Host, Prep', contentPadding: EdgeInsets.all(20.0)),
-              onChanged: (text) {
-                newRole = text;
-              }),
-          ElevatedButton(
-              onPressed: () {
-                addRoles(newRole, currentGroupId); //sends new role to database
-                setState(() {});
-              },
-              child: Text('Submit'))
+          Container(
+            margin: EdgeInsets.only(left: 8, right: 8),
+            child: TextField(
+                decoration: InputDecoration(
+                    labelText: 'New Role',
+                    hintText: 'e.g. Dishwasher, Host, Prep',
+                    contentPadding: EdgeInsets.all(20.0)),
+                onChanged: (text) {
+                  newRole = text;
+                }),
+          ),
+          Container(
+            margin: EdgeInsets.all(8),
+            child: ElevatedButton(
+                onPressed: () {
+                  addRoles(newRole, currentGroupId); //sends new role to database
+                  setState(() {});
+                },
+                child: Text('Submit')),
+          )
         ]));
   }
 }

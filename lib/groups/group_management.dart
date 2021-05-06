@@ -13,7 +13,7 @@ import 'join_group.dart';
  * Join Group
  * Edit Group
  */
-///@author: James Chartraw & Rudy Fisher
+///@author: James Chartraw & Rudy Fisher & Dylan Schulz
 class MyGroupsWidget extends StatefulWidget {
   @override
   _MyGroupsWidgetState createState() => _MyGroupsWidgetState();
@@ -30,7 +30,11 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
     return new StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection("groups").snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) return new Text("There are no groups");
+          if (snapshot.hasError) {
+            return Center(child: Text('There was an error in loading the list of groups.'));
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
 
           List allGroups = snapshot.data.docs;
           Map curUsersGroups = {};
@@ -47,25 +51,44 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
             }
           }
 
+          if (curUsersGroups.isEmpty) {
+            return Center(
+              child: Text(
+                'You do not have any groups. Go to Join Group or Create Group to get started!',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18),
+              ),
+            );
+          }
+
           return ListView.builder(
             itemCount: curUsersGroups.length,
             itemBuilder: (context, index) {
               String groupName = curUsersGroups.keys.elementAt(index)['name'];
-              return ListTile(
-                title: Text(groupName), trailing:  Icon(Icons.arrow_right, size: 45),
-                onTap: () {
-                  QueryDocumentSnapshot group = curUsersGroups.keys.elementAt(index);
-                  if (curUsersGroups.values.elementAt(index) == 'Admin') {
-                    Navigator.push(
-                        context, MaterialPageRoute(builder: (context) => GroupHomeAdminWidget(group.id, groupName)));
-                  } else if (curUsersGroups.values.elementAt(index) == 'Manager') {
-                    Navigator.push(
-                        context, MaterialPageRoute(builder: (context) => GroupHomeManagerWidget(group.id, groupName)));
-                  } else {
-                    Navigator.push(
-                        context, MaterialPageRoute(builder: (context) => GroupHomeWidget(group.id, groupName)));
-                  }
-                },
+              return Container(
+                margin: EdgeInsets.only(top: 4, bottom: 4),
+                child: ElevatedButton(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(child: Text(groupName)),
+                      Icon(Icons.arrow_right, size: 45),
+                    ],
+                  ),
+                  onPressed: () {
+                    QueryDocumentSnapshot group = curUsersGroups.keys.elementAt(index);
+                    if (curUsersGroups.values.elementAt(index) == 'Admin') {
+                      Navigator.push(
+                          context, MaterialPageRoute(builder: (context) => GroupHomeAdminWidget(group.id, groupName)));
+                    } else if (curUsersGroups.values.elementAt(index) == 'Manager') {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => GroupHomeManagerWidget(group.id, groupName)));
+                    } else {
+                      Navigator.push(
+                          context, MaterialPageRoute(builder: (context) => GroupHomeWidget(group.id, groupName)));
+                    }
+                  },
+                ),
               );
             },
           );
@@ -75,67 +98,94 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
+        body: Container(
+            margin: EdgeInsets.all(8),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
-      Container(
-          margin: EdgeInsets.all(20),
-          child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => JoinGroupWidget()));
-              },
-              child: Text('Join Group'))),
-      ElevatedButton(
-        onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateGroupWidget()));
-        },
-        child: Text('Create Group'),
-      ),
-      Container(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[Text("TEST Groups:")],
-        ),
-      ),
-      Container(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            ElevatedButton(
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => JoinGroupWidget()));
+                  },
+                  child: Text('Join Group')),
+              ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => GroupHomeWidget('RsTjd6INQsNa6RvSTeUX', 'Pawnee Parks Dept.')));
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateGroupWidget()));
                 },
-                child: Text('Group Home (Member)')),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => GroupHomeAdminWidget('RsTjd6INQsNa6RvSTeUX', 'Pawnee Parks Dept.')));
-                },
-                child: Text('Group Home (Admin)')),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => GroupHomeManagerWidget('RsTjd6INQsNa6RvSTeUX', 'Pawnee Parks Dept.')));
-                },
-                child: Text('Group Home (Manager)')),
-          ],
-        ),
-      ),
-      Container(
-        child: Column(
-          children: <Widget>[Text("Your Groups:")],
-        ),
-      ),
-      Flexible(
-        child: Container(decoration: BoxDecoration(border: Border.all(color: Colors.black)), child: _getAllGroups()),
-      )
-    ])));
+                child: Text('Create Group'),
+              ),
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[Text("TEST Groups (to be removed):")],
+                ),
+              ),
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => GroupHomeWidget('RsTjd6INQsNa6RvSTeUX', 'Pawnee Parks Dept.')));
+                        },
+                        child: Text('Group Home (Member)')),
+                    ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      GroupHomeAdminWidget('RsTjd6INQsNa6RvSTeUX', 'Pawnee Parks Dept.')));
+                        },
+                        child: Text('Group Home (Admin)')),
+                    ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      GroupHomeManagerWidget('RsTjd6INQsNa6RvSTeUX', 'Pawnee Parks Dept.')));
+                        },
+                        child: Text('Group Home (Manager)')),
+                  ],
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 8),
+                child: Divider(
+                  color: Colors.black,
+                  thickness: 1.0,
+                  height: 1.0,
+                ),
+              ),
+              Center(
+                child: ListTile(
+                  title: Text(
+                    'Your Groups',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(bottom: 8),
+                child: Divider(
+                  color: Colors.black,
+                  thickness: 1.0,
+                  height: 1.0,
+                ),
+              ),
+              Expanded(
+                child: _getAllGroups(),
+              ),
+              // Flexible(
+              //   child: Container(
+              //       decoration: BoxDecoration(border: Border.all(color: Colors.black)), child: _getAllGroups()),
+              // )
+            ])));
   }
 }
 
@@ -182,45 +232,49 @@ class _EditGroupWidgetState extends State<EditGroupWidget> {
         appBar: AppBar(
           title: Text('Edit Group'),
         ),
-        body: Center(
-            child: Column(children: <Widget>[
-          Container(
-              margin: EdgeInsets.all(20),
-              child: TextField(
-                controller: groupNameController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Group Name',
-                ),
-                onChanged: (text) {
-                  setState(() {
-                    groupName = text;
-                  });
-                },
-              )),
-          Container(
-              margin: EdgeInsets.all(20),
-              child: TextField(
-                controller: groupDescriptionController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Group Description',
-                ),
-                onChanged: (text) {
-                  setState(() {
-                    groupDescription = text;
-                  });
-                },
-              )),
-          ElevatedButton(
-              onPressed: () {
-                //TO DO: Editing a group such that a new group is not created
-                // newGroupName = groupNameController.text;
-                // newGroupDescription = groupDescriptionController.text;
-                // addAGroup(newGroupName, newGroupDescription);
-                Navigator.of(context).pop(MaterialPageRoute(builder: (context) => MyGroupsWidget()));
-              },
-              child: Text('Save Changes')),
-        ])));
+        body: Container(
+            margin: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Container(
+                    margin: EdgeInsets.only(top: 20, bottom: 10),
+                    child: TextField(
+                      controller: groupNameController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Group Name',
+                      ),
+                      onChanged: (text) {
+                        setState(() {
+                          groupName = text;
+                        });
+                      },
+                    )),
+                Container(
+                    margin: EdgeInsets.only(top: 10, bottom: 20),
+                    child: TextField(
+                      controller: groupDescriptionController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Group Description',
+                      ),
+                      onChanged: (text) {
+                        setState(() {
+                          groupDescription = text;
+                        });
+                      },
+                    )),
+                ElevatedButton(
+                    onPressed: () {
+                      //TO DO: Editing a group such that a new group is not created
+                      // newGroupName = groupNameController.text;
+                      // newGroupDescription = groupDescriptionController.text;
+                      // addAGroup(newGroupName, newGroupDescription);
+                      Navigator.of(context).pop(MaterialPageRoute(builder: (context) => MyGroupsWidget()));
+                    },
+                    child: Text('Save Changes')),
+              ],
+            )));
   }
 }
