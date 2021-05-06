@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../main.dart';
 import 'member_management.dart';
+import "package:collection/collection.dart";
 
 /* Screen:
  * Edit Roles
@@ -129,6 +130,9 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
                       return Text('Error');
                     }
                     List roles = snapshot.data ?? [];
+                    roles.sort((a, b) => a.toUpperCase() != b.toUpperCase()
+                        ? a.toUpperCase().compareTo(b.toUpperCase())
+                        : a.compareTo(b));  //there is not ignoreCase in flutter so this fixes that issue
                     return ListView.separated(
                         itemBuilder: (context, index) => ListTile(
                               leading: IconButton(
