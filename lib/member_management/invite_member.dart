@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:email_validator/email_validator.dart';
 
+import '../screen_title.dart';
+
 /* Screen:
  * Invite Members
  * 
@@ -68,7 +70,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: Text('Group Invitation'),
+            title: getScreenTitle(currentGroupRef: group.doc(currentGroupId), screenName: 'Invite Member'),
             centerTitle: true,
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),

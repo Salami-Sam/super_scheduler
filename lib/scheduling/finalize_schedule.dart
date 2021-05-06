@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'main_schedule.dart';
 import 'reusable_schedule_items.dart';
+import '../screen_title.dart';
 
 /* Screens:
  * Finalize Schedule

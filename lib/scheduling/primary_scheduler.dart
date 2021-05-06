@@ -5,6 +5,7 @@ import 'package:super_scheduler/model.dart';
 import 'reusable_schedule_items.dart';
 import 'finalize_schedule.dart';
 import 'add_shift.dart';
+import '../screen_title.dart';
 
 /* Screens:
  * Primary Scheduler

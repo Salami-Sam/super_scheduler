@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../screen_title.dart';
+
 /* Screen:
  * Edit Roles
  * 
@@ -99,7 +101,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: Text('Current Roles'),
+            title: getScreenTitle(currentGroupRef: group.doc(currentGroupId), screenName: 'Current Roles'),
             centerTitle: true,
             leading: IconButton(
               icon: Icon(Icons.arrow_back),

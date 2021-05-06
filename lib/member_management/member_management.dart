@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'edit_individual.dart';
 import 'invite_member.dart';
+import '../screen_title.dart';
 
 /* Screen:
  * Edit Members
@@ -91,7 +92,7 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Edit Current Members'),
+          title: getScreenTitle(currentGroupRef: group.doc(currentGroupId), screenName: 'Edit Current Members'),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {

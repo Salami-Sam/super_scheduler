@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../screen_title.dart';
 import 'create_group.dart';
 import 'group_home.dart';
 import 'group_home_ADMIN.dart';
@@ -277,8 +278,11 @@ Container(
 */
 
 class EditGroupWidget extends StatefulWidget {
+  final String currentGroupId;
+  EditGroupWidget({this.currentGroupId});
+
   @override
-  _EditGroupWidgetState createState() => _EditGroupWidgetState();
+  _EditGroupWidgetState createState() => _EditGroupWidgetState(currentGroupId);
 }
 
 /// The Edit group widget is accessed through an Admin of a group clicking "Edit Group" on that groups page.
@@ -289,11 +293,16 @@ class _EditGroupWidgetState extends State<EditGroupWidget> {
   String groupName = '';
   String groupDescription = '';
 
+  String currentGroupId;
+  _EditGroupWidgetState(this.currentGroupId);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Edit Group'),
+          title: getScreenTitle(
+              currentGroupRef: FirebaseFirestore.instance.collection("groups").doc(currentGroupId),
+              screenName: 'Edit Group'),
         ),
         body: Container(
             margin: EdgeInsets.all(20),

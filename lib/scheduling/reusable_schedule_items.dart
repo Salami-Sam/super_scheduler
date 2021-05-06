@@ -78,25 +78,6 @@ Widget getDateNavigationRow() {
   );
 }
 
-// Gets the title of a screen in the following format:
-// screenName: currentGroupRefName
-FutureBuilder<DocumentSnapshot> getScreenTitle(
-    {@required DocumentReference currentGroupRef, @required String screenName}) {
-  return FutureBuilder<DocumentSnapshot>(
-    future: currentGroupRef.get(),
-    builder: (context, snapshot) {
-      if (snapshot.hasError) {
-        return Text('$screenName');
-      } else if (snapshot.connectionState == ConnectionState.waiting) {
-        return Text('$screenName');
-      } else {
-        var currentGroup = snapshot.data;
-        return Text('$screenName: ${currentGroup['name']}');
-      }
-    },
-  );
-}
-
 // Converts a TimeOfDay into a nice String of the form H:MM AM or H:MM PM
 String timeOfDayToTimeString(TimeOfDay time) {
   int hour = time.hourOfPeriod;
