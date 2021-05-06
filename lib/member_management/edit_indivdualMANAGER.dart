@@ -13,24 +13,22 @@ var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
 CollectionReference users = db.collection('users');
 
-List permissions = ['Member', 'Manager', 'Admin']; //tmp
-
 /*
  * EditIndividualMember is a screen that allows an admin to change a role and 
  * permission level of a specific user and save the changes made to said user
  * 
 */
-class EditIndividualMemberWidget extends StatefulWidget {
+class EditIndividualMemberManagerWidget extends StatefulWidget {
   final Map members;
   final int index;
   final String currentGroupId;
-  EditIndividualMemberWidget({this.members, this.index, this.currentGroupId});
+  EditIndividualMemberManagerWidget({this.members, this.index, this.currentGroupId});
 
   @override
-  _EditIndividualMemberWidgetState createState() => _EditIndividualMemberWidgetState(members, index, currentGroupId);
+  _EditIndividualMemberManagerWidgetState createState() => _EditIndividualMemberManagerWidgetState(members, index, currentGroupId);
 }
 
-class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget> {
+class _EditIndividualMemberManagerWidgetState extends State<EditIndividualMemberManagerWidget> {
   Future<Map> futureMembers;
   Future<List> futureRoles;
   List names, roles;
@@ -39,7 +37,7 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
       selectedPermission,
       currentGroupId; //these strings are used by the drop menu, will see similar strings in other widgets
   int index;
-  _EditIndividualMemberWidgetState(
+  _EditIndividualMemberManagerWidgetState(
       this.members, this.index, this.currentGroupId); 
   //this members map is used for the dropdown menu
   //for some reason the dropdown kept returning null
@@ -67,32 +65,6 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         returnMap = docref['Members'];
-        uids = returnMap.keys.toList();
-      } else {
-        print("Error, name not found");
-      }
-    });
-    return uidToMembers(returnMap);
-  }
-
-  Future<Map> getManagers(String currentGroupId) async {
-    Map returnMap;
-    await group.doc('$currentGroupId').get().then((docref) {
-      if (docref.exists) {
-        returnMap = docref['Admins'];
-        uids = returnMap.keys.toList();
-      } else {
-        print("Error, name not found");
-      }
-    });
-    return uidToMembers(returnMap);
-  }
-
-  Future<Map> getAdmins(String currentGroupId) async {
-    Map returnMap;
-    await group.doc('$currentGroupId').get().then((docref) {
-      if (docref.exists) {
-        returnMap = docref['Managers'];
         uids = returnMap.keys.toList();
       } else {
         print("Error, name not found");
@@ -170,10 +142,9 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
           child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
             ListTile(
               title: Center(
-                child: Text('Role', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+                child: Text('Change assigned role', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
               ),
             ),
-
             FutureBuilder<List>(
                 future: futureRoles = getRoles(currentGroupId),
                 builder: (context, snapshot) {
@@ -184,6 +155,9 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
                     return Text('Error');
                   }
                   List roles = snapshot.data;
+                  roles.sort((a, b) => a.toUpperCase() != b.toUpperCase()
+                        ? a.toUpperCase().compareTo(b.toUpperCase())
+                        : a.compareTo(b));
                   names = members.keys.toList();
                   return DropdownButton(
                     hint: Text(members['${names[index]}']),
@@ -199,25 +173,6 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
                     }).toList(),
                   );
                 }),
-            // An invisible divider to provide space
-            Divider(height: 20.0, color: Theme.of(context).scaffoldBackgroundColor),
-            ListTile(
-              title: Center(
-                child: Text('Permissions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
-              ),
-            ),
-            DropdownButton(
-              hint: Text('${permissions[0]}'),
-              value: selectedPermission,
-              onChanged: (newPermissions) {
-                setState(() {
-                  selectedPermission = newPermissions;
-                });
-              },
-              items: permissions.map((permission) {
-                return DropdownMenuItem(child: new Text(permission), value: permission);
-              }).toList(),
-            )
           ]),
         ));
   }

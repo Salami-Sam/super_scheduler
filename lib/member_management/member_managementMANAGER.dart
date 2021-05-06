@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'edit_individual.dart';
+import 'package:super_scheduler/member_management/edit_indivdualMANAGER.dart';
 import 'invite_member.dart';
 import '../screen_title.dart';
 
@@ -70,17 +70,17 @@ Future<void> deleteMember(var memberToRemove, String currentGroupId) async {
  * 
  * todo: Should NOT be able to be accessed by members, only admins 
 */
-class EditMemberWidget extends StatefulWidget {
+class EditMemberManagerWidget extends StatefulWidget {
   final String currentGroupId;
-  EditMemberWidget({this.currentGroupId = 'RsTjd6INQsNa6RvSTeUX'});
+  EditMemberManagerWidget({this.currentGroupId = 'RsTjd6INQsNa6RvSTeUX'});
   @override
-  _EditMemberWidgetState createState() => _EditMemberWidgetState(currentGroupId);
+  _EditMemberManagerWidgetState createState() => _EditMemberManagerWidgetState(currentGroupId);
 }
 
-class _EditMemberWidgetState extends State<EditMemberWidget> {
+class _EditMemberManagerWidgetState extends State<EditMemberManagerWidget> {
   Future<Map> futureMembers;
   String currentGroupId;
-  _EditMemberWidgetState(this.currentGroupId);
+  _EditMemberManagerWidgetState(this.currentGroupId);
 
   Drawer getUnifiedDrawerWidget() {
     return Drawer(
@@ -135,7 +135,7 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => EditIndividualMemberWidget(
+                                          builder: (context) => EditIndividualMemberManagerWidget(
                                               index: index, //index of which member is clicked on
                                               members: members,
                                               currentGroupId: currentGroupId))).then((value) {

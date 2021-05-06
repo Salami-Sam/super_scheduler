@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:super_scheduler/member_management/edit_roles.dart';
+import 'package:super_scheduler/member_management/member_management_ADMIN.dart';
 
 import 'group_management.dart';
 import 'package:super_scheduler/scheduling/main_schedule.dart';
-import 'package:super_scheduler/member_management/member_management.dart';
 import 'package:super_scheduler/scheduling/my_availability.dart';
 import 'package:super_scheduler/scheduling/my_schedule.dart';
 import 'package:super_scheduler/scheduling/primary_scheduler.dart';
@@ -54,7 +54,7 @@ class GroupHomeAdminWidget extends StatelessWidget {
               ElevatedButton(
                   onPressed: () {
                     Navigator.push(
-                        context, MaterialPageRoute(builder: (context) => EditMemberWidget(currentGroupId: groupId)));
+                        context, MaterialPageRoute(builder: (context) => EditMemberAdminWidget(currentGroupId: groupId)));
                   },
                   child: Text('Edit Members')),
               ElevatedButton(
