@@ -4,7 +4,12 @@ import 'entered_user_info.dart';
 ///Defines a text field specifically for passwords.
 ///Allows user to toggle whether the password should
 ///be obscured or not using an eye icon in the suffix of
-///the text field.
+///the text field. [textLabel] is the label for this widget's [TextFormField],
+///it's default is 'Password'. [password] must be of type [StringByReference],
+///so that another [Widget] can have access to it for validation.
+///[obscurePassword] specifies if the [password] should be obscured, and is type
+///[BooleanByReference], so that another [PasswordFieldWidget] can share this
+///value.
 ///@author: Rudy Fisher
 class PasswordFieldWidget extends StatefulWidget {
   final String textLabel;
@@ -13,8 +18,8 @@ class PasswordFieldWidget extends StatefulWidget {
 
   PasswordFieldWidget({
     this.textLabel = 'Password',
-    this.password,
-    this.obscurePassword,
+    @required this.password,
+    @required this.obscurePassword,
   });
 
   @override
@@ -33,6 +38,9 @@ class _PasswordFieldWidgetState extends State<PasswordFieldWidget> {
     });
   }
 
+  ///Sets the current suffix for this [Widget]. If [widget.obscurePassword] is
+  ///true, then it will be set to [Icons.visibility_off], otherwise, it will be
+  ///set to [Icons.visibility].
   Icon getEyeSuffix() {
     Icon passwordEyeSuffix = Icon(Icons.visibility_off);
     passwordEyeSuffix = widget.obscurePassword.boolean
@@ -47,7 +55,6 @@ class _PasswordFieldWidgetState extends State<PasswordFieldWidget> {
     return Column(
       children: [
         TextFormField(
-          //controller: TextEditingController(text: widget.password.string),
           decoration: InputDecoration(
             suffix: InkWell(
               onTap: _toggleObscurePassword,

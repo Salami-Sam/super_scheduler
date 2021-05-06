@@ -34,8 +34,8 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
       title = '${FirebaseAuth.instance.currentUser.displayName}\'s Groups';
     } else {
       currentBodyWidget = SignInScreenWidget(
-        signUpButtonOnPressdCallback: _goToSignUpScreen,
-        signInButtonOnPressdCallback: _goToMyGroupsScreen,
+        signUpButtonOnPressedCallback: _goToSignUpScreen,
+        signInButtonOnPressedCallback: _goToMyGroupsScreen,
         forgotPasswordButtonOnPressdCallback: _goToForgotPasswordScreen,
       );
     }
@@ -69,14 +69,15 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
 
     setState(() {
       currentBodyWidget = SignInScreenWidget(
-        signInButtonOnPressdCallback: _goToMyGroupsScreen,
-        signUpButtonOnPressdCallback: _goToSignUpScreen,
+        signInButtonOnPressedCallback: _goToMyGroupsScreen,
+        signUpButtonOnPressedCallback: _goToSignUpScreen,
         forgotPasswordButtonOnPressdCallback: _goToForgotPasswordScreen,
       );
       title = 'Sign In';
     });
   }
 
+  ///Navigates to the [ForgotPasswordWidget] screen.
   void _goToForgotPasswordScreen() {
     Navigator.push(
       context,
@@ -98,6 +99,7 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
     });
   }
 
+  ///Navigates to the [MyAccountWidget] screen.
   void _goToMyAccountScreen() {
     setState(() {
       currentBodyWidget = MyAccountWidget();
@@ -105,6 +107,7 @@ class _SuperSchedulerAppState extends State<SuperSchedulerApp> {
     });
   }
 
+  ///Navigates to the [NotificationsWidget] screen.
   void _goToNotificationScreen() {
     setState(() {
       currentBodyWidget = NotificationsWidget();

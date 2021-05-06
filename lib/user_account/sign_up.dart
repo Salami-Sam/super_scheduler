@@ -4,15 +4,19 @@ import 'package:provider/provider.dart';
 import 'entered_user_info.dart';
 import 'password_textfield.dart';
 
-///Defines a screen for the user to sign up for an account with the app
+///Defines a screen for the user to sign up for an account with the app.
+///[signUpButtonCallBack] is the function called when user tries to sign up.
+///[signInButtonCallBack] is the function that should navigate the user
+///back to the [SignIn] screen. Both of these functions should navigate to
+///another screen.
 ///@author: Rudy Fisher
 class SignUpScreenWidget extends StatefulWidget {
   final Function() signUpButtonCallBack;
   final Function() signInButtonCallBack;
 
   SignUpScreenWidget({
-    this.signUpButtonCallBack,
-    this.signInButtonCallBack,
+    @required this.signUpButtonCallBack,
+    @required this.signInButtonCallBack,
   });
 
   @override
@@ -23,15 +27,16 @@ class _SignUpScreenWidgetState extends State<SignUpScreenWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 900.0,
       margin: EdgeInsets.only(
         left: 16,
         right: 16,
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: ListView(
         children: [
-          SignUpWidget(signUpButtonOnPressedCallBack: widget.signUpButtonCallBack),
+          SignUpWidget(
+            signUpButtonOnPressedCallBack: widget.signUpButtonCallBack,
+          ),
           ElevatedButton(
             child: Text('Back to Sign In'),
             onPressed: widget.signInButtonCallBack,
@@ -40,7 +45,8 @@ class _SignUpScreenWidgetState extends State<SignUpScreenWidget> {
             height: 24,
           ),
           Text(
-            'Password requirements (set by Google):\n\t1. At least 6 characters long.', //\nNote: Password requirements determined by Google.',
+            'Password requirements:\n\t1. At least 6 characters long.\n' +
+                '\nNote: Password requirements determined by Google.',
             style: TextStyle(fontSize: 16),
           ),
         ],
@@ -77,6 +83,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
+  ///Tests if the passwords match. If so, returns true, otherwise false.
   bool passwordsMatch() {
     if (widget._password1.string != widget._password2.string) {
       showSnackBar(message: 'Passwords don\'t match. Please re-enter.');
@@ -85,19 +92,25 @@ class _SignUpWidgetState extends State<SignUpWidget> {
     return true;
   }
 
+  ///Tests if the entered name is valid (basically, non-empty after trimming
+  ///white space). If so, returns true, otherwise false.
   bool nameIsValid() {
     if (widget._name.string.trim().isEmpty) {
       showSnackBar(
-          message:
-              'Please enter your name. Alphabetical characters are preferred, but feel free to get crazy with it ;)');
+          message: 'Please enter your name. Alphabetical characters are' +
+              ' preferred, but feel free to get crazy with it ;)');
       return false;
     }
     return true;
   }
 
+  ///Attempts to sign the user up for an account. If successful, they are taken
+  ///to the [SignIn] screen and an email is sent for confirmation. If not
+  ///successful, they are given an appropriate error message.
   void signUp() async {
     try {
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: widget._email.string,
         password: widget._password1.string,
       );
@@ -111,7 +124,8 @@ class _SignUpWidgetState extends State<SignUpWidget> {
       showSnackBar(message: 'Please check your email to finish signing up.');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        showSnackBar(message: 'The password provided is too weak. ${e.message}');
+        showSnackBar(
+            message: 'The password provided is too weak. ${e.message}');
       } else if (e.code == 'email-already-in-use') {
         showSnackBar(message: 'The account already exists for that email.');
       } else if (e.code == 'invalid-email') {
@@ -120,24 +134,18 @@ class _SignUpWidgetState extends State<SignUpWidget> {
         showSnackBar(message: e.code + '\n' + e.message);
       }
     } catch (e) {
-      print(e);
+      showSnackBar(message: e.code + '\n' + e.message);
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => widget._obscurePasswords,
-      child: ListView(
-        //crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           TextFormField(
-            //controller: TextEditingController(text: widget._name.string),
             decoration: InputDecoration(
               labelText: 'Name',
               hintText: 'e.g. Spongebob Squarepants',
@@ -147,7 +155,6 @@ class _SignUpWidgetState extends State<SignUpWidget> {
             },
           ),
           TextFormField(
-            //controller: TextEditingController(text: widget._email.string),
             decoration: InputDecoration(
               labelText: 'Email',
               hintText: 'e.g. spongebob@thekrustykrab.com',
@@ -157,23 +164,19 @@ class _SignUpWidgetState extends State<SignUpWidget> {
             },
           ),
           Consumer<BooleanByReference>(
-            builder: (context, booleanByReference, child) => PasswordFieldWidget(
+            builder: (context, booleanByReference, child) =>
+                PasswordFieldWidget(
               password: widget._password1,
               obscurePassword: booleanByReference,
             ),
           ),
           Consumer<BooleanByReference>(
-            builder: (context, booleanByReference, child) => PasswordFieldWidget(
+            builder: (context, booleanByReference, child) =>
+                PasswordFieldWidget(
               password: widget._password2,
               obscurePassword: booleanByReference,
             ),
           ),
-
-          /*
-          PasswordFieldWidget(
-            password: widget._password2,
-            obscurePassword: widget._obscurePasswords,
-          ),*/
           ElevatedButton(
             onPressed: () {
               if (!passwordsMatch()) return;

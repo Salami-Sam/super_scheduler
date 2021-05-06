@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:super_scheduler/home_widget.dart';
 
-///Defines a screen that allows the user to delete/deactivate their account
+///Defines a screen that allows the user to delete their account
 ///@author: Rudy Fisher
 class DeleteAccountWidget extends StatefulWidget {
   @override
@@ -19,10 +19,16 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
+  ///Deletes the user's document from the [Firestore]'s [users] collection.
   Future<void> _deleteUserDocFromFirestore() {
-    return FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser.uid).delete();
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .delete();
   }
 
+  ///Deletes the user's account and navigates to [SignIn] screen.
+  ///See also [_deleteUserDocFromFirestore]
   void _deleteAccountAndReturnToSignInScreen() async {
     try {
       await _deleteUserDocFromFirestore().then((value) {
@@ -61,7 +67,8 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
                 color: Colors.redAccent,
               ),
             ),
-            Divider(height: 20, color: Theme.of(context).scaffoldBackgroundColor),
+            Divider(
+                height: 20, color: Theme.of(context).scaffoldBackgroundColor),
             ElevatedButton(
               onPressed: _deleteAccountAndReturnToSignInScreen,
               child: Text('Confirm'),

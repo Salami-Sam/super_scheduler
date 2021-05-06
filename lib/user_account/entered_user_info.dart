@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
-///Wraps a [String] into a reference type data structure.
+///This file contains a few small classes that are used by [SignIn] and
+///[SignUp] [Widget]s to handle user input.
+
+///Wraps a [String] into a reference type data structure. Its [string] field
+///is never null.
 ///@author Rudy Fisher
 class StringByReference extends Object {
   String string = '';

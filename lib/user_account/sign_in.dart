@@ -6,19 +6,19 @@ import 'password_textfield.dart';
 
 ///Defines the Sign In screen for the app.
 ///[signUpButtonOnPressedCallback] and
-///[signInButtonOnPressdCallback] and
+///[signInButtonOnPressedCallback] and
 ///[forgotPasswordButtonOnPressdCallback] are callbacks
-///for this widget's button children's [onPressed].
+///for this widget's buttons. They should navigate somewhere
 ///@author: Rudy Fisher
 class SignInScreenWidget extends StatefulWidget {
-  final Function() signUpButtonOnPressdCallback;
-  final Function() signInButtonOnPressdCallback;
+  final Function() signUpButtonOnPressedCallback;
+  final Function() signInButtonOnPressedCallback;
   final Function() forgotPasswordButtonOnPressdCallback;
 
   SignInScreenWidget({
-    this.signUpButtonOnPressdCallback,
-    this.signInButtonOnPressdCallback,
-    this.forgotPasswordButtonOnPressdCallback,
+    @required this.signUpButtonOnPressedCallback,
+    @required this.signInButtonOnPressedCallback,
+    @required this.forgotPasswordButtonOnPressdCallback,
   });
 
   @override
@@ -40,11 +40,11 @@ class _SignInScreenWidgetState extends State<SignInScreenWidget> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SignInWidget(
-            signInButtonOnPressdCallback: widget.signInButtonOnPressdCallback,
+            signInButtonOnPressedCallback: widget.signInButtonOnPressedCallback,
           ),
           ElevatedButton(
             child: Text('Sign Up'),
-            onPressed: widget.signUpButtonOnPressdCallback,
+            onPressed: widget.signUpButtonOnPressedCallback,
           ),
           ElevatedButton(
             child: Text('Forgot Password'),
@@ -57,14 +57,16 @@ class _SignInScreenWidgetState extends State<SignInScreenWidget> {
 }
 
 ///Defines a form for the user to sign in to their account.
+///[signInButtonOnPressedCallback] is the function called when the user tries
+///to sign in. It should navigate to the desired screen.
 ///@author: Rudy Fisher
 class SignInWidget extends StatefulWidget {
-  final Function() signInButtonOnPressdCallback;
+  final Function() signInButtonOnPressedCallback;
   final StringByReference email = StringByReference();
   final StringByReference password = StringByReference();
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
-  SignInWidget({this.signInButtonOnPressdCallback});
+  SignInWidget({@required this.signInButtonOnPressedCallback});
 
   @override
   _SignInWidgetState createState() => _SignInWidgetState();
@@ -73,6 +75,7 @@ class SignInWidget extends StatefulWidget {
 class _SignInWidgetState extends State<SignInWidget> {
   PasswordFieldWidget passwordFieldWidget;
 
+  ///Shows the [message] in the [SnackBar].
   void showSnackBar({String message}) {
     SnackBar snackbar = SnackBar(
       content: Text(message),
@@ -99,29 +102,38 @@ class _SignInWidgetState extends State<SignInWidget> {
       'isInvite': false,
     };
 
-    widget.db.collection('users').doc(FirebaseAuth.instance.currentUser.uid).collection('notifications').add(data);
+    widget.db
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .collection('notifications')
+        .add(data);
 
     // Add tips and tricks notifications
     data = {
       'groupId': 'Tips & Tricks',
-      'content': 'Long press on the \'For the week\' selector on any schedule screen to return to the current week!',
+      'content':
+          'Long press on the \'For the week\' selector on any schedule screen to return to the current week!',
       'isInvite': false,
     };
 
-    widget.db.collection('users').doc(FirebaseAuth.instance.currentUser.uid).collection('notifications').add(data);
+    widget.db
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .collection('notifications')
+        .add(data);
   }
 
   ///Signs in the user, making sure they have a document in the users
   ///Firestore collection. If they don't , they are added.
   void signIn() async {
-    print('sign in');
     try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: widget.email.string,
         password: widget.password.string,
       );
       if (userCredential.user.emailVerified) {
-        // Check if user is also in the Firestore. If not, add them.
+        // Check if user is also in the Firestore.
         DocumentReference docRef = widget.db
             .collection(
               'users',
@@ -130,32 +142,35 @@ class _SignInWidgetState extends State<SignInWidget> {
               '${FirebaseAuth.instance.currentUser.uid}',
             );
         DocumentSnapshot doc = await docRef.get();
+
+        // If user not in Firestore, add them.
         if (!doc.exists) {
           addUserToFirestore(docRef);
         }
 
-        widget.signInButtonOnPressdCallback();
-        //showSnackBar(message: 'Welcome!');
+        widget.signInButtonOnPressedCallback();
       } else {
         await FirebaseAuth.instance.currentUser.sendEmailVerification();
 
         showSnackBar(message: 'Please check your email for verification.');
       }
     } on FirebaseAuthException catch (e) {
-      print(e.toString());
       if (e.code == 'user-not-found') {
         showSnackBar(message: 'No user found with that email.');
       } else if (e.code == 'wrong-password') {
         showSnackBar(message: 'Incorrect password provided for that email');
+      } else {
+        showSnackBar(
+            message: 'Something went wrong. Please make sure' +
+                ' your password and email are valid.');
       }
     }
   }
 
+  ///Sets the [passwordFieldWidget] before [build] is called.
   @override
   void initState() {
     super.initState();
-    //widget.email.string = ''; //RUDY -- REMOVE TEST DATA
-    //widget.password.string = ''; //RUDY -- REMOVE TEST DATA
     passwordFieldWidget = PasswordFieldWidget(
       password: widget.password,
       obscurePassword: BooleanByReference(boolean: true),
@@ -168,7 +183,6 @@ class _SignInWidgetState extends State<SignInWidget> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TextFormField(
-          initialValue: widget.email.string,
           decoration: InputDecoration(
             labelText: 'Email',
             hintText: 'e.g. spongebob@thekrustykrab.net',
