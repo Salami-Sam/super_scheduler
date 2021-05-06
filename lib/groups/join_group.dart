@@ -1,9 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
-import 'group_management.dart';
 
 ///A screen where a user can enter a code to join a group
 ///@author: James Chartraw & Mike Schommer
@@ -15,10 +12,10 @@ CollectionReference users = db.collection('users');
 
 //query groups based on their group code
 Future<bool> findGroup(String groupCode) async {
-  QuerySnapshot query =
-      await groups.where('group_code', isEqualTo: '$groupCode').get();
+  QuerySnapshot query = await groups.where('group_code', isEqualTo: '$groupCode').get();
   print(query);
-  if (query.size == 1) { //a group was found
+  if (query.size == 1) {
+    //a group was found
     DocumentSnapshot document = query.docs.first;
     var docId = document.id;
     if (docId != null) {
@@ -111,15 +108,13 @@ class _JoinGroupWidgetState extends State<JoinGroupWidget> {
           ElevatedButton(
               onPressed: () async {
                 bool goodJoin = await findGroup(groupCode);
-                  if(goodJoin) {
-                  var snackBar = SnackBar(
-                      content: Text(
-                          'Join was successful! Welcome!')); //don't want to send to invaild email
+                if (goodJoin) {
+                  var snackBar =
+                      SnackBar(content: Text('Join was successful! Welcome!')); //don't want to send to invaild email
                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 } else {
                   var snackBar = SnackBar(
-                      content: Text(
-                          'Invalid code! Make sure code is correct')); //don't want to send to invaild email
+                      content: Text('Invalid code! Make sure code is correct')); //don't want to send to invaild email
                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 }
               },

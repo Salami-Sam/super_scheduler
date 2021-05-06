@@ -1,9 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
-import '../main.dart';
-import 'member_management.dart';
 import 'package:email_validator/email_validator.dart';
 
 /* Screen:
@@ -16,31 +13,6 @@ import 'package:email_validator/email_validator.dart';
 
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
-String groupName, groupCode;
-
-//pretty basic email sender, uses default email from users phone, works
-//just fine for our purposes
-Future<void> send(String recipient, String currentGroupId) async {
-  List<String> recipientList = [recipient];
-  await group.doc('$currentGroupId').get().then((docref) {
-    if (docref.exists) {
-      groupCode = docref['group_code'];
-      print("in send() " + "$groupCode");
-    } else {
-      print("Error, name not found");
-    }
-  });
-  Email email = Email(
-      subject: 'Invitation to join group $groupName on Super Scheduler',
-      body: 'Here is your access code: $groupCode\n',
-      recipients: recipientList);
-  try {
-    await FlutterEmailSender.send(email);
-    print('Success');
-  } catch (error) {
-    print('Error, something went wrong!');
-  }
-}
 
 /* InviteMemberWidget allows admins to invite new users to group
  * This is done by sending an email to potential new user that will send a unique
@@ -60,6 +32,39 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
   bool roleChosen = false;
   Future<List> futureRoles;
   _InviteMemberWidgetState(this.currentGroupId);
+
+  String groupName, groupCode;
+
+//pretty basic email sender, uses default email from users phone, works
+//just fine for our purposes
+  Future<void> send(String recipient, String currentGroupId) async {
+    List<String> recipientList = [recipient];
+    await group.doc('$currentGroupId').get().then((docref) {
+      if (docref.exists) {
+        groupName = docref['name'];
+        groupCode = docref['group_code'];
+        print("in send() " + "$groupCode");
+      } else {
+        print("Error, name not found");
+      }
+    });
+    Email email = Email(
+        subject: 'Invitation to join group $groupName on Super Scheduler',
+        body: 'Here is your access code: $groupCode\n',
+        recipients: recipientList);
+    try {
+      await FlutterEmailSender.send(email);
+      print('Success');
+    } catch (error) {
+      print('Error, something went wrong!');
+    }
+  }
+
+  Drawer getUnifiedDrawerWidget() {
+    return Drawer(
+      child: Text('Drawer placeholder'),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,10 +114,4 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
       ),
     );
   }
-}
-
-Drawer getUnifiedDrawerWidget() {
-  return Drawer(
-    child: Text('Drawer placeholder'),
-  );
 }

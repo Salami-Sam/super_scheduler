@@ -62,11 +62,21 @@ class _AddShiftWidgetState extends State<AddShiftWidget> {
         } else if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         } else {
+          List roleList = snapshot.data['roles'];
+
+          // If there are no roles, return a message as such
+          if (roleList.isEmpty) {
+            return Center(
+                child: Text(
+              'This group has no roles. Add roles to this group to be able to add a shift.',
+              textAlign: TextAlign.center,
+            ));
+          }
+
           // Update the list of roles needed by
           // getting the total list of roles,
           // copying those in the total list that were previously stored in rolesNeeded
           // and adding those that weren't
-          var roleList = snapshot.data['roles'];
           Map<String, int> newRolesNeeded = {};
           for (String role in roleList) {
             if (rolesNeeded.containsKey(role)) {
@@ -131,22 +141,37 @@ class _AddShiftWidgetState extends State<AddShiftWidget> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return false;
     } else {
-      var shiftDoc = widget.curWeekScheduleDocRef.collection('Shifts').doc();
-      DateTime startDateTime =
-          DateTime(widget.curDay.year, widget.curDay.month, widget.curDay.day, startTime.hour, startTime.minute)
-              .toUtc();
-      DateTime endDateTime =
-          DateTime(widget.curDay.year, widget.curDay.month, widget.curDay.day, endTime.hour, endTime.minute).toUtc();
+      // Check if rolesNeeded does not have any required roles
+      var noRolesAreNeeded = true;
+      for (var isNeededVal in rolesNeeded.values) {
+        if (isNeededVal != 0) {
+          noRolesAreNeeded = false;
+          break;
+        }
+      }
 
-      shiftDoc.set({
-        'startDateTime': Timestamp.fromDate(startDateTime),
-        'endDateTime': Timestamp.fromDate(endDateTime),
-        'rolesNeeded': rolesNeeded,
-        'assignees': [],
-        'unavailableUsers': [],
-      });
+      if (noRolesAreNeeded) {
+        SnackBar snackBar = SnackBar(content: Text('Please choose at least one role that is needed.'));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        return false;
+      } else {
+        var shiftDoc = widget.curWeekScheduleDocRef.collection('Shifts').doc();
+        DateTime startDateTime =
+            DateTime(widget.curDay.year, widget.curDay.month, widget.curDay.day, startTime.hour, startTime.minute)
+                .toUtc();
+        DateTime endDateTime =
+            DateTime(widget.curDay.year, widget.curDay.month, widget.curDay.day, endTime.hour, endTime.minute).toUtc();
 
-      return true;
+        shiftDoc.set({
+          'startDateTime': Timestamp.fromDate(startDateTime),
+          'endDateTime': Timestamp.fromDate(endDateTime),
+          'rolesNeeded': rolesNeeded,
+          'assignees': [],
+          'unavailableUsers': [],
+        });
+
+        return true;
+      }
     }
   }
 

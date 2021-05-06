@@ -22,7 +22,6 @@ class MyGroupsWidget extends StatefulWidget {
 ///The group_management page acts as a home screen for the User
 ///On this screen there are two buttons at the top which bring you to the Join Group and Create Group screens
 ///Below them is a list of all the groups a user is a member, manager, or admin of.
-///TODO: Clicking a group will take you to that groups page
 ///If a user is and Admin of a group it will give them Admin controls on that groups page.
 class _MyGroupsWidgetState extends State<MyGroupsWidget> {
   String uid = FirebaseAuth.instance.currentUser.uid;
@@ -215,7 +214,7 @@ class _EditGroupWidgetState extends State<EditGroupWidget> {
               )),
           ElevatedButton(
               onPressed: () {
-                //TODO: Editing a group such that a new group is not created
+                //TO DO: Editing a group such that a new group is not created
                 // newGroupName = groupNameController.text;
                 // newGroupDescription = groupDescriptionController.text;
                 // addAGroup(newGroupName, newGroupDescription);
