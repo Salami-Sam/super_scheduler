@@ -6,16 +6,45 @@ import 'package:flutter/material.dart';
 import 'group_management.dart';
 
 ///A screen where a user can enter a code to join a group
-///@author: James Chartraw
-class JoinGroupWidget extends StatefulWidget {
-  @override
-  _JoinGroupWidgetState createState() => _JoinGroupWidgetState();
-}
+///@author: James Chartraw & Mike Schommer
 
 var groupCode;
 var db = FirebaseFirestore.instance;
 CollectionReference groups = db.collection('groups');
 CollectionReference users = db.collection('users');
+
+//query groups based on their group code
+Future<bool> findGroup(String groupCode) async {
+  QuerySnapshot query =
+      await groups.where('group_code', isEqualTo: '$groupCode').get();
+  print(query);
+  if (query.size == 1) { //a group was found
+    DocumentSnapshot document = query.docs.first;
+    var docId = document.id;
+    if (docId != null) {
+      return joinGroup(docId);
+    }
+  } else {
+    print('Error');
+    return false;
+  }
+  return true;
+}
+
+Future<bool> joinGroup(var docId) async {
+  var user = FirebaseAuth.instance.currentUser.uid;
+  await groups.doc('$docId').update({'Members.$user': 'NA'}); //adds yourself to new group, assigns NA as role
+  await users.doc('$user').update({
+    'userGroups': FieldValue.arrayUnion([docId])
+  });
+  return true;
+}
+
+class JoinGroupWidget extends StatefulWidget {
+  @override
+  _JoinGroupWidgetState createState() => _JoinGroupWidgetState();
+}
+
 //var newGroupKey = firebase.database().ref().child('groups').push().key;
 
 /* Future<String> getAllGroups() async {
@@ -59,28 +88,9 @@ Future<Map> uidToGroups(Map groups) async {
 }
  */
 
-Future<void> findGroup(String groupCode) async {
-  QuerySnapshot query =
-      await groups.where('group_code', isEqualTo: '$groupCode').get();
-  print(query);
-  DocumentSnapshot document = query.docs.first;
-  var docId = document.id;
-  if (docId != null) {
-    return joinGroup(docId);
-  } else {
-    print('Error');
-  }
-}
-
-Future<void> joinGroup(var docId) async {
-  var user = FirebaseAuth.instance.currentUser.uid;
-  await groups.doc('$docId').update({'Members.$user': 'NA'});
-  await users.doc('$user').update({
-    'userGroups': FieldValue.arrayUnion([docId])
-  });
-}
-
 class _JoinGroupWidgetState extends State<JoinGroupWidget> {
+  bool goodCode = false;
+  bool goodJoin = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,8 +111,19 @@ class _JoinGroupWidgetState extends State<JoinGroupWidget> {
                 },
               )),
           ElevatedButton(
-              onPressed: () {
-                findGroup(groupCode);
+              onPressed: () async {
+                bool goodJoin = await findGroup(groupCode);
+                  if(goodJoin) {
+                  var snackBar = SnackBar(
+                      content: Text(
+                          'Join was successful! Welcome!')); //don't want to send to invaild email
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                } else {
+                  var snackBar = SnackBar(
+                      content: Text(
+                          'Invalid code! Make sure code is correct')); //don't want to send to invaild email
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                }
               },
               child: Text('Join Group')),
         ])));

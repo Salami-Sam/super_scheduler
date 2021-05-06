@@ -20,7 +20,7 @@ String groupName, groupCode;
 
 //pretty basic email sender, uses default email from users phone, works
 //just fine for our purposes
-Future<void> send(String recipient, String role, String currentGroupId) async {
+Future<void> send(String recipient, String currentGroupId) async {
   List<String> recipientList = [recipient];
   await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
@@ -32,8 +32,7 @@ Future<void> send(String recipient, String role, String currentGroupId) async {
   });
   Email email = Email(
       subject: 'Invitaion to join group $groupName on Super Scheduler',
-      body:
-          'Here is your access code: $groupCode\n',
+      body: 'Here is your access code: $groupCode\n',
       recipients: recipientList);
   try {
     await FlutterEmailSender.send(email);
@@ -41,21 +40,6 @@ Future<void> send(String recipient, String role, String currentGroupId) async {
   } catch (error) {
     print('Error, something went wrong!');
   }
-}
-
-//standard function to return roles from database
-Future<List> getRoles(String currentGroupId) async {
-  List returnList = [];
-  await group.doc('$currentGroupId').get().then((docref) {
-    if (docref.exists) {
-      returnList = docref['roles'];
-      groupName = docref['name'];
-      print("in getRoles() " + "$returnList");
-    } else {
-      print("Error, name not found");
-    }
-  });
-  return returnList;
 }
 
 /* InviteMemberWidget allows admins to invite new users to group
@@ -102,65 +86,27 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
           TextField(
               decoration: InputDecoration(
                   hintText: 'spongebob123@bikinimail.com',
-                  contentPadding: EdgeInsets.all(20.0)),
+                  contentPadding: EdgeInsets.all(10.0)),
               onChanged: (text) {
                 newMember = text; //will need to use email authentication here
               }),
-          ListTile(
-            title: Center(
-              child: Text('Select A Role',
-                  style:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
-            ),
-          ),
-          FutureBuilder<List>(
-              future: futureRoles = getRoles(currentGroupId),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                }
-                if (snapshot.hasError) {
-                  return Text('Error');
-                }
-                List roles = snapshot.data;
-                print(roles);
-                return DropdownButton(
-                  hint: Text('N\A'),
-                  value: selectedRole,
-                  onChanged: (newRole) {
-                    setState(() {
-                      selectedRole = newRole;
-                      roleChosen =
-                          true; //I don't want user to send an email without a role being assigned
-                    });
-                  },
-                  items: roles.map((role) {
-                    return DropdownMenuItem(child: new Text(role), value: role);
-                  }).toList(),
-                );
-              }),
+          Padding(padding: EdgeInsets.all(16.0)),
           Container(
-              width: 120.0,
-              height: 50.0,
+              width: 125.0,
+              height: 60.0,
               child: ElevatedButton(
                   onPressed: () {
-                    if (roleChosen) {
-                      if (EmailValidator.validate(newMember)) {
-                        send(newMember, selectedRole, currentGroupId);
-                      } else {
-                        var snackBar = SnackBar(
-                            content: Text(
-                                'Invalid Email')); //don't want to send to invaild email
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      }
+                    if (EmailValidator.validate(newMember)) {
+                      send(newMember, currentGroupId);
                     } else {
-                      var snackBar =
-                          SnackBar(content: Text('You Must Choose a Role'));
+                      var snackBar = SnackBar(
+                          content: Text(
+                              'Invalid email')); //don't want to send to invaild email
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     }
                   },
                   child: Row(children: [
-                    Text('Send',
+                    Text(' Send  ', //kinda ugly like this but it works nice enough
                         style: TextStyle(fontSize: 20.0),
                         textAlign: TextAlign.center),
                     Icon(Icons.mail_outline_rounded, color: Colors.white)
