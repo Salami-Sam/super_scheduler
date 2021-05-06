@@ -11,14 +11,19 @@ import 'package:super_scheduler/scheduling/primary_scheduler.dart';
  * Group Home Admin Page
  */
 ///@author: James Chartraw
+///
+
+
+
+
 class GroupHomeAdminWidget extends StatelessWidget {
-  final String groupId;
-  GroupHomeAdminWidget(this.groupId);
+  final String groupId, groupName;
+  GroupHomeAdminWidget(this.groupId, this.groupName);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Group Home (Admin)'),
+          title: Text('$groupName (Admin)'),
         ),
         body: Center(
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[

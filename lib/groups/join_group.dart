@@ -89,8 +89,6 @@ Future<Map> uidToGroups(Map groups) async {
  */
 
 class _JoinGroupWidgetState extends State<JoinGroupWidget> {
-  bool goodCode = false;
-  bool goodJoin = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(

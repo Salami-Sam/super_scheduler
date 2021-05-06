@@ -9,13 +9,13 @@ import 'package:super_scheduler/scheduling/my_schedule.dart';
  */
 ///@author: James Chartraw
 class GroupHomeWidget extends StatelessWidget {
-  final String groupId;
-  GroupHomeWidget(this.groupId);
+  final String groupId, groupName;
+  GroupHomeWidget(this.groupId, this.groupName);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Group Home (Member)'),
+          title: Text('$groupName (Member)'),
         ),
         body: Center(
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
