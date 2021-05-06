@@ -164,17 +164,6 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                 );
               },
               child: Text('Invite New Members')),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => EditRolesWidget(currentGroupId: currentGroupId))).then((value) {
-                  setState(
-                      () {}); //this is here to ensure any change on EditRolesWidget is reflected back here
-                });
-              },
-              child: Text('Edit Group Roles')),
         ]));
   }
 }
