@@ -100,26 +100,48 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-          Container(
-              margin: EdgeInsets.all(20),
-              child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => JoinGroupWidget()));
-                  },
-                  child: Text('Join Group'))),
-          ElevatedButton(
-            onPressed: () {
+          SizedBox(
+            height: 10,
+          ),
+          ListTile(
+            tileColor: Colors.blue,
+            trailing: Icon(
+              Icons.arrow_right,
+              size: 45,
+              color: Colors.white,
+            ),
+            onTap: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => JoinGroupWidget()));
+            },
+            title: Text('Join Group', style: TextStyle(color: Colors.white)),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          ListTile(
+            tileColor: Colors.blue,
+            trailing: Icon(
+              Icons.arrow_right,
+              size: 45,
+              color: Colors.white,
+            ),
+            onTap: () {
               Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => CreateGroupWidget()));
             },
-            child: Text('Create Group'),
+            title: Text('Create Group', style: TextStyle(color: Colors.white)),
+          ),
+          SizedBox(
+            height: 10,
           ),
           Container(
             child: Column(
-              children: <Widget>[Text("Your Groups:")],
+              children: <Widget>[
+                Text("Your Groups:", style: TextStyle(fontSize: 20)),
+              SizedBox(
+            height: 10,
+          )],
             ),
           ),
           Flexible(
