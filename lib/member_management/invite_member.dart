@@ -13,6 +13,32 @@ import 'package:email_validator/email_validator.dart';
 
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
+String groupName, groupCode;
+
+//pretty basic email sender, uses default email from users phone, works
+//just fine for our purposes
+Future<void> send(String recipient, String currentGroupId) async {
+  List<String> recipientList = [recipient];
+  await group.doc('$currentGroupId').get().then((docref) {
+    if (docref.exists) {
+      groupCode = docref['group_code'];
+      groupName = docref['name'];
+      print("in send() " + "$groupCode");
+    } else {
+      print("Error, name not found");
+    }
+  });
+  Email email = Email(
+      subject: 'Invitation to join group $groupName on Super Scheduler',
+      body: 'Here is your access code: $groupCode\n',
+      recipients: recipientList);
+  try {
+    await FlutterEmailSender.send(email);
+    print('Success');
+  } catch (error) {
+    print('Error, something went wrong!');
+  }
+}
 
 /* InviteMemberWidget allows admins to invite new users to group
  * This is done by sending an email to potential new user that will send a unique
@@ -98,6 +124,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
               child: ElevatedButton(
                   onPressed: () {
                     if (EmailValidator.validate(newMember)) {
+                      print(currentGroupId);
                       send(newMember, currentGroupId);
                     } else {
                       var snackBar = SnackBar(content: Text('Invalid email')); //don't want to send to invaild email

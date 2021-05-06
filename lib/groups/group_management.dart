@@ -52,7 +52,7 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
             itemBuilder: (context, index) {
               String groupName = curUsersGroups.keys.elementAt(index)['name'];
               return ListTile(
-                title: Text(groupName),
+                title: Text(groupName), trailing:  Icon(Icons.arrow_right, size: 45),
                 onTap: () {
                   QueryDocumentSnapshot group = curUsersGroups.keys.elementAt(index);
                   if (curUsersGroups.values.elementAt(index) == 'Admin') {
