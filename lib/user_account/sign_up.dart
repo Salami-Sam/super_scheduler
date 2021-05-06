@@ -31,8 +31,7 @@ class _SignUpScreenWidgetState extends State<SignUpScreenWidget> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SignUpWidget(
-              signUpButtonOnPressedCallBack: widget.signUpButtonCallBack),
+          SignUpWidget(signUpButtonOnPressedCallBack: widget.signUpButtonCallBack),
           ElevatedButton(
             child: Text('Back to Sign In'),
             onPressed: widget.signInButtonCallBack,
@@ -98,8 +97,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
 
   void signUp() async {
     try {
-      UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: widget._email.string,
         password: widget._password1.string,
       );
@@ -113,8 +111,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
       showSnackBar(message: 'Please check your email to finish signing up.');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        showSnackBar(
-            message: 'The password provided is too weak. ${e.message}');
+        showSnackBar(message: 'The password provided is too weak. ${e.message}');
       } else if (e.code == 'email-already-in-use') {
         showSnackBar(message: 'The account already exists for that email.');
       } else if (e.code == 'invalid-email') {
@@ -160,15 +157,13 @@ class _SignUpWidgetState extends State<SignUpWidget> {
             },
           ),
           Consumer<BooleanByReference>(
-            builder: (context, booleanByReference, child) =>
-                PasswordFieldWidget(
+            builder: (context, booleanByReference, child) => PasswordFieldWidget(
               password: widget._password1,
               obscurePassword: booleanByReference,
             ),
           ),
           Consumer<BooleanByReference>(
-            builder: (context, booleanByReference, child) =>
-                PasswordFieldWidget(
+            builder: (context, booleanByReference, child) => PasswordFieldWidget(
               password: widget._password2,
               obscurePassword: booleanByReference,
             ),

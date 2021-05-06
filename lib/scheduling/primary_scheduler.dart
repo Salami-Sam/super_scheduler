@@ -5,6 +5,7 @@ import 'package:super_scheduler/model.dart';
 import 'reusable_schedule_items.dart';
 import 'finalize_schedule.dart';
 import 'add_shift.dart';
+import '../screen_title.dart';
 
 /* Screens:
  * Primary Scheduler
@@ -293,11 +294,11 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
             },
           ),
         ),
-        body: Consumer<AppStateModel>(
-          builder: (context, appStateModel, child) => FutureBuilder<SchedulePublishedPair>(
+        body: Consumer<SchedulingStateModel>(
+          builder: (context, schedulingStateModel, child) => FutureBuilder<SchedulePublishedPair>(
             future: getWeeklyScheduleDoc(
               groupRef: currentGroupRef,
-              weekStartDate: appStateModel.curWeekStartDate,
+              weekStartDate: schedulingStateModel.curWeekStartDate,
             ),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
@@ -311,7 +312,7 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                   return FutureBuilder<DocumentReference>(
                     future: createWeeklyScheduleDoc(
                       groupRef: currentGroupRef,
-                      weekStartDate: appStateModel.curWeekStartDate,
+                      weekStartDate: schedulingStateModel.curWeekStartDate,
                     ),
                     builder: (context, snapshot) {
                       if (snapshot.hasError) {
@@ -321,14 +322,14 @@ class _PrimarySchedulerWidgetState extends State<PrimarySchedulerWidget> {
                       } else {
                         // Save the schedule ref in a var and return screen contents
                         curWeekScheduleDocRef = snapshot.data;
-                        return _getScreenContents(appStateModel.curWeekStartDate);
+                        return _getScreenContents(schedulingStateModel.curWeekStartDate);
                       }
                     },
                   );
                 } else {
                   // Did exist, so save it in a variable and return screen contents
                   curWeekScheduleDocRef = snapshot.data.weeklySchedule;
-                  return _getScreenContents(appStateModel.curWeekStartDate);
+                  return _getScreenContents(schedulingStateModel.curWeekStartDate);
                 }
               }
             },

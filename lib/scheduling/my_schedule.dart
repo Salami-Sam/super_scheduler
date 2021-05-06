@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../model.dart';
 import 'reusable_schedule_items.dart';
+import '../screen_title.dart';
 
 /* Screens:
  * My Schedule
@@ -171,11 +172,11 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
               height: 30.0,
             ),
             Expanded(
-              child: Consumer<AppStateModel>(
-                builder: (context, appStateModel, child) => FutureBuilder<SchedulePublishedPair>(
+              child: Consumer<SchedulingStateModel>(
+                builder: (context, schedulingStateModel, child) => FutureBuilder<SchedulePublishedPair>(
                   future: getWeeklyScheduleDoc(
                     groupRef: currentGroupRef,
-                    weekStartDate: appStateModel.curWeekStartDate,
+                    weekStartDate: schedulingStateModel.curWeekStartDate,
                   ),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
@@ -193,7 +194,7 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
                       } else {
                         // Did exist and is published, so save it in a variable and return screen contents
                         curWeekScheduleDocRef = snapshot.data.weeklySchedule;
-                        return _getScreenContents(appStateModel.curWeekStartDate);
+                        return _getScreenContents(schedulingStateModel.curWeekStartDate);
                       }
                     }
                   },

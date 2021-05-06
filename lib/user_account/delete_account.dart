@@ -20,10 +20,7 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
   }
 
   Future<void> _deleteUserDocFromFirestore() {
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser.uid)
-        .delete();
+    return FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser.uid).delete();
   }
 
   void _deleteAccountAndReturnToSignInScreen() async {
@@ -56,15 +53,15 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center(
-              child: Text(
-                'Are you sure you want to delete your account?',
-                style: TextStyle(
-                  fontSize: 32.0,
-                  color: Colors.redAccent,
-                ),
+            Text(
+              'Are you sure you want to delete your account?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 32.0,
+                color: Colors.redAccent,
               ),
             ),
+            Divider(height: 20, color: Theme.of(context).scaffoldBackgroundColor),
             ElevatedButton(
               onPressed: _deleteAccountAndReturnToSignInScreen,
               child: Text('Confirm'),

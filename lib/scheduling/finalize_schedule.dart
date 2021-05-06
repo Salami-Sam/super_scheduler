@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'main_schedule.dart';
 import 'reusable_schedule_items.dart';
+import '../screen_title.dart';
 
 /* Screens:
  * Finalize Schedule
@@ -87,7 +88,7 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
           if (shiftSnapshot.hasError) {
             return Center(child: Text('There was an error in retrieving the schedule.'));
           } else if (shiftSnapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: Center(child: CircularProgressIndicator()));
+            return Center(child: CircularProgressIndicator());
           } else {
             var docsList = shiftSnapshot.data.docs;
 
@@ -376,7 +377,7 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MainScheduleWidget(),
+                      builder: (context) => MainScheduleWidget(currentGroupId: widget.currentGroupId),
                     ),
                   );
                 },

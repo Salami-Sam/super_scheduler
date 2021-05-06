@@ -1,8 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import '../main.dart';
-import 'member_management.dart';
 
 /* Screen:
  * Edit Individual Member
@@ -17,76 +14,6 @@ CollectionReference group = db.collection('groups');
 CollectionReference users = db.collection('users');
 
 List permissions = ['Member', 'Manager', 'Admin']; //tmp
-List uids;  //this stores any uids before they are converted into display names
-
-//standard function to return roles from database
-Future<List> getRoles() async {
-  List returnList = [];
-  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
-    if (docref.exists) {
-      returnList = docref['roles'];
-      print("in getRoles() " + "$returnList");
-    } else {
-      print("Error, name not found");
-    }
-  });
-  return returnList;
-}
-
-//standard function to return members from database
-Future<Map> getMembers() async {
-  Map returnMap;
-  await group.doc('PCXUSOFVGcmZ8UqK0QnX').get().then((docref) {
-    if (docref.exists) {
-      returnMap = docref['Members'];
-      uids = returnMap.keys.toList();
-      print("in getMembers()");
-      print(returnMap);
-    } else {
-      print("Error, name not found");
-    }
-  });
-  return uidToMembers(returnMap);
-}
-
-//fetches username from users collection 
-//(users collection is collection that stores members from firebase auth)
-Future<String> uidToMembersHelper(var key) async {
-  String returnString;
-  await users.doc(key).get().then((docref) {
-    if (docref.exists) {
-      returnString = docref['displayName'];
-      print(returnString);
-    } else {
-      print("Error, name not found");
-    }
-  });
-  return returnString;
-}
-
-//converts database map uids to names
-Future<Map> uidToMembers(Map members) async {
-  List keys = members.keys.toList();
-  String displayName = '';
-  for (int i = 0; i < keys.length; i++) {
-    if (members.containsKey(keys[i])) {
-      displayName = await uidToMembersHelper(keys[i]);
-      String role = members[keys[i]];
-      members.remove(keys[i]);
-      members['$displayName'] = role;
-    }
-  }
-  print(members);
-  return members;
-}
-
-Future<void> editRole(var memberChosen, var newRole) async {
-  print(memberChosen);
-  print(newRole);
-  await group
-      .doc('PCXUSOFVGcmZ8UqK0QnX')
-      .update({'Members.$memberChosen': '$newRole'});
-}
 
 /*
  * EditIndividualMember is a screen that allows an admin to change a role and 
@@ -96,28 +23,102 @@ Future<void> editRole(var memberChosen, var newRole) async {
 class EditIndividualMemberWidget extends StatefulWidget {
   final Map members;
   final int index;
-  EditIndividualMemberWidget({this.members, this.index});
+  final String currentGroupId;
+  EditIndividualMemberWidget({this.members, this.index, this.currentGroupId});
 
   @override
-  _EditIndividualMemberWidgetState createState() =>
-      _EditIndividualMemberWidgetState(members, index);
+  _EditIndividualMemberWidgetState createState() => _EditIndividualMemberWidgetState(members, index, currentGroupId);
 }
 
-class _EditIndividualMemberWidgetState
-    extends State<EditIndividualMemberWidget> {
+class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget> {
   Future<Map> futureMembers;
   Future<List> futureRoles;
   List names, roles;
-  Map members;                                  //this map is used for the display of member in title box
-  String selectedRole, selectedPermission;      //these strings are used by the drop menu, will see similar strings in other widgets
+  Map members; //this map is used for the display of member in title box
+  String selectedRole,
+      selectedPermission,
+      currentGroupId; //these strings are used by the drop menu, will see similar strings in other widgets
   int index;
-  _EditIndividualMemberWidgetState(this.members, this.index);    //this members map is used for the dropdown menu
-  @override                                                      //for some reason the dropdown kept returning null
-  Widget build(BuildContext context) {                           //the only way around it was to have two different maps
-    return Scaffold(                                             //this is fine as the first members map is only used for printing
+  _EditIndividualMemberWidgetState(
+      this.members, this.index, this.currentGroupId); //this members map is used for the dropdown menu
+  //for some reason the dropdown kept returning null
+  //the only way around it was to have two different maps
+  //this is fine as the first members map is only used for printing
+
+  List uids; //this stores any uids before they are converted into display names
+
+  //standard function to return roles from database
+  Future<List> getRoles(String currentGroupId) async {
+    List returnList = [];
+    await group.doc('$currentGroupId').get().then((docref) {
+      if (docref.exists) {
+        returnList = docref['roles'];
+      } else {
+        print("Error, name not found");
+      }
+    });
+    return returnList;
+  }
+
+  //standard function to return members from database
+  Future<Map> getMembers(String currentGroupId) async {
+    Map returnMap;
+    await group.doc('$currentGroupId').get().then((docref) {
+      if (docref.exists) {
+        returnMap = docref['Members'];
+        uids = returnMap.keys.toList();
+      } else {
+        print("Error, name not found");
+      }
+    });
+    return uidToMembers(returnMap);
+  }
+
+  //fetches username from users collection
+  //(users collection is collection that stores members from firebase auth)
+  Future<String> uidToMembersHelper(var key) async {
+    String returnString;
+    await users.doc(key).get().then((docref) {
+      if (docref.exists) {
+        returnString = docref['displayName'];
+      } else {
+        print("Error, name not found");
+      }
+    });
+    return returnString;
+  }
+
+  //converts database map uids to names
+  Future<Map> uidToMembers(Map members) async {
+    List keys = members.keys.toList();
+    String displayName = '';
+    for (int i = 0; i < keys.length; i++) {
+      if (members.containsKey(keys[i])) {
+        displayName = await uidToMembersHelper(keys[i]);
+        String role = members[keys[i]];
+        members.remove(keys[i]);
+        members['$displayName'] = role;
+      }
+    }
+    return members;
+  }
+
+  Future<void> editRole(var memberChosen, var newRole, String currentGroupId) async {
+    await group.doc('$currentGroupId').update({'Members.$memberChosen': '$newRole'});
+  }
+
+  Drawer getUnifiedDrawerWidget() {
+    return Drawer(
+      child: Text('Drawer placeholder'),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
         appBar: AppBar(
             title: FutureBuilder<Map>(
-                future: futureMembers = getMembers(),
+                future: futureMembers = getMembers(currentGroupId),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return CircularProgressIndicator();
@@ -126,10 +127,10 @@ class _EditIndividualMemberWidgetState
                     return Text('Error');
                   }
                   members = snapshot.data;
-                  //print("in title " + "$members");
                   names = members.keys.toList();
                   return Text('${names[index]}');
-                }), centerTitle: true,
+                }),
+            centerTitle: true,
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),
                 onPressed: () {
@@ -137,69 +138,60 @@ class _EditIndividualMemberWidgetState
                   Navigator.pop(context);
                 })),
         drawer: getUnifiedDrawerWidget(),
-        body: Column(children: [
-          ListTile(
-            title: Center(
-              child: Text('Role',
-                  style:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+        body: Container(
+          margin: EdgeInsets.only(top: 20, bottom: 20, left: 40, right: 40),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            ListTile(
+              title: Center(
+                child: Text('Role', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+              ),
             ),
-          ),
-          FutureBuilder<List>(
-              future: futureRoles = getRoles(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                }
-                if (snapshot.hasError) {
-                  return Text('Error');
-                }
-                List roles = snapshot.data;
-                //print("in dropdown " + "$members");
-                names = members.keys.toList();
-                //print("in dropdown " + 'members[${names[index]}');
-                return DropdownButton(
-                  hint: Text(members['${names[index]}']),
-                  value: selectedRole,
-                  onChanged: (newRole) {
-                    setState(() {
-                      print('in role change drop menu\n');
-                      print(uids);
-                      editRole(uids[index], newRole);
-                      selectedRole = newRole;
-                    });
-                  },
-                  items: roles.map((role) {
-                    return DropdownMenuItem(child: new Text(role), value: role);
-                  }).toList(),
-                );
-              }),
-          ListTile(
-            title: Center(
-              child: Text('Permissions',
-                  style:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
-            ),
-          ),
-          DropdownButton(
-            hint: Text('${permissions[0]}'),
-            value: selectedPermission,
-            onChanged: (newPermissions) {
-              setState(() {
-                selectedPermission = newPermissions;
-              });
-            },
-            items: permissions.map((permission) {
-              return DropdownMenuItem(
-                  child: new Text(permission), value: permission);
-            }).toList(),
-          )
-        ]));
-  }
-}
 
-Drawer getUnifiedDrawerWidget() {
-  return Drawer(
-    child: Text('Drawer placeholder'),
-  );
+            FutureBuilder<List>(
+                future: futureRoles = getRoles(currentGroupId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error');
+                  }
+                  List roles = snapshot.data;
+                  names = members.keys.toList();
+                  return DropdownButton(
+                    hint: Text(members['${names[index]}']),
+                    value: selectedRole,
+                    onChanged: (newRole) {
+                      setState(() {
+                        editRole(uids[index], newRole, currentGroupId);
+                        selectedRole = newRole;
+                      });
+                    },
+                    items: roles.map((role) {
+                      return DropdownMenuItem(child: new Text(role), value: role);
+                    }).toList(),
+                  );
+                }),
+            // An invisible divider to provide space
+            Divider(height: 20.0, color: Theme.of(context).scaffoldBackgroundColor),
+            ListTile(
+              title: Center(
+                child: Text('Permissions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+              ),
+            ),
+            DropdownButton(
+              hint: Text('${permissions[0]}'),
+              value: selectedPermission,
+              onChanged: (newPermissions) {
+                setState(() {
+                  selectedPermission = newPermissions;
+                });
+              },
+              items: permissions.map((permission) {
+                return DropdownMenuItem(child: new Text(permission), value: permission);
+              }).toList(),
+            )
+          ]),
+        ));
+  }
 }
