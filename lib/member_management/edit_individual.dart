@@ -40,7 +40,8 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
       currentGroupId; //these strings are used by the drop menu, will see similar strings in other widgets
   int index;
   _EditIndividualMemberWidgetState(
-      this.members, this.index, this.currentGroupId); //this members map is used for the dropdown menu
+      this.members, this.index, this.currentGroupId); 
+  //this members map is used for the dropdown menu
   //for some reason the dropdown kept returning null
   //the only way around it was to have two different maps
   //this is fine as the first members map is only used for printing
@@ -66,6 +67,32 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         returnMap = docref['Members'];
+        uids = returnMap.keys.toList();
+      } else {
+        print("Error, name not found");
+      }
+    });
+    return uidToMembers(returnMap);
+  }
+
+  Future<Map> getManagers(String currentGroupId) async {
+    Map returnMap;
+    await group.doc('$currentGroupId').get().then((docref) {
+      if (docref.exists) {
+        returnMap = docref['Admins'];
+        uids = returnMap.keys.toList();
+      } else {
+        print("Error, name not found");
+      }
+    });
+    return uidToMembers(returnMap);
+  }
+
+  Future<Map> getAdmins(String currentGroupId) async {
+    Map returnMap;
+    await group.doc('$currentGroupId').get().then((docref) {
+      if (docref.exists) {
+        returnMap = docref['Managers'];
         uids = returnMap.keys.toList();
       } else {
         print("Error, name not found");
@@ -140,7 +167,7 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
         drawer: getUnifiedDrawerWidget(),
         body: Container(
           margin: EdgeInsets.only(top: 20, bottom: 20, left: 40, right: 40),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
             ListTile(
               title: Center(
                 child: Text('Role', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
