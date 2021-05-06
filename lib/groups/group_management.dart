@@ -13,7 +13,7 @@ import 'join_group.dart';
  * Join Group
  * Edit Group
  */
-///@author: James Chartraw & Rudy Fisher & Dylan Schulz
+///@author: James Chartraw, Rudy Fisher, Dylan Schulz, Mike Schommer
 class MyGroupsWidget extends StatefulWidget {
   @override
   _MyGroupsWidgetState createState() => _MyGroupsWidgetState();
@@ -61,21 +61,49 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
             );
           }
 
-          return ListView.builder(
+          // An alternative way to display the groups:
+
+          // return ListView.builder(
+          //   itemCount: curUsersGroups.length,
+          //   itemBuilder: (context, index) {
+          //     String groupName = curUsersGroups.keys.elementAt(index)['name'];
+          //     return Container(
+          //       margin: EdgeInsets.only(top: 4, bottom: 4),
+          //       child: ElevatedButton(
+          //         child: Row(
+          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //           children: [
+          //             Expanded(child: Text(groupName)),
+          //             Icon(Icons.arrow_right, size: 45),
+          //           ],
+          //         ),
+          //         onPressed: () {
+          //           QueryDocumentSnapshot group = curUsersGroups.keys.elementAt(index);
+          //           if (curUsersGroups.values.elementAt(index) == 'Admin') {
+          //             Navigator.push(
+          //                 context, MaterialPageRoute(builder: (context) => GroupHomeAdminWidget(group.id, groupName)));
+          //           } else if (curUsersGroups.values.elementAt(index) == 'Manager') {
+          //             Navigator.push(context,
+          //                 MaterialPageRoute(builder: (context) => GroupHomeManagerWidget(group.id, groupName)));
+          //           } else {
+          //             Navigator.push(
+          //                 context, MaterialPageRoute(builder: (context) => GroupHomeWidget(group.id, groupName)));
+          //           }
+          //         },
+          //       ),
+          return ListView.separated(
             itemCount: curUsersGroups.length,
             itemBuilder: (context, index) {
               String groupName = curUsersGroups.keys.elementAt(index)['name'];
-              return Container(
-                margin: EdgeInsets.only(top: 4, bottom: 4),
-                child: ElevatedButton(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(child: Text(groupName)),
-                      Icon(Icons.arrow_right, size: 45),
-                    ],
+              return ListTile(
+                  tileColor: Colors.blue,
+                  title: Text(groupName, style: TextStyle(color: Colors.white)),
+                  trailing: Icon(
+                    Icons.arrow_right,
+                    size: 45,
+                    color: Colors.white,
                   ),
-                  onPressed: () {
+                  onTap: () {
                     QueryDocumentSnapshot group = curUsersGroups.keys.elementAt(index);
                     if (curUsersGroups.values.elementAt(index) == 'Admin') {
                       Navigator.push(
@@ -87,8 +115,11 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
                       Navigator.push(
                           context, MaterialPageRoute(builder: (context) => GroupHomeWidget(group.id, groupName)));
                     }
-                  },
-                ),
+                  });
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              return SizedBox(
+                height: 10,
               );
             },
           );
@@ -98,120 +129,152 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Container(
-            margin: EdgeInsets.all(8),
+
+        // An alternative way to display the list of groups
+
+        // body: Container(
+        //     margin: EdgeInsets.all(8),
+        //     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
+        //       ElevatedButton(
+        //           onPressed: () {
+        //             Navigator.push(context, MaterialPageRoute(builder: (context) => JoinGroupWidget()));
+        //           },
+        //           child: Text('Join Group')),
+        //       ElevatedButton(
+        //         onPressed: () {
+        //           Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateGroupWidget()));
+        //         },
+        //         child: Text('Create Group'),
+        //       ),
+        //       Container(
+        //         margin: EdgeInsets.only(top: 8),
+        //         child: Divider(
+        //           color: Colors.black,
+        //           thickness: 1.0,
+        //           height: 1.0,
+        //         ),
+        //       ),
+        //       Center(
+        //         child: ListTile(
+        //           title: Text(
+        //             'Your Groups',
+        //             textAlign: TextAlign.center,
+        //             style: TextStyle(
+        //               fontWeight: FontWeight.bold,
+        //             ),
+        //           ),
+        //         ),
+        //       ),
+        //       Container(
+        //         margin: EdgeInsets.only(bottom: 8),
+        //         child: Divider(
+        //           color: Colors.black,
+        //           thickness: 1.0,
+        //           height: 1.0,
+        //         ),
+        //       ),
+        //       Expanded(
+        //         child: _getAllGroups(),
+        //       ),
+        //     ])));
+        body: Center(
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => JoinGroupWidget()));
-                  },
-                  child: Text('Join Group')),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateGroupWidget()));
-                },
-                child: Text('Create Group'),
-              ),
-              Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[Text("TEST Groups (to be removed):")],
-                ),
-              ),
-              Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => GroupHomeWidget('RsTjd6INQsNa6RvSTeUX', 'Pawnee Parks Dept.')));
-                        },
-                        child: Text('Group Home (Member)')),
-                    ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      GroupHomeAdminWidget('RsTjd6INQsNa6RvSTeUX', 'Pawnee Parks Dept.')));
-                        },
-                        child: Text('Group Home (Admin)')),
-                    ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      GroupHomeManagerWidget('RsTjd6INQsNa6RvSTeUX', 'Pawnee Parks Dept.')));
-                        },
-                        child: Text('Group Home (Manager)')),
-                  ],
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(top: 8),
-                child: Divider(
-                  color: Colors.black,
-                  thickness: 1.0,
-                  height: 1.0,
-                ),
-              ),
-              Center(
-                child: ListTile(
-                  title: Text(
-                    'Your Groups',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 8),
-                child: Divider(
-                  color: Colors.black,
-                  thickness: 1.0,
-                  height: 1.0,
-                ),
-              ),
-              Expanded(
-                child: _getAllGroups(),
-              ),
-              // Flexible(
-              //   child: Container(
-              //       decoration: BoxDecoration(border: Border.all(color: Colors.black)), child: _getAllGroups()),
-              // )
-            ])));
+      SizedBox(
+        height: 10,
+      ),
+      ListTile(
+        tileColor: Colors.blue,
+        trailing: Icon(
+          Icons.arrow_right,
+          size: 45,
+          color: Colors.white,
+        ),
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => JoinGroupWidget()));
+        },
+        title: Text('Join Group', style: TextStyle(color: Colors.white)),
+      ),
+      SizedBox(
+        height: 10,
+      ),
+      ListTile(
+        tileColor: Colors.blue,
+        trailing: Icon(
+          Icons.arrow_right,
+          size: 45,
+          color: Colors.white,
+        ),
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateGroupWidget()));
+        },
+        title: Text('Create Group', style: TextStyle(color: Colors.white)),
+      ),
+      SizedBox(
+        height: 10,
+      ),
+      Container(
+        child: Column(
+          children: <Widget>[
+            Text("Your Groups:", style: TextStyle(fontSize: 20)),
+            SizedBox(
+              height: 10,
+            )
+          ],
+        ),
+      ),
+      Flexible(
+        child: Container(decoration: BoxDecoration(border: Border.all(color: Colors.black)), child: _getAllGroups()),
+      )
+    ])));
   }
 }
 
-//   getGroups(AsyncSnapshot<QuerySnapshot> snapshot) {
-//     return snapshot.data.docs
-//         .map((doc) => new ListTile(
-//             leading: IconButton(
-//               icon: Icon(Icons.api),
-//               onPressed: () {
-//                 /* Navigator.of(context).pop(MaterialPageRoute(
-//                     builder: (context) => GroupHomeAdminWidget())); */
-//               },
-//             ),
-//             title: new Text(doc["name"])))
-//         .toList();
-//   }
+/* The test groups:
 
-//   Widget _getAllGroups() {
-//     return new StreamBuilder<QuerySnapshot>(
-//         stream: FirebaseFirestore.instance.collection("groups").snapshots(),
-//         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-//           if (!snapshot.hasData) return new Text("There are no groups");
-//           return new ListView(children: getGroups(snapshot));
-//         });
-//   }
-// }
+Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[Text("TEST Groups:")],
+            ),
+          ),
+          Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => GroupHomeWidget(
+                                  'RsTjd6INQsNa6RvSTeUX',
+                                  'Pawnee Parks Dept.')));
+                    },
+                    child: Text('Group Home (Member)')),
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => GroupHomeAdminWidget(
+                                  'RsTjd6INQsNa6RvSTeUX',
+                                  'Pawnee Parks Dept.')));
+                    },
+                    child: Text('Group Home (Admin)')),
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => GroupHomeManagerWidget(
+                                  'RsTjd6INQsNa6RvSTeUX',
+                                  'Pawnee Parks Dept.')));
+                    },
+                    child: Text('Group Home (Manager)')),
+              ],
+            ),
+          ),
+*/
 
 class EditGroupWidget extends StatefulWidget {
   @override

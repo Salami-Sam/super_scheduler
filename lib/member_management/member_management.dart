@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'edit_individual.dart';
-import 'edit_roles.dart';
 import 'invite_member.dart';
 
 /* Screen:
@@ -23,8 +22,6 @@ Future<Map> getMembers(String currentGroupId) async {
   await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Members'];
-      print("in getMembers()");
-      print(returnMap);
     } else {
       print("Error, name not found");
     }
@@ -39,7 +36,6 @@ Future<String> uidToMembersHelper(var key) async {
   await users.doc(key).get().then((docref) {
     if (docref.exists) {
       returnString = docref['displayName'];
-      print(returnString);
     } else {
       print("Error, name not found");
     }
@@ -59,13 +55,11 @@ Future<Map> uidToMembers(Map members) async {
       members['$displayName'] = role;
     }
   }
-  print(members);
   return members;
 }
 
 //deletes member from database map
 Future<void> deleteMember(var memberToRemove, String currentGroupId) async {
-  print(memberToRemove);
   await group.doc('$currentGroupId').update({'Members.$memberToRemove': FieldValue.delete()});
 }
 
@@ -152,7 +146,7 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                         itemCount: names.length);
                   })),
           Container(
-            margin: EdgeInsets.only(left: 8, right: 8),
+            margin: EdgeInsets.only(left: 8, right: 8, bottom: 8),
             child: ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -161,18 +155,6 @@ class _EditMemberWidgetState extends State<EditMemberWidget> {
                   );
                 },
                 child: Text('Invite New Members')),
-          ),
-          Container(
-            margin: EdgeInsets.only(left: 8, right: 8, bottom: 8),
-            child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => EditRolesWidget(currentGroupId: currentGroupId)))
-                      .then((value) {
-                    setState(() {}); //this is here to ensure any change on EditRolesWidget is reflected back here
-                  });
-                },
-                child: Text('Edit Group Roles')),
           ),
         ]));
   }

@@ -43,7 +43,6 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
       if (docref.exists) {
         groupCode = docref['group_code'];
         groupName = docref['name'];
-        print("in send() " + "$groupCode");
       } else {
         print("Error, name not found");
       }
@@ -54,7 +53,6 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
         recipients: recipientList);
     try {
       await FlutterEmailSender.send(email);
-      print('Success');
     } catch (error) {
       print('Error, something went wrong!');
     }
@@ -69,54 +67,53 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: Text('Group Invitation'),
-          centerTitle: true,
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.pop(context); //back to edit member screen
-              })),
-      drawer: getUnifiedDrawerWidget(),
-      body: Container(
-        margin: EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ListTile(
-              title: Center(
-                child: Text('Enter An Email', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
-              ),
-            ),
-            TextField(
-                decoration:
-                    InputDecoration(hintText: 'spongebob123@bikinimail.com', contentPadding: EdgeInsets.all(10.0)),
-                onChanged: (text) {
-                  newMember = text; //will need to use email authentication here
-                }),
-            Padding(padding: EdgeInsets.all(16.0)),
-            Container(
-                width: 125.0,
-                height: 60.0,
-                child: ElevatedButton(
-                    onPressed: () {
-                      if (EmailValidator.validate(newMember)) {
-                        print(currentGroupId);
-                        send(newMember, currentGroupId);
-                      } else {
-                        var snackBar = SnackBar(content: Text('Invalid email')); //don't want to send to invaild email
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      }
-                    },
-                    child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Text(' Send  ', //kinda ugly like this but it works nice enough
-                          style: TextStyle(fontSize: 20.0),
-                          textAlign: TextAlign.center),
-                      Icon(Icons.mail_outline_rounded, color: Colors.white)
-                    ])))
-          ],
-        ),
-      ),
-    );
+        appBar: AppBar(
+            title: Text('Group Invitation'),
+            centerTitle: true,
+            leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pop(context); //back to edit member screen
+                })),
+        drawer: getUnifiedDrawerWidget(),
+        body: Container(
+            margin: EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ListTile(
+                  title: Center(
+                    child: Text('Enter An Email', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+                  ),
+                ),
+                TextField(
+                    decoration:
+                        InputDecoration(hintText: 'spongebob123@bikinimail.com', contentPadding: EdgeInsets.all(10.0)),
+                    onChanged: (text) {
+                      newMember = text; //will need to use email authentication here
+                    }),
+                Padding(padding: EdgeInsets.all(16.0)),
+                Container(
+                    width: 125.0,
+                    height: 60.0,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          if (EmailValidator.validate(newMember)) {
+                            print(currentGroupId);
+                            send(newMember, currentGroupId);
+                          } else {
+                            var snackBar =
+                                SnackBar(content: Text('Invalid email')); //don't want to send to invaild email
+                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                          }
+                        },
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                          Text(' Send  ', //kinda ugly like this but it works nice enough
+                              style: TextStyle(fontSize: 20.0),
+                              textAlign: TextAlign.center),
+                          Icon(Icons.mail_outline_rounded, color: Colors.white)
+                        ])))
+              ],
+            )));
   }
 }

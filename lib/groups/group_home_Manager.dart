@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:super_scheduler/member_management/edit_roles.dart';
 
 import 'package:super_scheduler/scheduling/main_schedule.dart';
 import 'package:super_scheduler/member_management/member_management.dart';
@@ -52,7 +53,13 @@ class GroupHomeManagerWidget extends StatelessWidget {
                     Navigator.push(
                         context, MaterialPageRoute(builder: (context) => EditMemberWidget(currentGroupId: groupId)));
                   },
-                  child: Text('Edit Members'))
+                  child: Text('Edit Members')),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => EditRolesWidget(currentGroupId: groupId)));
+                  },
+                  child: Text('Edit Group Roles')),
             ])));
   }
 }

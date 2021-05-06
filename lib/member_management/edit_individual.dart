@@ -53,7 +53,6 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         returnList = docref['roles'];
-        print("in getRoles() " + "$returnList");
       } else {
         print("Error, name not found");
       }
@@ -68,8 +67,6 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
       if (docref.exists) {
         returnMap = docref['Members'];
         uids = returnMap.keys.toList();
-        print("in getMembers()");
-        print(returnMap);
       } else {
         print("Error, name not found");
       }
@@ -84,7 +81,6 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
     await users.doc(key).get().then((docref) {
       if (docref.exists) {
         returnString = docref['displayName'];
-        print(returnString);
       } else {
         print("Error, name not found");
       }
@@ -104,13 +100,10 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
         members['$displayName'] = role;
       }
     }
-    print(members);
     return members;
   }
 
   Future<void> editRole(var memberChosen, var newRole, String currentGroupId) async {
-    print(memberChosen);
-    print(newRole);
     await group.doc('$currentGroupId').update({'Members.$memberChosen': '$newRole'});
   }
 
@@ -134,7 +127,6 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
                     return Text('Error');
                   }
                   members = snapshot.data;
-                  //print("in title " + "$members");
                   names = members.keys.toList();
                   return Text('${names[index]}');
                 }),
@@ -154,6 +146,7 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
                 child: Text('Role', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
               ),
             ),
+
             FutureBuilder<List>(
                 future: futureRoles = getRoles(currentGroupId),
                 builder: (context, snapshot) {
@@ -164,16 +157,12 @@ class _EditIndividualMemberWidgetState extends State<EditIndividualMemberWidget>
                     return Text('Error');
                   }
                   List roles = snapshot.data;
-                  //print("in dropdown " + "$members");
                   names = members.keys.toList();
-                  //print("in dropdown " + 'members[${names[index]}');
                   return DropdownButton(
                     hint: Text(members['${names[index]}']),
                     value: selectedRole,
                     onChanged: (newRole) {
                       setState(() {
-                        print('in role change drop menu\n');
-                        print(uids);
                         editRole(uids[index], newRole, currentGroupId);
                         selectedRole = newRole;
                       });
