@@ -21,6 +21,7 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
+  ///Navigates to the [ChangeNameWidget] screen.
   void _goToChangeNamePage() {
     Navigator.push(
       context,
@@ -28,6 +29,7 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
     );
   }
 
+  ///Navigates to the [ChangeEmailWidget] screen.
   void _goToChangeEmailPage() {
     Navigator.push(
       context,
@@ -35,6 +37,7 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
     );
   }
 
+  ///Sends a password reset email.
   void _sendChangePasswordEmail() async {
     try {
       FirebaseAuth emailSender = FirebaseAuth.instance;
@@ -52,6 +55,7 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
     }
   }
 
+  ///Navigates to the [DeleteAccountWidget] screen.
   void _goToDeleteAccountPage() {
     Navigator.push(
       context,
@@ -59,6 +63,8 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
     );
   }
 
+  ///A helper function for [build] that defines this [Widget]'s default
+  ///structure.
   Widget _accountInfoPage(snapshot) {
     return Container(
       padding: EdgeInsets.only(

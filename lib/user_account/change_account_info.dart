@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+///This file contains a few small [Widget]s that define screens for the user
+///to change their account information.
+
 ///Defines a screen that allows the user to change their name
 ///@author: Rudy Fisher
 class ChangeNameWidget extends StatefulWidget {
@@ -20,6 +23,7 @@ class _ChangeNameWidgetState extends State<ChangeNameWidget> {
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
+  ///Attempts to change the user's [displayName].
   void _changeUserName() async {
     try {
       User user = FirebaseAuth.instance.currentUser;
@@ -91,6 +95,7 @@ class _ChangeEmailWidgetState extends State<ChangeEmailWidget> {
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
+  ///Attempts to change the user's [email].
   void _changeEmail() async {
     try {
       await FirebaseAuth.instance.currentUser.updateEmail(_email);
@@ -133,82 +138,3 @@ class _ChangeEmailWidgetState extends State<ChangeEmailWidget> {
     );
   }
 }
-
-/*
-///Defines a screen that allows the user to change their password.
-///NOTE: This class is currently not used because the app will be
-///using [FirestoreAuth]'s password reset email functionality.
-///@author: Rudy Fisher
-class ChangePasswordWidget extends StatefulWidget {
-  BooleanByReference _obscurePasswords = BooleanByReference(boolean: true);
-  @override
-  _ChangePasswordWidgetState createState() => _ChangePasswordWidgetState();
-}
-
-class _ChangePasswordWidgetState extends State<ChangePasswordWidget> {
-  String _password = FirebaseAuth.instance.currentUser.email;
-
-  void showSnackBar({String message}) {
-    SnackBar snackbar = SnackBar(
-      content: Text(message),
-      duration: Duration(seconds: 7),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackbar);
-  }
-
-  void _changePassword() async {
-    try {
-      await FirebaseAuth.instance.currentUser.updateEmail(_password);
-
-      Navigator.pop(context);
-      showSnackBar(message: 'Email updated successfully.');
-    } on FirebaseAuthException catch (e) {
-      showSnackBar(message: e.code + '\n' + e.message);
-    } catch (e) {
-      showSnackBar(message: e.code + '\n' + e.message);
-    }
-  }
-
-  final String textLabel = 'New Password';
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => widget._obscurePasswords,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Change Password'),
-        ),
-        body: Padding(
-          padding: EdgeInsets.all(16),
-          child: Form(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Consumer<BooleanByReference>(
-                  builder: (context, booleanByReference, child) =>
-                      PasswordFieldWidget(
-                    textLabel: textLabel,
-                    obscurePassword: booleanByReference,
-                  ),
-                ),
-                Consumer<BooleanByReference>(
-                  builder: (context, booleanByReference, child) =>
-                      PasswordFieldWidget(
-                    textLabel: textLabel,
-                    obscurePassword: booleanByReference,
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: null,
-                  child: Text('confirm'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-*/

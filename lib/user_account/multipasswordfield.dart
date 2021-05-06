@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-
 import 'password_textfield.dart';
 
 ///Defines a widget that encapsulates multiple password fields
+///Note: this [Widget] is currently not used.
 ///@author: Rudy Fisher
 class MultiPasswordWidget extends StatefulWidget {
   final List<PasswordFieldWidget> passwordFields;

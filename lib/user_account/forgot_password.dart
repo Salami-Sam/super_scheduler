@@ -20,6 +20,7 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
+  ///Send a forgot password email to user.
   void sendPasswordResetEmail() async {
     try {
       FirebaseAuth emailSender = FirebaseAuth.instance;

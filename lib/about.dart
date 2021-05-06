@@ -6,7 +6,8 @@ import 'package:url_launcher/url_launcher.dart';
 class AboutWidget extends StatelessWidget {
   final double margin = 16.0;
   final String privacyPolicyUrl =
-      'https://docs.google.com/document/d/10VCnZkIwAFCfP_fG73n66pcr5tdcet8aKNhaD-Cz09E/edit?usp=sharing';
+      'https://docs.google.com/document/d/10VCnZkIwAFCfP_fG73n66' +
+          'pcr5tdcet8aKNhaD-Cz09E/edit?usp=sharing';
 
   Future<void> _launchInBrowser() async {
     try {
@@ -51,7 +52,9 @@ class AboutWidget extends StatelessWidget {
                       ),
                       onPressed: _launchInBrowser,
                     ),
-                    subtitle: Text('Tap above to open on the web. Use device back button to return.'),
+                    subtitle: Text(
+                        'Tap above to open on the web. Use device back' +
+                            ' button to return.'),
                   ),
                 ),
                 Card(
@@ -59,7 +62,9 @@ class AboutWidget extends StatelessWidget {
                     leading: Icon(Icons.copyright_rounded),
                     title: Text('Copyright Info'),
                     subtitle: Text(
-                        'This app was created by:\n\tJames Chartaw\n\tRajesh Dhirar\n\tRudy Fisher\n\tDylan Schulz\n\tMike Schommer'),
+                        'This app was created by:\n\tJames Chartaw\n' +
+                            '\tRajesh Dhirar\n\tRudy Fisher\n' +
+                            '\tDylan Schulz\n\tMike Schommer'),
                   ),
                 ),
               ],

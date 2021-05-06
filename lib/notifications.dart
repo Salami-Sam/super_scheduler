@@ -2,26 +2,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-///Defines the app's notifications screen. It updates in real time as the
-///Firestore's notifications collection for FirebaseAuth's current user.
+///Defines the app's notifications screen. It updates in real time with the
+///[Firestore]'s notifications collection for [FirebaseAuth]'s current user.
 ///@author: Rudy Fisher
 class NotificationsWidget extends StatefulWidget {
+  final String currentUserID = FirebaseAuth.instance.currentUser.uid;
+  final FirebaseFirestore db = FirebaseFirestore.instance;
   @override
   _NotificationsWidgetState createState() => _NotificationsWidgetState();
 }
 
 class _NotificationsWidgetState extends State<NotificationsWidget> {
-  final String currentUserID = FirebaseAuth.instance.currentUser.uid;
-  final FirebaseFirestore db = FirebaseFirestore.instance;
-
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(16.0),
       child: StreamBuilder<QuerySnapshot>(
-          stream: db
+          stream: widget.db
               .collection('users')
-              .doc(currentUserID)
+              .doc(widget.currentUserID)
               .collection('notifications')
               .snapshots(),
           builder: (context, snapshot) {
@@ -49,8 +48,8 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
   }
 }
 
-///Defines a widget to encapsulate a notification within the app.
-///Handles deletion of this widget's notification document in
+///Defines a [Widget] to encapsulate a notification within the app.
+///Handles deletion of this [Widget]'s notification document in
 ///[Firestore] and the user's ability to confirm invites into a group
 class Notification extends StatefulWidget {
   final FirebaseFirestore db = FirebaseFirestore.instance;
@@ -73,6 +72,9 @@ class _NotificationState extends State<Notification> {
     DocumentSnapshot doc =
         await widget.db.collection('groups').doc(groupId).get();
 
+    ///For some reason, even though this is call in [initState], and this
+    ///function awaits the information retrieval, the information would not
+    ///display properly unless [setState] is called.
     setState(() {
       if (doc.exists) {
         _groupName = doc['name'];
@@ -82,8 +84,8 @@ class _NotificationState extends State<Notification> {
     });
   }
 
-  ///Joins the user to the group of this widget's invite notification,
-  ///if it has one, by adding the groupId to the user's userGroup list.
+  ///Joins the user to the group of this [Widget]'s invite notification,
+  ///if it has one, by adding the [groupId] to the user's [userGroup] list.
   void _joinGroup() async {
     DocumentSnapshot doc = await widget.db
         .collection('users')
@@ -97,6 +99,8 @@ class _NotificationState extends State<Notification> {
     await doc.reference.update(data);
   }
 
+  ///Initializes the state for this [Widget]. Specifically, retrieves the
+  ///information of the [Notification] this [Widget] is to represent.
   @override
   void initState() {
     _isInvite = widget.doc.get('isInvite');
@@ -104,6 +108,7 @@ class _NotificationState extends State<Notification> {
     super.initState();
   }
 
+  ///Shows the [message] in the [Snackbar].
   void showSnackBar({String message}) {
     SnackBar snackbar = SnackBar(
       content: Text(message),
