@@ -15,6 +15,7 @@ class JoinGroupWidget extends StatefulWidget {
 var groupCode;
 var db = FirebaseFirestore.instance;
 CollectionReference groups = db.collection('groups');
+CollectionReference users = db.collection('users');
 //var newGroupKey = firebase.database().ref().child('groups').push().key;
 
 /* Future<String> getAllGroups() async {
@@ -58,22 +59,28 @@ Future<Map> uidToGroups(Map groups) async {
 }
  */
 
-/* Future<String> joinGroup(var key) async {
-  String returnString;
-  await groups.doc(key).get().then((docref) {
-    if (docref.exists) {
-      returnString = docref['name'];
-      print(returnString);
-    } else {
-      print("Group not found");
-    }
+Future<void> findGroup(String groupCode) async {
+  QuerySnapshot query =
+      await groups.where('group_code', isEqualTo: '$groupCode').get();
+  print(query);
+  DocumentSnapshot document = query.docs.first;
+  var docId = document.id;
+  if (docId != null) {
+    return joinGroup(docId);
+  } else {
+    print('Error');
+  }
+}
+
+Future<void> joinGroup(var docId) async {
+  var user = FirebaseAuth.instance.currentUser.uid;
+  await groups.doc('$docId').update({'Members.$user': 'NA'});
+  await users.doc('$user').update({
+    'userGroups': FieldValue.arrayUnion([docId])
   });
-  return returnString;
-} */
+}
 
 class _JoinGroupWidgetState extends State<JoinGroupWidget> {
-  TextEditingController codeController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,28 +92,19 @@ class _JoinGroupWidgetState extends State<JoinGroupWidget> {
           Container(
               margin: EdgeInsets.all(20),
               child: TextField(
-                controller: codeController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Group Code',
                 ),
-                onChanged: (text) {},
+                onChanged: (text) {
+                  groupCode = text;
+                },
               )),
           ElevatedButton(
               onPressed: () {
-                groupCode = codeController.text;
-                //TODO: finish this
-                //joinAGroup(groupCode);
-                //Navigator.of(context).pop(
-                //MaterialPageRoute(builder: (context) => MyGroupsWidget()));
+                findGroup(groupCode);
               },
               child: Text('Join Group')),
         ])));
-  }
-
-  @override
-  void dispose() {
-    codeController.dispose();
-    super.dispose();
   }
 }
