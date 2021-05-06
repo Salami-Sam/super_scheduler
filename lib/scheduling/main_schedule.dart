@@ -195,11 +195,11 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
             tabs: dailyTabList,
           ),
         ),
-        body: Consumer<AppStateModel>(
-          builder: (context, appStateModel, child) => FutureBuilder<SchedulePublishedPair>(
+        body: Consumer<SchedulingStateModel>(
+          builder: (context, schedulingStateModel, child) => FutureBuilder<SchedulePublishedPair>(
             future: getWeeklyScheduleDoc(
               groupRef: currentGroupRef,
-              weekStartDate: appStateModel.curWeekStartDate,
+              weekStartDate: schedulingStateModel.curWeekStartDate,
             ),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
@@ -217,7 +217,7 @@ class _MainScheduleWidgetState extends State<MainScheduleWidget> {
                 } else {
                   // Did exist and is published, so save it in a variable and return screen contents
                   curWeekScheduleDocRef = snapshot.data.weeklySchedule;
-                  return _getScreenContents(appStateModel.curWeekStartDate);
+                  return _getScreenContents(schedulingStateModel.curWeekStartDate);
                 }
               }
             },

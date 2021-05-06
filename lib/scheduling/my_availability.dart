@@ -188,11 +188,11 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
             tabs: dailyTabList,
           ),
         ),
-        body: Consumer<AppStateModel>(
-          builder: (context, appStateModel, child) => FutureBuilder<SchedulePublishedPair>(
+        body: Consumer<SchedulingStateModel>(
+          builder: (context, schedulingStateModel, child) => FutureBuilder<SchedulePublishedPair>(
             future: getWeeklyScheduleDoc(
               groupRef: currentGroupRef,
-              weekStartDate: appStateModel.curWeekStartDate,
+              weekStartDate: schedulingStateModel.curWeekStartDate,
             ),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
@@ -207,7 +207,7 @@ class _MyAvailabilityWidgetState extends State<MyAvailabilityWidget> {
                 } else {
                   // Did exist, so save it in a variable and return screen contents
                   curWeekScheduleDocRef = snapshot.data.weeklySchedule;
-                  return _getScreenContents(appStateModel.curWeekStartDate);
+                  return _getScreenContents(schedulingStateModel.curWeekStartDate);
                 }
               }
             },

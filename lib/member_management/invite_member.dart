@@ -31,7 +31,7 @@ Future<void> send(String recipient, String currentGroupId) async {
     }
   });
   Email email = Email(
-      subject: 'Invitaion to join group $groupName on Super Scheduler',
+      subject: 'Invitation to join group $groupName on Super Scheduler',
       body: 'Here is your access code: $groupCode\n',
       recipients: recipientList);
   try {
@@ -51,8 +51,7 @@ class InviteMemberWidget extends StatefulWidget {
   InviteMemberWidget({this.currentGroupId});
 
   @override
-  _InviteMemberWidgetState createState() =>
-      _InviteMemberWidgetState(currentGroupId);
+  _InviteMemberWidgetState createState() => _InviteMemberWidgetState(currentGroupId);
 }
 
 class _InviteMemberWidgetState extends State<InviteMemberWidget> {
@@ -78,15 +77,12 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
         children: [
           ListTile(
             title: Center(
-              child: Text('Enter An Email',
-                  style:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+              child: Text('Enter An Email', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
             ),
           ),
           TextField(
-              decoration: InputDecoration(
-                  hintText: 'spongebob123@bikinimail.com',
-                  contentPadding: EdgeInsets.all(10.0)),
+              decoration:
+                  InputDecoration(hintText: 'spongebob123@bikinimail.com', contentPadding: EdgeInsets.all(10.0)),
               onChanged: (text) {
                 newMember = text; //will need to use email authentication here
               }),
@@ -99,9 +95,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                     if (EmailValidator.validate(newMember)) {
                       send(newMember, currentGroupId);
                     } else {
-                      var snackBar = SnackBar(
-                          content: Text(
-                              'Invalid email')); //don't want to send to invaild email
+                      var snackBar = SnackBar(content: Text('Invalid email')); //don't want to send to invaild email
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     }
                   },

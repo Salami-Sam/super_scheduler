@@ -376,7 +376,7 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MainScheduleWidget(),
+                      builder: (context) => MainScheduleWidget(currentGroupId: widget.currentGroupId),
                     ),
                   );
                 },

@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 
-/* This file contains the model for the app state
+/* This file contains models for the app state
  * 
  * Authors: Dylan Schulz, Rudy Fisher
  */
 
-// A class to store state data global to the app
-class AppStateModel extends ChangeNotifier {
+// A class to store state data for all scheduling screens
+class SchedulingStateModel extends ChangeNotifier {
   DateTime _weekStartDate = _getSundayMidnightOfThisWeek();
 
   DateTime get curWeekStartDate => _weekStartDate;
@@ -38,6 +38,29 @@ DateTime _getSundayMidnightOfThisWeek() {
   return DateTime(correctDay.year, correctDay.month, correctDay.day).toUtc();
 }
 
-/*Future<void> access() async {
-  
-}*/
+
+// Turns out the below thing is not necessary,
+// but keeping it just in case
+
+// // A class to store state data keeping track of the currently signed in user
+// class CurrentUserStateModel extends ChangeNotifier {
+//   String currentUserId = FirebaseAuth.instance.currentUser.uid;
+//   String get currentUid => currentUserId;
+
+//   // When the model is created, add a listener to FirebaseAuth
+//   // that is called every time the user's signed-in status changes
+//   CurrentUserStateModel() {
+//     FirebaseAuth.instance.authStateChanges().listen(resetUid);
+//   }
+
+//   // Resets the field to the uid of the signed in user and notifies widgets
+//   void resetUid(User user) {
+//     if (user != null) {
+//       currentUserId = user.uid;
+//     } else {
+//       currentUserId = '';
+//     }
+
+//     notifyListeners();
+//   }
+// }

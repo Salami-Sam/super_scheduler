@@ -10,7 +10,7 @@ void main() async {
   await Firebase.initializeApp();
   runApp(ChangeNotifierProvider(
     child: RootWidget(),
-    create: (context) => AppStateModel(),
+    create: (context) => SchedulingStateModel(),
   ));
 }
 

@@ -16,32 +16,12 @@ class CreateGroupWidget extends StatefulWidget {
 }
 
 var db = FirebaseFirestore.instance;
-var newGroupName;
-var newGroupDescription;
-var newGroupCode;
-var uid = FirebaseAuth.instance.currentUser.uid;
 
 const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 Random _rnd = Random();
 
 String getRandomString(int length) =>
     String.fromCharCodes(Iterable.generate(length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
-
-void addAGroup(newGroupName, newGroupDescription) async {
-  /* if (!newGroupName || !newGroupDescription) {
-    return;
-  } else */
-  newGroupCode = getRandomString(6);
-  db.collection("groups").doc().set({
-    'name': newGroupName,
-    'description': newGroupDescription,
-    'group_code': newGroupCode,
-    'roles': [],
-    'Admins': {uid: 'N\A'},
-    'Managers': {},
-    'Members': {}
-  });
-}
 
 /* void addGrouptoUser() async {
 
@@ -58,6 +38,27 @@ class _CreateGroupWidgetState extends State<CreateGroupWidget> {
     groupDescriptionController.dispose();
     groupNameController.dispose();
     super.dispose();
+  }
+
+  var newGroupName;
+  var newGroupDescription;
+  var newGroupCode;
+  var uid = FirebaseAuth.instance.currentUser.uid;
+
+  void addAGroup(newGroupName, newGroupDescription) async {
+    /* if (!newGroupName || !newGroupDescription) {
+      return;
+    } else */
+    newGroupCode = getRandomString(6);
+    db.collection("groups").doc().set({
+      'name': newGroupName,
+      'description': newGroupDescription,
+      'group_code': newGroupCode,
+      'roles': [],
+      'Admins': {uid: 'N\A'},
+      'Managers': {},
+      'Members': {}
+    });
   }
 
   @override

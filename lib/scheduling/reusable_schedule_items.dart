@@ -44,24 +44,24 @@ Widget tableSeparatorBuilder(BuildContext context, int index) {
 // Contains left and right arrows on either side of
 // the Text that lists the dates of the currently displayed week
 Widget getDateNavigationRow() {
-  return Consumer<AppStateModel>(
-    builder: (context, appStateModel, child) {
-      DateTime weekEndDate = appStateModel.curWeekStartDate.add(Duration(days: 6));
+  return Consumer<SchedulingStateModel>(
+    builder: (context, schedulingStateModel, child) {
+      DateTime weekEndDate = schedulingStateModel.curWeekStartDate.add(Duration(days: 6));
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(
             icon: Icon(Icons.arrow_left),
             onPressed: () {
-              appStateModel.decreaseCurWeekBy1();
+              schedulingStateModel.decreaseCurWeekBy1();
             },
           ),
           InkWell(
             onLongPress: () {
-              appStateModel.resetCurrentWeekToNow();
+              schedulingStateModel.resetCurrentWeekToNow();
             },
             child: Text(
-              'For the week ${getDateString(appStateModel.curWeekStartDate.toLocal())} ' +
+              'For the week ${getDateString(schedulingStateModel.curWeekStartDate.toLocal())} ' +
                   'to ${getDateString(weekEndDate.toLocal())}',
               style: TextStyle(fontSize: 18),
             ),
@@ -69,7 +69,7 @@ Widget getDateNavigationRow() {
           IconButton(
             icon: Icon(Icons.arrow_right),
             onPressed: () {
-              appStateModel.increaseCurWeekBy1();
+              schedulingStateModel.increaseCurWeekBy1();
             },
           ),
         ],
