@@ -25,6 +25,7 @@ Future<void> send(String recipient, String currentGroupId) async {
   await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
       groupCode = docref['group_code'];
+      groupName = docref['name'];
       print("in send() " + "$groupCode");
     } else {
       print("Error, name not found");
@@ -51,7 +52,8 @@ class InviteMemberWidget extends StatefulWidget {
   InviteMemberWidget({this.currentGroupId});
 
   @override
-  _InviteMemberWidgetState createState() => _InviteMemberWidgetState(currentGroupId);
+  _InviteMemberWidgetState createState() =>
+      _InviteMemberWidgetState(currentGroupId);
 }
 
 class _InviteMemberWidgetState extends State<InviteMemberWidget> {
@@ -77,12 +79,15 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
         children: [
           ListTile(
             title: Center(
-              child: Text('Enter An Email', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+              child: Text('Enter An Email',
+                  style:
+                      TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
             ),
           ),
           TextField(
-              decoration:
-                  InputDecoration(hintText: 'spongebob123@bikinimail.com', contentPadding: EdgeInsets.all(10.0)),
+              decoration: InputDecoration(
+                  hintText: 'spongebob123@bikinimail.com',
+                  contentPadding: EdgeInsets.all(10.0)),
               onChanged: (text) {
                 newMember = text; //will need to use email authentication here
               }),
@@ -93,14 +98,18 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
               child: ElevatedButton(
                   onPressed: () {
                     if (EmailValidator.validate(newMember)) {
+                      print(currentGroupId);
                       send(newMember, currentGroupId);
                     } else {
-                      var snackBar = SnackBar(content: Text('Invalid email')); //don't want to send to invaild email
+                      var snackBar = SnackBar(
+                          content: Text(
+                              'Invalid email')); //don't want to send to invaild email
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     }
                   },
                   child: Row(children: [
-                    Text(' Send  ', //kinda ugly like this but it works nice enough
+                    Text(
+                        ' Send  ', //kinda ugly like this but it works nice enough
                         style: TextStyle(fontSize: 20.0),
                         textAlign: TextAlign.center),
                     Icon(Icons.mail_outline_rounded, color: Colors.white)
