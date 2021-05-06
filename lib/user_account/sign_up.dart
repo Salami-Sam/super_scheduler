@@ -60,7 +60,7 @@ class SignUpWidget extends StatefulWidget {
   final StringByReference _password1 = StringByReference();
   final StringByReference _password2 = StringByReference();
   final BooleanByReference _obscurePasswords = BooleanByReference(
-    boolean: false,
+    boolean: true,
   );
 
   SignUpWidget({this.signUpButtonOnPressedCallBack});
@@ -79,12 +79,6 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   }
 
   bool passwordsMatch() {
-    //RUDY -- Delete this debug code for security
-    // print('${widget._name.hashCode}' + ' ' + widget._name.string);
-    // print('${widget._email.hashCode}' + ' ' + widget._email.string);
-    // print('${widget._password1.hashCode}' + ' ' + widget._password1.string);
-    // print('${widget._password2.hashCode}' + ' ' + widget._password2.string);
-    // print(widget._password1.string != widget._password2.string);
     if (widget._password1.string != widget._password2.string) {
       showSnackBar(message: 'Passwords don\'t match. Please re-enter.');
       return false;
@@ -136,18 +130,14 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   @override
   void initState() {
     super.initState();
-    // widget._email.string = ''; //RUDY -- REMOVE TEST DATA
-    // widget._name.string = ''; //RUDY -- REMOVE TEST DATA
-    // widget._password1.string = ''; //RUDY -- REMOVE TEST DATA
-    // widget._password2.string = ''; //RUDY -- REMOVE TEST DATA
   }
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => widget._obscurePasswords,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: ListView(
+        //crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           TextFormField(
             //controller: TextEditingController(text: widget._name.string),

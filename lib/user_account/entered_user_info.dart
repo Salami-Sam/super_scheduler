@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 ///Wraps a [String] into a reference type data structure.
 ///@author Rudy Fisher
 class StringByReference extends Object {
-  String string = 'BLANK';
+  String string = '';
 }
 
 ///Wraps a [bool] into a reference type data structure. Its default
