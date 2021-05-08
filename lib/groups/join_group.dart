@@ -115,6 +115,7 @@ class _JoinGroupWidgetState extends State<JoinGroupWidget> {
                         var snackBar = SnackBar(
                             content: Text('Join was successful! Welcome!')); //don't want to send to invaild email
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        Navigator.pop(context);
                       } else {
                         var snackBar = SnackBar(
                             content:

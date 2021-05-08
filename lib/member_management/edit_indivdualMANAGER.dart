@@ -25,7 +25,8 @@ class EditIndividualMemberManagerWidget extends StatefulWidget {
   EditIndividualMemberManagerWidget({this.members, this.index, this.currentGroupId});
 
   @override
-  _EditIndividualMemberManagerWidgetState createState() => _EditIndividualMemberManagerWidgetState(members, index, currentGroupId);
+  _EditIndividualMemberManagerWidgetState createState() =>
+      _EditIndividualMemberManagerWidgetState(members, index, currentGroupId);
 }
 
 class _EditIndividualMemberManagerWidgetState extends State<EditIndividualMemberManagerWidget> {
@@ -37,8 +38,7 @@ class _EditIndividualMemberManagerWidgetState extends State<EditIndividualMember
       selectedPermission,
       currentGroupId; //these strings are used by the drop menu, will see similar strings in other widgets
   int index;
-  _EditIndividualMemberManagerWidgetState(
-      this.members, this.index, this.currentGroupId); 
+  _EditIndividualMemberManagerWidgetState(this.members, this.index, this.currentGroupId);
   //this members map is used for the dropdown menu
   //for some reason the dropdown kept returning null
   //the only way around it was to have two different maps
@@ -142,7 +142,7 @@ class _EditIndividualMemberManagerWidgetState extends State<EditIndividualMember
           child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
             ListTile(
               title: Center(
-                child: Text('Change assigned role', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+                child: Text('Change Assigned Role', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
               ),
             ),
             FutureBuilder<List>(
@@ -155,9 +155,8 @@ class _EditIndividualMemberManagerWidgetState extends State<EditIndividualMember
                     return Text('Error');
                   }
                   List roles = snapshot.data;
-                  roles.sort((a, b) => a.toUpperCase() != b.toUpperCase()
-                        ? a.toUpperCase().compareTo(b.toUpperCase())
-                        : a.compareTo(b));
+                  roles.sort((a, b) =>
+                      a.toUpperCase() != b.toUpperCase() ? a.toUpperCase().compareTo(b.toUpperCase()) : a.compareTo(b));
                   names = members.keys.toList();
                   return DropdownButton(
                     hint: Text(members['${names[index]}']),

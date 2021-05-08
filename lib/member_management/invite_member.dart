@@ -60,6 +60,17 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
     }
   }
 
+  Future<String> getJoinCode(String currentGroupId) {
+    return group.doc('$currentGroupId').get().then((docref) {
+      if (docref.exists) {
+        return docref['group_code'];
+      } else {
+        print("Error, name not found");
+        return '[Error]';
+      }
+    });
+  }
+
   Drawer getUnifiedDrawerWidget() {
     return Drawer(
       child: Text('Drawer placeholder'),
@@ -80,42 +91,75 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
         drawer: getUnifiedDrawerWidget(),
         body: Container(
             margin: EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ListTile(
-                  title: Center(
-                    child: Text('Enter An Email', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ListTile(
+                    title: Center(
+                      child: Text('Join Code', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+                    ),
                   ),
-                ),
-                TextField(
-                    decoration:
-                        InputDecoration(hintText: 'spongebob123@bikinimail.com', contentPadding: EdgeInsets.all(10.0)),
-                    onChanged: (text) {
-                      newMember = text; //will need to use email authentication here
-                    }),
-                Padding(padding: EdgeInsets.all(16.0)),
-                Container(
-                    width: 125.0,
-                    height: 60.0,
-                    child: ElevatedButton(
-                        onPressed: () {
-                          if (EmailValidator.validate(newMember)) {
-                            print(currentGroupId);
-                            send(newMember, currentGroupId);
+                  ListTile(
+                    title: Text('Your group\'s join code is below. Share it with others so they can join your group!',
+                        style: TextStyle(fontSize: 16.0)),
+                  ),
+                  ListTile(
+                    title: Center(
+                      child: FutureBuilder(
+                        future: getJoinCode(currentGroupId),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return Text('[Error]');
+                          } else if (snapshot.connectionState == ConnectionState.waiting) {
+                            return CircularProgressIndicator();
                           } else {
-                            var snackBar =
-                                SnackBar(content: Text('Invalid email')); //don't want to send to invaild email
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                            return Text('${snapshot.data}');
                           }
                         },
-                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Text(' Send  ', //kinda ugly like this but it works nice enough
-                              style: TextStyle(fontSize: 20.0),
-                              textAlign: TextAlign.center),
-                          Icon(Icons.mail_outline_rounded, color: Colors.white)
-                        ])))
-              ],
+                      ),
+                    ),
+                  ),
+                  ListTile(
+                    title: Center(
+                      child: Text('Email Invite', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text(
+                        'Enter someone\'s email address and we will prepare an invite email to send using your default email app.',
+                        style: TextStyle(fontSize: 16.0)),
+                  ),
+                  Padding(padding: EdgeInsets.all(8.0)),
+                  TextField(
+                      decoration: InputDecoration(
+                          hintText: 'spongebob123@bikinimail.com', contentPadding: EdgeInsets.all(10.0)),
+                      onChanged: (text) {
+                        newMember = text; //will need to use email authentication here
+                      }),
+                  Padding(padding: EdgeInsets.all(16.0)),
+                  Container(
+                      width: 125.0,
+                      height: 60.0,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            if (EmailValidator.validate(newMember)) {
+                              print(currentGroupId);
+                              send(newMember, currentGroupId);
+                            } else {
+                              var snackBar =
+                                  SnackBar(content: Text('Invalid email')); //don't want to send to invaild email
+                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                            }
+                          },
+                          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                            Text(' Send  ', //kinda ugly like this but it works nice enough
+                                style: TextStyle(fontSize: 20.0),
+                                textAlign: TextAlign.center),
+                            Icon(Icons.mail_outline_rounded, color: Colors.white)
+                          ])))
+                ],
+              ),
             )));
   }
 }
