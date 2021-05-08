@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:super_scheduler/member_management/edit_roles.dart';
 import 'package:super_scheduler/member_management/member_management_ADMIN.dart';
 
+import '../screen_title.dart';
 import 'group_management.dart';
 import 'package:super_scheduler/scheduling/main_schedule.dart';
 import 'package:super_scheduler/scheduling/my_availability.dart';
@@ -15,31 +16,50 @@ import 'package:super_scheduler/scheduling/primary_scheduler.dart';
 ///@author: James Chartraw
 ///
 
-class GroupHomeAdminWidget extends StatelessWidget {
-  final String groupId, groupName;
-  GroupHomeAdminWidget(this.groupId, this.groupName);
+class GroupHomeAdminWidget extends StatefulWidget {
+  final String groupId;
+  GroupHomeAdminWidget(this.groupId);
 
-  // Gets the description for the given group
-  // Author: Dylan Schulz
-  Future<String> getDescription(String currentGroupId) {
-    return FirebaseFirestore.instance
-        .collection('groups')
-        .doc('$currentGroupId')
-        .get()
-        .then((docref) {
-      if (docref.exists) {
-        return docref['description'];
-      } else {
-        return 'There was an error in retrieving the description.';
-      }
-    });
+  @override
+  _GroupHomeAdminWidgetState createState() => _GroupHomeAdminWidgetState();
+}
+
+class _GroupHomeAdminWidgetState extends State<GroupHomeAdminWidget> {
+  Widget getDescriptionWidget() {
+    return Container(
+      margin: EdgeInsets.all(8),
+      child: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('groups')
+            .doc('${widget.groupId}')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text('There was an error in retrieving the description.',
+                style: TextStyle(fontSize: 16.0));
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container(
+              child: CircularProgressIndicator(),
+              alignment: Alignment.centerLeft,
+            );
+          } else {
+            var description = snapshot.data['description'];
+            return Text('$description', style: TextStyle(fontSize: 16.0));
+          }
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('$groupName (Admin)'),
+          title: getScreenTitleWithParen(
+              currentGroupRef: FirebaseFirestore.instance
+                  .collection('groups')
+                  .doc('${widget.groupId}'),
+              screenName: 'Admin'),
         ),
         body: Container(
             margin: EdgeInsets.all(8),
@@ -54,25 +74,7 @@ class GroupHomeAdminWidget extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 16.0, fontWeight: FontWeight.bold),
                         )),
-                    Container(
-                      margin: EdgeInsets.all(8),
-                      child: FutureBuilder(
-                        future: getDescription(groupId),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasError) {
-                            return Text(
-                                'There was an error in retrieving the description.',
-                                style: TextStyle(fontSize: 16.0));
-                          } else if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return CircularProgressIndicator();
-                          } else {
-                            return Text('${snapshot.data}',
-                                style: TextStyle(fontSize: 16.0));
-                          }
-                        },
-                      ),
-                    ),
+                    getDescriptionWidget(),
                     Container(
                         child: ElevatedButton(
                             onPressed: () {
@@ -81,7 +83,7 @@ class GroupHomeAdminWidget extends StatelessWidget {
                                   MaterialPageRoute(
                                       builder: (context) =>
                                           MyAvailabilityWidget(
-                                              currentGroupId: groupId)));
+                                              currentGroupId: widget.groupId)));
                             },
                             child: Text('My Availability'))),
                     ElevatedButton(
@@ -90,7 +92,7 @@ class GroupHomeAdminWidget extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => MyScheduleWidget(
-                                      currentGroupId: groupId)));
+                                      currentGroupId: widget.groupId)));
                         },
                         child: Text('My Schedules')),
                     ElevatedButton(
@@ -99,7 +101,7 @@ class GroupHomeAdminWidget extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => MainScheduleWidget(
-                                      currentGroupId: groupId)));
+                                      currentGroupId: widget.groupId)));
                         },
                         child: Text('Main Schedule')),
                     ElevatedButton(
@@ -108,7 +110,7 @@ class GroupHomeAdminWidget extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => PrimarySchedulerWidget(
-                                      currentGroupId: groupId)));
+                                      currentGroupId: widget.groupId)));
                         },
                         child: Text('Scheduler')),
                     ElevatedButton(
@@ -117,7 +119,7 @@ class GroupHomeAdminWidget extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => EditMemberAdminWidget(
-                                      currentGroupId: groupId)));
+                                      currentGroupId: widget.groupId)));
                         },
                         child: Text('Edit Members')),
                     ElevatedButton(
@@ -126,16 +128,28 @@ class GroupHomeAdminWidget extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => EditRolesWidget(
-                                      currentGroupId: groupId)));
+                                      currentGroupId: widget.groupId)));
                         },
                         child: Text('Edit Group Roles')),
                     ElevatedButton(
                         onPressed: () {
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => EditGroupWidget(
-                                      currentGroupId: groupId)));
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => EditGroupWidget(
+                                          currentGroupId: widget.groupId)))
+                              .then((value) {
+                            // This future then method is called when the EditGroupWidget pops
+                            // If EditGroupWidget was popped by clicking the Save Changes button,
+                            // value will be the name of the group
+                            // If it popped using the back button, value will be null
+                            // So, if changes were made, rebuild this screen to update the app bar title
+                            // that is the name of the group
+                            if (value != null) {
+                              print(value);
+                              setState(() {});
+                            }
+                          });
                         },
                         child: Text('Edit Group'))
                   ]),

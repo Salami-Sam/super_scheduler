@@ -5,35 +5,52 @@ import 'package:super_scheduler/member_management/view_members.dart';
 import 'package:super_scheduler/scheduling/my_availability.dart';
 import 'package:super_scheduler/scheduling/my_schedule.dart';
 
+import '../screen_title.dart';
+
 /* Screens:
  * Group Home Page
  */
 ///@author: James Chartraw
 class GroupHomeWidget extends StatelessWidget {
-  final String groupId, groupName;
-  GroupHomeWidget(this.groupId, this.groupName);
+  final String groupId;
+  GroupHomeWidget(this.groupId);
 
-  // Gets the description for the given group
-  // Author: Dylan Schulz
-  Future<String> getDescription(String currentGroupId) {
-    return FirebaseFirestore.instance
-        .collection('groups')
-        .doc('$currentGroupId')
-        .get()
-        .then((docref) {
-      if (docref.exists) {
-        return docref['description'];
-      } else {
-        return 'There was an error in retrieving the description.';
-      }
-    });
+  // A StreamBuilder for the description of the current group
+  Widget getDescriptionWidget() {
+    return Container(
+      margin: EdgeInsets.all(8),
+      child: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('groups')
+            .doc('$groupId')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text('There was an error in retrieving the description.',
+                style: TextStyle(fontSize: 16.0));
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container(
+              child: CircularProgressIndicator(),
+              alignment: Alignment.centerLeft,
+            );
+          } else {
+            var description = snapshot.data['description'];
+            return Text('$description', style: TextStyle(fontSize: 16.0));
+          }
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('$groupName (Member)'),
+          title: getScreenTitleWithParen(
+              currentGroupRef: FirebaseFirestore.instance
+                  .collection('groups')
+                  .doc('$groupId'),
+              screenName: 'Member'),
         ),
         body: Container(
             margin: EdgeInsets.all(8),
@@ -48,25 +65,7 @@ class GroupHomeWidget extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 16.0, fontWeight: FontWeight.bold),
                       )),
-                  Container(
-                    margin: EdgeInsets.all(8),
-                    child: FutureBuilder(
-                      future: getDescription(groupId),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          return Text(
-                              'There was an error in retrieving the description.',
-                              style: TextStyle(fontSize: 16.0));
-                        } else if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return CircularProgressIndicator();
-                        } else {
-                          return Text('${snapshot.data}',
-                              style: TextStyle(fontSize: 16.0));
-                        }
-                      },
-                    ),
-                  ),
+                  getDescriptionWidget(),
                   Container(
                       child: ElevatedButton(
                           onPressed: () {

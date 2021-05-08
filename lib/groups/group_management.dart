@@ -114,20 +114,19 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  GroupHomeAdminWidget(group.id, groupName)));
+                                  GroupHomeAdminWidget(group.id)));
                     } else if (curUsersGroups.values.elementAt(index) ==
                         'Manager') {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  GroupHomeManagerWidget(group.id, groupName)));
+                                  GroupHomeManagerWidget(group.id)));
                     } else {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  GroupHomeWidget(group.id, groupName)));
+                              builder: (context) => GroupHomeWidget(group.id)));
                     }
                   });
             },
@@ -307,69 +306,123 @@ class EditGroupWidget extends StatefulWidget {
 
 /// The Edit group widget is accessed through an Admin of a group clicking "Edit Group" on that groups page.
 /// works essentialy the same as CreateGroup but it updates instead.
+/// Authors: Dylan Schulz and James Chartraw
 class _EditGroupWidgetState extends State<EditGroupWidget> {
-  TextEditingController groupNameController = TextEditingController();
-  TextEditingController groupDescriptionController = TextEditingController();
+  TextEditingController groupNameController;
+  TextEditingController groupDescriptionController;
   String groupName = '';
   String groupDescription = '';
 
   String currentGroupId;
   _EditGroupWidgetState(this.currentGroupId);
 
+  // Gets the name and description for the current group
+  // and places them in the fields
+  // Author: Dylan Schulz
+  Future<void> getNameAndDescription() {
+    return FirebaseFirestore.instance
+        .collection('groups')
+        .doc('$currentGroupId')
+        .get()
+        .then((docref) {
+      if (docref.exists) {
+        groupName = docref['name'];
+        groupDescription = docref['description'];
+      }
+    });
+  }
+
+  // Updates the current group's name and description
+  // in the database to be groupName and groupDescription
+  // Author: Dylan Schulz
+  void updateGroup() {
+    FirebaseFirestore.instance
+        .collection('groups')
+        .doc('$currentGroupId')
+        .update({
+      'name': groupName,
+      'description': groupDescription,
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: getScreenTitle(
-              currentGroupRef: FirebaseFirestore.instance
-                  .collection("groups")
-                  .doc(currentGroupId),
-              screenName: 'Edit Group'),
-        ),
-        body: Container(
-            margin: EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Container(
-                    margin: EdgeInsets.only(top: 20, bottom: 10),
-                    child: TextField(
-                      controller: groupNameController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Group Name',
+      appBar: AppBar(
+        title: getScreenTitle(
+            currentGroupRef: FirebaseFirestore.instance
+                .collection("groups")
+                .doc(currentGroupId),
+            screenName: 'Edit Group'),
+      ),
+      body: FutureBuilder(
+          // Wait while the name and description of the current group are retrieved,
+          // then continue building
+          future: getNameAndDescription(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Text(
+                  'There was an error in retrieving the group\'s current info.');
+            } else if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else {
+              groupNameController = new TextEditingController(text: groupName);
+              groupDescriptionController =
+                  new TextEditingController(text: groupDescription);
+
+              return Container(
+                margin: EdgeInsets.all(20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.only(top: 20, bottom: 10),
+                        child: TextField(
+                          controller: groupNameController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Group Name',
+                          ),
+                          // onChanged: (text) {
+                          //   setState(() {
+                          //     groupName = text;
+                          //   });
+                          // },
+                        ),
                       ),
-                      onChanged: (text) {
-                        setState(() {
-                          groupName = text;
-                        });
-                      },
-                    )),
-                Container(
-                    margin: EdgeInsets.only(top: 10, bottom: 20),
-                    child: TextField(
-                      controller: groupDescriptionController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Group Description',
+                      Container(
+                        margin: EdgeInsets.only(top: 10, bottom: 20),
+                        child: TextField(
+                          maxLines: null,
+                          controller: groupDescriptionController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Group Description',
+                          ),
+                          // onChanged: (text) {
+                          //   setState(() {
+                          //     groupDescription = text;
+                          //   });
+                          // },
+                        ),
                       ),
-                      onChanged: (text) {
-                        setState(() {
-                          groupDescription = text;
-                        });
-                      },
-                    )),
-                ElevatedButton(
-                    onPressed: () {
-                      //TO DO: Editing a group such that a new group is not created
-                      // newGroupName = groupNameController.text;
-                      // newGroupDescription = groupDescriptionController.text;
-                      // addAGroup(newGroupName, newGroupDescription);
-                      Navigator.of(context).pop(MaterialPageRoute(
-                          builder: (context) => MyGroupsWidget()));
-                    },
-                    child: Text('Save Changes')),
-              ],
-            )));
+                      ElevatedButton(
+                          onPressed: () {
+                            groupName = groupNameController.text;
+                            groupDescription = groupDescriptionController.text;
+                            updateGroup();
+                            // The argument to pop will be retrieved in a future by
+                            // the Navigator.push call that opened this screen
+                            Navigator.of(context).pop<String>(groupName);
+                          },
+                          child: Text('Save Changes')),
+                    ],
+                  ),
+                ),
+              );
+            }
+          }),
+    );
   }
 }
