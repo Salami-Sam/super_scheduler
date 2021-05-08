@@ -32,7 +32,9 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
         stream: FirebaseFirestore.instance.collection("groups").snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text('There was an error in loading the list of groups.'));
+            return Center(
+                child:
+                    Text('There was an error in loading the list of groups.'));
           } else if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
@@ -105,16 +107,27 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
                     color: Colors.white,
                   ),
                   onTap: () {
-                    QueryDocumentSnapshot group = curUsersGroups.keys.elementAt(index);
+                    QueryDocumentSnapshot group =
+                        curUsersGroups.keys.elementAt(index);
                     if (curUsersGroups.values.elementAt(index) == 'Admin') {
                       Navigator.push(
-                          context, MaterialPageRoute(builder: (context) => GroupHomeAdminWidget(group.id, groupName)));
-                    } else if (curUsersGroups.values.elementAt(index) == 'Manager') {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => GroupHomeManagerWidget(group.id, groupName)));
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  GroupHomeAdminWidget(group.id, groupName)));
+                    } else if (curUsersGroups.values.elementAt(index) ==
+                        'Manager') {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  GroupHomeManagerWidget(group.id, groupName)));
                     } else {
                       Navigator.push(
-                          context, MaterialPageRoute(builder: (context) => GroupHomeWidget(group.id, groupName)));
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  GroupHomeWidget(group.id, groupName)));
                     }
                   });
             },
@@ -179,54 +192,61 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
         //       ),
         //     ])));
         body: Center(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
-      SizedBox(
-        height: 10,
-      ),
-      ListTile(
-        tileColor: Colors.blue,
-        trailing: Icon(
-          Icons.arrow_right,
-          size: 45,
-          color: Colors.white,
-        ),
-        onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => JoinGroupWidget()));
-        },
-        title: Text('Join Group', style: TextStyle(color: Colors.white)),
-      ),
-      SizedBox(
-        height: 10,
-      ),
-      ListTile(
-        tileColor: Colors.blue,
-        trailing: Icon(
-          Icons.arrow_right,
-          size: 45,
-          color: Colors.white,
-        ),
-        onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateGroupWidget()));
-        },
-        title: Text('Create Group', style: TextStyle(color: Colors.white)),
-      ),
-      SizedBox(
-        height: 10,
-      ),
-      Container(
-        child: Column(
-          children: <Widget>[
-            Text("Your Groups:", style: TextStyle(fontSize: 20)),
-            SizedBox(
-              height: 10,
-            )
-          ],
-        ),
-      ),
-      Flexible(
-        child: Container(decoration: BoxDecoration(border: Border.all(color: Colors.black)), child: _getAllGroups()),
-      )
-    ])));
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+          SizedBox(
+            height: 10,
+          ),
+          ListTile(
+            tileColor: Colors.blue,
+            trailing: Icon(
+              Icons.arrow_right,
+              size: 45,
+              color: Colors.white,
+            ),
+            onTap: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => JoinGroupWidget()));
+            },
+            title: Text('Join Group', style: TextStyle(color: Colors.white)),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          ListTile(
+            tileColor: Colors.blue,
+            trailing: Icon(
+              Icons.arrow_right,
+              size: 45,
+              color: Colors.white,
+            ),
+            onTap: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => CreateGroupWidget()));
+            },
+            title: Text('Create Group', style: TextStyle(color: Colors.white)),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Container(
+            child: Column(
+              children: <Widget>[
+                Text("Your Groups:", style: TextStyle(fontSize: 20)),
+                SizedBox(
+                  height: 10,
+                )
+              ],
+            ),
+          ),
+          Flexible(
+            child: Container(
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.black)),
+                child: _getAllGroups()),
+          )
+        ])));
   }
 }
 
@@ -301,7 +321,9 @@ class _EditGroupWidgetState extends State<EditGroupWidget> {
     return Scaffold(
         appBar: AppBar(
           title: getScreenTitle(
-              currentGroupRef: FirebaseFirestore.instance.collection("groups").doc(currentGroupId),
+              currentGroupRef: FirebaseFirestore.instance
+                  .collection("groups")
+                  .doc(currentGroupId),
               screenName: 'Edit Group'),
         ),
         body: Container(
@@ -343,7 +365,8 @@ class _EditGroupWidgetState extends State<EditGroupWidget> {
                       // newGroupName = groupNameController.text;
                       // newGroupDescription = groupDescriptionController.text;
                       // addAGroup(newGroupName, newGroupDescription);
-                      Navigator.of(context).pop(MaterialPageRoute(builder: (context) => MyGroupsWidget()));
+                      Navigator.of(context).pop(MaterialPageRoute(
+                          builder: (context) => MyGroupsWidget()));
                     },
                     child: Text('Save Changes')),
               ],

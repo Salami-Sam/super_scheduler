@@ -25,7 +25,8 @@ class InviteMemberWidget extends StatefulWidget {
   InviteMemberWidget({this.currentGroupId});
 
   @override
-  _InviteMemberWidgetState createState() => _InviteMemberWidgetState(currentGroupId);
+  _InviteMemberWidgetState createState() =>
+      _InviteMemberWidgetState(currentGroupId);
 }
 
 class _InviteMemberWidgetState extends State<InviteMemberWidget> {
@@ -81,7 +82,9 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: getScreenTitle(currentGroupRef: group.doc(currentGroupId), screenName: 'Invite Member'),
+            title: getScreenTitle(
+                currentGroupRef: group.doc(currentGroupId),
+                screenName: 'Invite Member'),
             centerTitle: true,
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),
@@ -97,11 +100,14 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                 children: [
                   ListTile(
                     title: Center(
-                      child: Text('Join Code', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+                      child: Text('Join Code',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 25.0)),
                     ),
                   ),
-                  ListTile(
-                    title: Text('Your group\'s join code is below. Share it with others so they can join your group!',
+                  Container(
+                    child: Text(
+                        'Your group\'s join code is below. Share it with others so they can join your group!',
                         style: TextStyle(fontSize: 16.0)),
                   ),
                   ListTile(
@@ -110,11 +116,14 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                         future: getJoinCode(currentGroupId),
                         builder: (context, snapshot) {
                           if (snapshot.hasError) {
-                            return Text('[Error]');
-                          } else if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Text('[Error]',
+                                style: TextStyle(fontSize: 16.0));
+                          } else if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return CircularProgressIndicator();
                           } else {
-                            return Text('${snapshot.data}');
+                            return Text('${snapshot.data}',
+                                style: TextStyle(fontSize: 16.0));
                           }
                         },
                       ),
@@ -122,20 +131,24 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                   ),
                   ListTile(
                     title: Center(
-                      child: Text('Email Invite', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+                      child: Text('Email Invite',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 25.0)),
                     ),
                   ),
-                  ListTile(
-                    title: Text(
+                  Container(
+                    child: Text(
                         'Enter someone\'s email address and we will prepare an invite email to send using your default email app.',
                         style: TextStyle(fontSize: 16.0)),
                   ),
                   Padding(padding: EdgeInsets.all(8.0)),
                   TextField(
                       decoration: InputDecoration(
-                          hintText: 'spongebob123@bikinimail.com', contentPadding: EdgeInsets.all(10.0)),
+                          hintText: 'spongebob123@bikinimail.com',
+                          contentPadding: EdgeInsets.all(10.0)),
                       onChanged: (text) {
-                        newMember = text; //will need to use email authentication here
+                        newMember =
+                            text; //will need to use email authentication here
                       }),
                   Padding(padding: EdgeInsets.all(16.0)),
                   Container(
@@ -147,17 +160,23 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                               print(currentGroupId);
                               send(newMember, currentGroupId);
                             } else {
-                              var snackBar =
-                                  SnackBar(content: Text('Invalid email')); //don't want to send to invaild email
-                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                              var snackBar = SnackBar(
+                                  content: Text(
+                                      'Invalid email')); //don't want to send to invaild email
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
                             }
                           },
-                          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Text(' Send  ', //kinda ugly like this but it works nice enough
-                                style: TextStyle(fontSize: 20.0),
-                                textAlign: TextAlign.center),
-                            Icon(Icons.mail_outline_rounded, color: Colors.white)
-                          ])))
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                    ' Send  ', //kinda ugly like this but it works nice enough
+                                    style: TextStyle(fontSize: 20.0),
+                                    textAlign: TextAlign.center),
+                                Icon(Icons.mail_outline_rounded,
+                                    color: Colors.white)
+                              ])))
                 ],
               ),
             )));
