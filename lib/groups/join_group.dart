@@ -13,7 +13,6 @@ CollectionReference users = db.collection('users');
 //query groups based on their group code
 Future<bool> findGroup(String groupCode) async {
   QuerySnapshot query = await groups.where('group_code', isEqualTo: '$groupCode').get();
-  print(query);
   if (query.size == 1) {
     //a group was found
     DocumentSnapshot document = query.docs.first;

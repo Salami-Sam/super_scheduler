@@ -22,14 +22,16 @@ class EditIndividualMemberManagerWidget extends StatefulWidget {
   final Map members;
   final int index;
   final String currentGroupId;
-  EditIndividualMemberManagerWidget({this.members, this.index, this.currentGroupId});
+  EditIndividualMemberManagerWidget(
+      {this.members, this.index, this.currentGroupId});
 
   @override
   _EditIndividualMemberManagerWidgetState createState() =>
       _EditIndividualMemberManagerWidgetState(members, index, currentGroupId);
 }
 
-class _EditIndividualMemberManagerWidgetState extends State<EditIndividualMemberManagerWidget> {
+class _EditIndividualMemberManagerWidgetState
+    extends State<EditIndividualMemberManagerWidget> {
   Future<Map> futureMembers;
   Future<List> futureRoles;
   List names, roles;
@@ -38,7 +40,8 @@ class _EditIndividualMemberManagerWidgetState extends State<EditIndividualMember
       selectedPermission,
       currentGroupId; //these strings are used by the drop menu, will see similar strings in other widgets
   int index;
-  _EditIndividualMemberManagerWidgetState(this.members, this.index, this.currentGroupId);
+  _EditIndividualMemberManagerWidgetState(
+      this.members, this.index, this.currentGroupId);
   //this members map is used for the dropdown menu
   //for some reason the dropdown kept returning null
   //the only way around it was to have two different maps
@@ -102,8 +105,11 @@ class _EditIndividualMemberManagerWidgetState extends State<EditIndividualMember
     return members;
   }
 
-  Future<void> editRole(var memberChosen, var newRole, String currentGroupId) async {
-    await group.doc('$currentGroupId').update({'Members.$memberChosen': '$newRole'});
+  Future<void> editRole(
+      var memberChosen, var newRole, String currentGroupId) async {
+    await group
+        .doc('$currentGroupId')
+        .update({'Members.$memberChosen': '$newRole'});
   }
 
   Drawer getUnifiedDrawerWidget() {
@@ -139,10 +145,13 @@ class _EditIndividualMemberManagerWidgetState extends State<EditIndividualMember
         drawer: getUnifiedDrawerWidget(),
         body: Container(
           margin: EdgeInsets.only(top: 20, bottom: 20, left: 40, right: 40),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
             ListTile(
               title: Center(
-                child: Text('Change Assigned Role', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
+                child: Text('Change Assigned Role',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
               ),
             ),
             FutureBuilder<List>(
@@ -155,8 +164,9 @@ class _EditIndividualMemberManagerWidgetState extends State<EditIndividualMember
                     return Text('Error');
                   }
                   List roles = snapshot.data;
-                  roles.sort((a, b) =>
-                      a.toUpperCase() != b.toUpperCase() ? a.toUpperCase().compareTo(b.toUpperCase()) : a.compareTo(b));
+                  roles.sort((a, b) => a.toUpperCase() != b.toUpperCase()
+                      ? a.toUpperCase().compareTo(b.toUpperCase())
+                      : a.compareTo(b));
                   names = members.keys.toList();
                   return DropdownButton(
                     hint: Text(members['${names[index]}']),
@@ -168,7 +178,8 @@ class _EditIndividualMemberManagerWidgetState extends State<EditIndividualMember
                       });
                     },
                     items: roles.map((role) {
-                      return DropdownMenuItem(child: new Text(role), value: role);
+                      return DropdownMenuItem(
+                          child: new Text(role), value: role);
                     }).toList(),
                   );
                 }),

@@ -12,22 +12,25 @@ import '../screen_title.dart';
  * 4/28/21
  */
 
-List permissions = ['Member', 'Manager', 'Admin'];
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
 CollectionReference users = db.collection('users');
 
-//standard function to return members from database
-Future<Map> getMembers(String currentGroupId) async {
-  Map returnMap;
-  await group.doc('$currentGroupId').get().then((docref) {
-    if (docref.exists) {
-      returnMap = docref['Members'];
-    } else {
-      print("Error, name not found");
-    }
-  });
-  return uidToMembers(returnMap);
+//standard function to return members + managers from database
+Future<Map> getAllMembers(String currentGroupId) async {
+    Map membersMap, managersMap, adminsMap;
+    await group.doc('$currentGroupId').get().then((docref) {
+      if (docref.exists) {
+        membersMap = docref['Members'];
+        managersMap = docref['Managers'];
+        adminsMap = docref['Admins'];
+        membersMap.addAll(managersMap);
+        membersMap.addAll(adminsMap);
+      } else {
+        print("Error, name not found");
+      }
+    });
+    return uidToMembers(membersMap);
 }
 
 //fetches username from users collection
@@ -63,6 +66,33 @@ Future<Map> uidToMembers(Map members) async {
 Future<void> deleteMember(var memberToRemove, String currentGroupId) async {
   await group.doc('$currentGroupId').update({'Members.$memberToRemove': FieldValue.delete()});
 }
+
+Future<Map> getManagers(String currentGroupId) async {
+    Map returnMap;
+    print('in Get managers');
+    await group.doc('$currentGroupId').get().then((docref) {
+      if (docref.exists) {
+        returnMap = docref['Managers'];
+      } else {
+        print("Error, name not found");
+      }
+    });
+    return returnMap;
+  }
+
+  Future<Map> getAdmins(String currentGroupId) async {
+    Map returnMap;
+    print('in Get admins');
+    await group.doc('$currentGroupId').get().then((docref) {
+      if (docref.exists) {
+        returnMap = docref['Admins'];
+      } else {
+        print("Error, name not found");
+      }
+    });
+    return returnMap;
+  }
+
 
 /* EditMemberWidget screen acts like the "main" screen for most member management 
  * screens as it acts as a jumping off point to all other member management screens
@@ -105,7 +135,7 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
         body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Expanded(
               child: FutureBuilder<Map>(
-                  future: futureMembers = getMembers(currentGroupId),
+                  future: futureMembers = getAllMembers(currentGroupId),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator());
