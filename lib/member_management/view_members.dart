@@ -23,13 +23,57 @@ class ViewMembersWidget extends StatefulWidget {
   ViewMembersWidget({this.currentGroupId});
 
   @override
-  _ViewMembersWidgetState createState() => _ViewMembersWidgetState(currentGroupId);
+  _ViewMembersWidgetState createState() =>
+      _ViewMembersWidgetState(currentGroupId);
 }
 
 class _ViewMembersWidgetState extends State<ViewMembersWidget> {
   Future<Map> futureMembers;
   String currentGroupId;
   _ViewMembersWidgetState(this.currentGroupId);
+
+  //standard function to return members + managers from database
+  Future<Map> getAllMembers(String currentGroupId) async {
+    Map membersMap, managersMap, adminsMap;
+    await group.doc('$currentGroupId').get().then((docref) {
+      if (docref.exists) {
+        membersMap = docref['Members'];
+        managersMap = docref['Managers'];
+        adminsMap = docref['Admins'];
+        membersMap.addAll(managersMap);
+        membersMap.addAll(adminsMap);
+      } else {
+        print("Error, name not found");
+      }
+    });
+    return uidToMembers(membersMap);
+  }
+
+  Future<Map> getManagers(String currentGroupId) async {
+    Map returnMap;
+    print('in Get managers');
+    await group.doc('$currentGroupId').get().then((docref) {
+      if (docref.exists) {
+        returnMap = docref['Managers'];
+      } else {
+        print("Error, name not found");
+      }
+    });
+    return returnMap;
+  }
+
+  Future<Map> getAdmins(String currentGroupId) async {
+    Map returnMap;
+    print('in Get admins');
+    await group.doc('$currentGroupId').get().then((docref) {
+      if (docref.exists) {
+        returnMap = docref['Admins'];
+      } else {
+        print("Error, name not found");
+      }
+    });
+    return returnMap;
+  }
 
   //standard function to return members from database
   Future<Map> getMembers(String currentGroupId) async {
@@ -83,7 +127,9 @@ class _ViewMembersWidgetState extends State<ViewMembersWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: getScreenTitle(currentGroupRef: group.doc(currentGroupId), screenName: 'Members'),
+          title: getScreenTitle(
+              currentGroupRef: group.doc(currentGroupId),
+              screenName: 'Members'),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -95,7 +141,7 @@ class _ViewMembersWidgetState extends State<ViewMembersWidget> {
         ),
         drawer: getUnifiedDrawerWidget(),
         body: FutureBuilder<Map>(
-            future: futureMembers = getMembers(currentGroupId),
+            future: futureMembers = getAllMembers(currentGroupId),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
@@ -111,7 +157,8 @@ class _ViewMembersWidgetState extends State<ViewMembersWidget> {
                         title: Text('${names[index]}'),
                         subtitle: Text('${roles[index]}'),
                       ),
-                  separatorBuilder: (context, int) => Divider(thickness: 1.0, height: 1.0),
+                  separatorBuilder: (context, int) =>
+                      Divider(thickness: 1.0, height: 1.0),
                   itemCount: roles.length);
             }));
   }

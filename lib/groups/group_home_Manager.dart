@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:super_scheduler/member_management/edit_roles.dart';
+import 'package:super_scheduler/member_management/view_members.dart';
 
 import 'package:super_scheduler/scheduling/main_schedule.dart';
 import 'package:super_scheduler/member_management/member_managementMANAGER.dart';
@@ -124,6 +125,16 @@ class GroupHomeManagerWidget extends StatelessWidget {
                                     EditRolesWidget(currentGroupId: groupId)));
                       },
                       child: Text('Edit Group Roles')),
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ViewMembersWidget(
+                                    currentGroupId: groupId)));
+                        //TO DO ?: submit the form
+                      },
+                      child: Text('View Members'))
                 ]))));
   }
 }
