@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'edit_individualADMIN.dart';
 import 'invite_member.dart';
@@ -40,17 +41,21 @@ Future<String> getPermission(String currentGroupId, var memberChosen) async {
 //this method adds permission level to end of display name for displaying on screen
 Map permissionAdder(Map map, int memberLength, int managerLength) {
   List keys = map.keys.toList();
-  List values = map.values.toList(); //convert to lists so its easier to index into from a for loop (for me at least)
+  List values = map.values
+      .toList(); //convert to lists so its easier to index into from a for loop (for me at least)
   map.clear();
   for (int i = 0; i < keys.length; i++) {
-    if (i < memberLength) { //if i < the number of members, we must be looking at a member
+    if (i < memberLength) {
+      //if i < the number of members, we must be looking at a member
       keys[i] = keys[i] + ' (Member)';
       map[keys[i]] = values[i];
     } else if (i < managerLength + memberLength) {
-      keys[i] = keys[i] + ' (Manager)'; //if i < the number of members + managers, we must be looking at a manager
+      keys[i] = keys[i] +
+          ' (Manager)'; //if i < the number of members + managers, we must be looking at a manager
       map[keys[i]] = values[i];
     } else {
-      keys[i] = keys[i] + ' (Admin)'; //if i > the number of members + managers, we must be looking at an admin
+      keys[i] = keys[i] +
+          ' (Admin)'; //if i > the number of members + managers, we must be looking at an admin
       map[keys[i]] = values[i];
     }
   }
@@ -59,7 +64,7 @@ Map permissionAdder(Map map, int memberLength, int managerLength) {
 
 //gets all members+managers+admins, saves their uids, converts their uids to their
 //display names and then adds what permission level they are next to their name
-//the resulting map is sent back to the future builder so it can be listed out. 
+//the resulting map is sent back to the future builder so it can be listed out.
 //also the way this is implemented all members are
 //on top, managers are in the middle and admins are on the bottom
 Future<Map> getAllMembers(String currentGroupId) async {
@@ -68,19 +73,23 @@ Future<Map> getAllMembers(String currentGroupId) async {
     if (docref.exists) {
       membersMap = docref['Members'];
       managersMap = docref['Managers'];
-      adminsMap = docref['Admins']; //get every group member in their respective map
+      adminsMap =
+          docref['Admins']; //get every group member in their respective map
       int membersLength = membersMap.length;
-      int managersLength = managersMap.length; //save number of people in each permission level
+      int managersLength =
+          managersMap.length; //save number of people in each permission level
 
-      allMembersMap = membersMap; 
+      allMembersMap = membersMap;
       allMembersMap.addAll(managersMap);
-      allMembersMap.addAll(adminsMap); //combine all members/managers/admins into one map
+      allMembersMap
+          .addAll(adminsMap); //combine all members/managers/admins into one map
       uids = allMembersMap.keys.toList(); //save uids before conversion
-      allMembersMap = await uidToNames(allMembersMap); //convert uids to display names
+      allMembersMap =
+          await uidToNames(allMembersMap); //convert uids to display names
 
-      allMembersMap = permissionAdder(
-          allMembersMap, membersLength, managersLength); 
-          //convert all display names to display names + permission level 
+      allMembersMap =
+          permissionAdder(allMembersMap, membersLength, managersLength);
+      //convert all display names to display names + permission level
     } else {
       print("Error, name not found");
     }
@@ -117,15 +126,7 @@ Future<Map> uidToNames(Map members) async {
   return members;
 }
 
-//deletes member from database
-Future<void> deleteMember(var memberToRemove, String currentGroupId) async {
-  String currentPermission =
-      await getPermission(currentGroupId, memberToRemove);
-  await group
-      .doc('$currentGroupId')
-      .update({'${currentPermission}s.$memberToRemove': FieldValue.delete()});
-}
-
+//gets managers from database
 Future<Map> getManagers(String currentGroupId) async {
   Map returnMap;
   print('in Get managers');
@@ -176,6 +177,34 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
     );
   }
 
+  void showSnackBar({String message}) {
+    SnackBar snackbar = SnackBar(
+      content: Text(message),
+      duration: Duration(seconds: 7),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackbar);
+  }
+
+  //deletes member from database
+  Future<void> deleteMember(
+      String memberToRemove, String currentGroupId, String uidToRemove) async {
+    print(memberToRemove);
+    print(uidToRemove);
+    if (FirebaseAuth.instance.currentUser.uid == uidToRemove) {
+      showSnackBar(
+          message: 'Cannot delete yourself, another admin must delete you');
+    } else {
+      String currentPermission =
+          await getPermission(currentGroupId, uidToRemove);
+      print(currentPermission);
+      await group
+          .doc('$currentGroupId')
+          .update({'${currentPermission}s.$uidToRemove': FieldValue.delete()});
+      uids.remove(uidToRemove);
+      showSnackBar(message: '$memberToRemove was successfully removed');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -213,10 +242,11 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
                             leading: IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
-                                  deleteMember(names[index], currentGroupId);
+                                  deleteMember(names[index], currentGroupId,
+                                      uids[index]);
                                   setState(() {
                                     //changes state to reflect any deleted member
-                                    names.length;
+                                    uids.length;
                                   });
                                 }),
                             title: Text('${names[index]}'),
@@ -234,7 +264,9 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
                                                   members: members,
                                                   currentGroupId:
                                                       currentGroupId,
-                                                  uids: uids, role: roles[index]))).then((value) {
+                                                  uids: uids,
+                                                  role: roles[index]))).then(
+                                      (value) {
                                     setState(
                                         () {}); //this is here to ensure any change on EditIndividualMemberWidget is reflected back here
                                   });

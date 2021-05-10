@@ -95,16 +95,19 @@ class _EditIndividualMemberManagerWidgetState
     );
   }
 
-   Widget getName(Map members) {
+   String getName(Map members) {
     names = members.keys.toList();
-    return Text('${names[index]}');
+    String longName = '${names[index]}';
+    int indexOfParenthesis = longName.indexOf("(");
+    String name = longName.substring(0, indexOfParenthesis);
+    return name;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: getName(members),
+            title: Text(getName(members)),
             centerTitle: true,
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),

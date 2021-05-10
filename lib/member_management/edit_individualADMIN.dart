@@ -47,9 +47,8 @@ class _EditIndividualMemberAdminWidgetState
       currentPermission,
       currentRole; //these strings are used by the drop menu, will see similar strings in other widgets
   int index;
-  GlobalKey<ScaffoldState> _key = new GlobalKey<ScaffoldState>();
-  _EditIndividualMemberAdminWidgetState(
-      this.members, this.index, this.currentGroupId, this.uids, this.currentRole);
+  _EditIndividualMemberAdminWidgetState(this.members, this.index,
+      this.currentGroupId, this.uids, this.currentRole);
 
   //standard function to return roles from database
   Future<List> getRoles(String currentGroupId) async {
@@ -108,8 +107,8 @@ class _EditIndividualMemberAdminWidgetState
 
 //first finds if the member was a member, manager or admin, then deletes old
 //entry in database then replaces entry to the new permission level
-  changePermissions(var memberChosen, String newPermission, var key,
-      String currentRole) async {
+  changePermissions(
+      var memberChosen, String newPermission, String currentRole) async {
     if (currentRole == 'null') {
       currentRole = 'NA';
     }
@@ -159,17 +158,19 @@ class _EditIndividualMemberAdminWidgetState
     );
   }
 
-  Widget getName(Map members) {
+  String getName(Map members) {
     names = members.keys.toList();
-    return Text('${names[index]}');
+    String longName = '${names[index]}';
+    int indexOfParenthesis = longName.indexOf("(");
+    String name = longName.substring(0, indexOfParenthesis);
+    return name;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        key: _key,
         appBar: AppBar(
-            title: getName(members),
+            title: Text(getName(members)),
             centerTitle: true,
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),
@@ -244,8 +245,8 @@ class _EditIndividualMemberAdminWidgetState
                       onChanged: (newPermissions) {
                         setState(() {
                           selectedPermission = newPermissions;
-                          changePermissions(uids[index], selectedPermission,
-                              _key, currentRole);
+                          changePermissions(
+                              uids[index], selectedPermission, currentRole);
                         });
                       },
                       items: permissions.map((permission) {
