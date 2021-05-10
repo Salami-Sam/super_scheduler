@@ -263,6 +263,9 @@ class _EditIndividualMemberAdminWidgetState
                             changePermissions(
                                 uids[index], selectedPermission, currentRole);
                           });
+                          showSnackBar(
+                              message:
+                                  'Permission level changed!');
                         }
                       },
                       items: permissions.map((permission) {
