@@ -16,23 +16,42 @@ var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
 CollectionReference users = db.collection('users');
 List uids;
+Map membersMap, managersMap, adminsMap;
+String currentPermission;
+
+Future<String> getPermission(String currentGroupId, var memberChosen) async {
+  Map membersMap, managersMap;
+  await group.doc('$currentGroupId').get().then((docref) {
+    if (docref.exists) {
+      membersMap = docref['Members'];
+      managersMap = docref['Managers'];
+      if (membersMap.containsKey(memberChosen)) {
+        currentPermission = 'Member';
+      } else if (managersMap.containsKey(memberChosen)) {
+        currentPermission = 'Manager';
+      } else {
+        currentPermission = 'Admin';
+      }
+    }
+  });
+  return currentPermission;
+}
 
 //standard function to return members + managers from database
 Future<Map> getAllMembers(String currentGroupId) async {
-    Map membersMap, managersMap, adminsMap;
-    await group.doc('$currentGroupId').get().then((docref) {
-      if (docref.exists) {
-        membersMap = docref['Members'];
-        managersMap = docref['Managers'];
-        adminsMap = docref['Admins'];
-        membersMap.addAll(managersMap);
-        membersMap.addAll(adminsMap);
-        uids = membersMap.keys.toList();
-      } else {
-        print("Error, name not found");
-      }
-    });
-    return uidToMembers(membersMap);
+  await group.doc('$currentGroupId').get().then((docref) {
+    if (docref.exists) {
+      membersMap = docref['Members'];
+      managersMap = docref['Managers'];
+      adminsMap = docref['Admins'];
+      membersMap.addAll(managersMap);
+      membersMap.addAll(adminsMap);
+      uids = membersMap.keys.toList();
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return uidToMembers(membersMap);
 }
 
 //fetches username from users collection
@@ -66,35 +85,36 @@ Future<Map> uidToMembers(Map members) async {
 
 //deletes member from database map
 Future<void> deleteMember(var memberToRemove, String currentGroupId) async {
-  await group.doc('$currentGroupId').update({'Members.$memberToRemove': FieldValue.delete()});
+  await group
+      .doc('$currentGroupId')
+      .update({'Members.$memberToRemove': FieldValue.delete()});
 }
 
 Future<Map> getManagers(String currentGroupId) async {
-    Map returnMap;
-    print('in Get managers');
-    await group.doc('$currentGroupId').get().then((docref) {
-      if (docref.exists) {
-        returnMap = docref['Managers'];
-      } else {
-        print("Error, name not found");
-      }
-    });
-    return returnMap;
-  }
+  Map returnMap;
+  print('in Get managers');
+  await group.doc('$currentGroupId').get().then((docref) {
+    if (docref.exists) {
+      returnMap = docref['Managers'];
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnMap;
+}
 
-  Future<Map> getAdmins(String currentGroupId) async {
-    Map returnMap;
-    print('in Get admins');
-    await group.doc('$currentGroupId').get().then((docref) {
-      if (docref.exists) {
-        returnMap = docref['Admins'];
-      } else {
-        print("Error, name not found");
-      }
-    });
-    return returnMap;
-  }
-
+Future<Map> getAdmins(String currentGroupId) async {
+  Map returnMap;
+  print('in Get admins');
+  await group.doc('$currentGroupId').get().then((docref) {
+    if (docref.exists) {
+      returnMap = docref['Admins'];
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnMap;
+}
 
 /* EditMemberWidget screen acts like the "main" screen for most member management 
  * screens as it acts as a jumping off point to all other member management screens
@@ -106,7 +126,8 @@ class EditMemberAdminWidget extends StatefulWidget {
   final String currentGroupId;
   EditMemberAdminWidget({this.currentGroupId});
   @override
-  _EditMemberAdminWidgetState createState() => _EditMemberAdminWidgetState(currentGroupId);
+  _EditMemberAdminWidgetState createState() =>
+      _EditMemberAdminWidgetState(currentGroupId);
 }
 
 class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
@@ -124,7 +145,9 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: getScreenTitle(currentGroupRef: group.doc(currentGroupId), screenName: 'Edit Current Members'),
+          title: getScreenTitle(
+              currentGroupRef: group.doc(currentGroupId),
+              screenName: 'Edit Current Members'),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -146,8 +169,10 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
                       return Text('Error');
                     }
                     Map members = snapshot.data;
-                    List names = members.keys.toList(); //these are used for printing
-                    List roles = members.values.toList(); // easier to use than maps as Lists are naturally indexed
+                    List names =
+                        members.keys.toList(); //these are used for printing
+                    List roles = members.values
+                        .toList(); // easier to use than maps as Lists are naturally indexed
                     return ListView.separated(
                         itemBuilder: (context, index) => ListTile(
                             leading: IconButton(
@@ -167,15 +192,20 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => EditIndividualMemberAdminWidget(
-                                              index: index, //index of which member is clicked on
-                                              members: members,
-                                              currentGroupId: currentGroupId, uids: uids))).then((value) {
+                                          builder: (context) =>
+                                              EditIndividualMemberAdminWidget(
+                                                  index:
+                                                      index, //index of which member is clicked on
+                                                  members: members,
+                                                  currentGroupId:
+                                                      currentGroupId,
+                                                  uids: uids))).then((value) {
                                     setState(
                                         () {}); //this is here to ensure any change on EditIndividualMemberWidget is reflected back here
                                   });
                                 })),
-                        separatorBuilder: (context, int) => Divider(thickness: 1.0, height: 1.0),
+                        separatorBuilder: (context, int) =>
+                            Divider(thickness: 1.0, height: 1.0),
                         itemCount: names.length);
                   })),
           Container(
@@ -184,7 +214,9 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => InviteMemberWidget(currentGroupId: currentGroupId)),
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            InviteMemberWidget(currentGroupId: currentGroupId)),
                   );
                 },
                 child: Text('Invite New Members')),

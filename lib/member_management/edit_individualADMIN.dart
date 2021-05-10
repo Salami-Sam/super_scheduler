@@ -110,6 +110,9 @@ class _EditIndividualMemberAdminWidgetState
 //entry in database then replaces entry to the new permission level
   changePermissions(var memberChosen, String newPermission, var key,
       String currentRole) async {
+    if (currentRole == 'null') {
+      currentRole = 'NA';
+    }
     Map managersMap = await getManagers(currentGroupId);
     Map adminsMap = await getAdmins(currentGroupId);
     await group.doc('$currentGroupId').get().then((docref) {
@@ -240,6 +243,9 @@ class _EditIndividualMemberAdminWidgetState
                       onChanged: (newPermissions) {
                         setState(() {
                           selectedPermission = newPermissions;
+                          if (currentRole == null) {
+                            currentRole = 'NA';
+                          }
                           changePermissions(uids[index], selectedPermission,
                               _key, currentRole);
                         });
