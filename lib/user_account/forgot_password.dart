@@ -10,7 +10,7 @@ class ForgotPasswordWidget extends StatefulWidget {
 }
 
 class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
-  String email = 'mobiledevsuperscheduler@gmail.com';
+  String email = '';
 
   void showSnackBar({String message}) {
     SnackBar snackbar = SnackBar(
@@ -48,7 +48,6 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextFormField(
-              initialValue: email,
               decoration: InputDecoration(
                 labelText: 'Email',
                 hintText: 'e.g. spongebob@thekrustykrab.com',
