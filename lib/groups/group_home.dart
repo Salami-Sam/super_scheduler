@@ -19,11 +19,11 @@ class GroupHomeWidget extends StatelessWidget {
   Widget getDescriptionWidget() {
     return Container(
       margin: EdgeInsets.all(8),
-      child: StreamBuilder(
-        stream: FirebaseFirestore.instance
+      child: FutureBuilder(
+        future: FirebaseFirestore.instance
             .collection('groups')
             .doc('$groupId')
-            .snapshots(),
+            .get(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Text('There was an error in retrieving the description.',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:super_scheduler/member_management/edit_roles.dart';
+import 'package:super_scheduler/member_management/view_members.dart';
 
 import 'package:super_scheduler/scheduling/main_schedule.dart';
 import 'package:super_scheduler/member_management/member_managementMANAGER.dart';
@@ -22,11 +23,11 @@ class GroupHomeManagerWidget extends StatelessWidget {
   Widget getDescriptionWidget() {
     return Container(
       margin: EdgeInsets.all(8),
-      child: StreamBuilder(
-        stream: FirebaseFirestore.instance
+      child: FutureBuilder(
+        future: FirebaseFirestore.instance
             .collection('groups')
             .doc('$groupId')
-            .snapshots(),
+            .get(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Text('There was an error in retrieving the description.',
@@ -124,6 +125,16 @@ class GroupHomeManagerWidget extends StatelessWidget {
                                     EditRolesWidget(currentGroupId: groupId)));
                       },
                       child: Text('Edit Group Roles')),
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ViewMembersWidget(
+                                    currentGroupId: groupId)));
+                        //TO DO ?: submit the form
+                      },
+                      child: Text('View Members'))
                 ]))));
   }
 }

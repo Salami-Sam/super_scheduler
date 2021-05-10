@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../screen_title.dart';
 import 'create_group.dart';
+import 'delete_group.dart';
 import 'group_home.dart';
 import 'group_home_ADMIN.dart';
 import 'group_home_Manager.dart';
@@ -408,15 +409,31 @@ class _EditGroupWidgetState extends State<EditGroupWidget> {
                         ),
                       ),
                       ElevatedButton(
-                          onPressed: () {
-                            groupName = groupNameController.text;
-                            groupDescription = groupDescriptionController.text;
-                            updateGroup();
-                            // The argument to pop will be retrieved in a future by
-                            // the Navigator.push call that opened this screen
-                            Navigator.of(context).pop<String>(groupName);
-                          },
-                          child: Text('Save Changes')),
+                        onPressed: () {
+                          groupName = groupNameController.text;
+                          groupDescription = groupDescriptionController.text;
+                          updateGroup();
+                          // The argument to pop will be retrieved in a future by
+                          // the Navigator.push call that opened this screen
+                          Navigator.of(context).pop<String>(groupName);
+                        },
+                        child: Text('Save Changes'),
+                      ),
+                      Padding(padding: EdgeInsets.all(16)),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => DeleteGroupWidget(
+                                      currentGroupId: currentGroupId)));
+                        },
+                        child: Text('Delete Group'),
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.redAccent),
+                        ),
+                      ),
                     ],
                   ),
                 ),
