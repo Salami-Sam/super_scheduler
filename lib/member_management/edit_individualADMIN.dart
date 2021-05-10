@@ -24,33 +24,30 @@ class EditIndividualMemberAdminWidget extends StatefulWidget {
   final Map members;
   final int index;
   final String currentGroupId;
+  final List uids;
   EditIndividualMemberAdminWidget(
-      {this.members, this.index, this.currentGroupId});
+      {this.members, this.index, this.currentGroupId, this.uids});
 
   @override
   _EditIndividualMemberAdminWidgetState createState() =>
-      _EditIndividualMemberAdminWidgetState(members, index, currentGroupId);
+      _EditIndividualMemberAdminWidgetState(
+          members, index, currentGroupId, uids);
 }
 
 class _EditIndividualMemberAdminWidgetState
     extends State<EditIndividualMemberAdminWidget> {
   Future<Map> futureMembers;
   Future<List> futureRoles;
-  List names, roles;
-  Map members; //this map is used for the display of member in title box
+  Future<String> futurePermission;
+  List names, roles, uids;
+  Map members;
   String selectedRole,
       selectedPermission,
-      currentGroupId; //these strings are used by the drop menu, will see similar strings in other widgets
+      currentGroupId,
+      currentPermission; //these strings are used by the drop menu, will see similar strings in other widgets
   int index;
   _EditIndividualMemberAdminWidgetState(
-      this.members, this.index, this.currentGroupId);
-  //this members map is used for the dropdown menu
-  //for some reason the dropdown kept returning null
-  //the only way around it was to have two different maps
-  //this is fine as the first members map is only used for printing
-
-  List uids; //this stores any uids before they are converted into display names
-  String currentPermission;
+      this.members, this.index, this.currentGroupId, this.uids);
 
   //standard function to return roles from database
   Future<List> getRoles(String currentGroupId) async {
@@ -65,34 +62,22 @@ class _EditIndividualMemberAdminWidgetState
     return returnList;
   }
 
-  //standard function to return members + managers from database
-  Future<Map> getAllMembers(String currentGroupId) async {
-    Map membersMap, managersMap, adminsMap;
+  Future<String> getPermission(String currentGroupId, var memberChosen) async {
+    Map membersMap, managersMap;
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         membersMap = docref['Members'];
         managersMap = docref['Managers'];
-        adminsMap = docref['Admins'];
-        membersMap.addAll(managersMap);
-        membersMap.addAll(adminsMap);
-        uids = membersMap.keys.toList();
-      } else {
-        print("Error, name not found");
+        if (membersMap.containsKey(memberChosen)) {
+          currentPermission = 'Member';
+        } else if (managersMap.containsKey(memberChosen)) {
+          currentPermission = 'Manager';
+        } else {
+          currentPermission = 'Admin';
+        }
       }
     });
-    return uidToMembers(membersMap);
-  }
-
-  Future<Map> getMembers(String currentGroupId) async {
-    Map returnMap;
-    await group.doc('$currentGroupId').get().then((docref) {
-      if (docref.exists) {
-        returnMap = docref['Members'];
-      } else {
-        print("Error, name not found");
-      }
-    });
-    return returnMap;
+    return currentPermission;
   }
 
   Future<Map> getManagers(String currentGroupId) async {
@@ -158,35 +143,6 @@ class _EditIndividualMemberAdminWidgetState
     });
   }
 
-  //fetches username from users collection
-  //(users collection is collection that stores members from firebase auth)
-  Future<String> uidToMembersHelper(var key) async {
-    String returnString;
-    await users.doc(key).get().then((docref) {
-      if (docref.exists) {
-        returnString = docref['displayName'];
-      } else {
-        print("Error, name not found");
-      }
-    });
-    return returnString;
-  }
-
-  //converts database map uids to names
-  Future<Map> uidToMembers(Map members) async {
-    List keys = members.keys.toList();
-    String displayName = '';
-    for (int i = 0; i < keys.length; i++) {
-      if (members.containsKey(keys[i])) {
-        displayName = await uidToMembersHelper(keys[i]);
-        String role = members[keys[i]];
-        members.remove(keys[i]);
-        members['$displayName'] = role;
-      }
-    }
-    return members;
-  }
-
   Future<void> editRole(
       var memberChosen, var newRole, String currentGroupId) async {
     await group
@@ -200,23 +156,16 @@ class _EditIndividualMemberAdminWidgetState
     );
   }
 
+  Widget getName(Map members) {
+    names = members.keys.toList();
+    return Text('${names[index]}');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: FutureBuilder<Map>(
-                future: futureMembers = getAllMembers(currentGroupId),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  }
-                  if (snapshot.hasError) {
-                    return Text('Error');
-                  }
-                  members = snapshot.data;
-                  names = members.keys.toList();
-                  return Text('${names[index]}');
-                }),
+            title: getName(members),
             centerTitle: true,
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),
@@ -275,20 +224,32 @@ class _EditIndividualMemberAdminWidgetState
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
               ),
             ),
-            DropdownButton(
-              hint: Text('${permissions[0]}'),
-              value: selectedPermission,
-              onChanged: (newPermissions) {
-                setState(() {
-                  selectedPermission = newPermissions;
-                  changePermissions(uids[index], selectedPermission);
-                });
-              },
-              items: permissions.map((permission) {
-                return DropdownMenuItem(
-                    child: new Text(permission), value: permission);
-              }).toList(),
-            )
+            FutureBuilder<String>(
+                future: futurePermission =
+                    getPermission(currentGroupId, uids[index]),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error');
+                  } else {
+                    return DropdownButton(
+                      hint: Text('$currentPermission'),
+                      value: selectedPermission,
+                      onChanged: (newPermissions) {
+                        setState(() {
+                          selectedPermission = newPermissions;
+                          changePermissions(uids[index], selectedPermission);
+                        });
+                      },
+                      items: permissions.map((permission) {
+                        return DropdownMenuItem(
+                            child: new Text(permission), value: permission);
+                      }).toList(),
+                    );
+                  }
+                })
           ]),
         ));
   }

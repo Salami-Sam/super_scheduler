@@ -15,6 +15,7 @@ import '../screen_title.dart';
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
 CollectionReference users = db.collection('users');
+List uids;
 
 //standard function to return members + managers from database
 Future<Map> getAllMembers(String currentGroupId) async {
@@ -26,6 +27,7 @@ Future<Map> getAllMembers(String currentGroupId) async {
         adminsMap = docref['Admins'];
         membersMap.addAll(managersMap);
         membersMap.addAll(adminsMap);
+        uids = membersMap.keys.toList();
       } else {
         print("Error, name not found");
       }
@@ -168,7 +170,7 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
                                           builder: (context) => EditIndividualMemberAdminWidget(
                                               index: index, //index of which member is clicked on
                                               members: members,
-                                              currentGroupId: currentGroupId))).then((value) {
+                                              currentGroupId: currentGroupId, uids: uids))).then((value) {
                                     setState(
                                         () {}); //this is here to ensure any change on EditIndividualMemberWidget is reflected back here
                                   });
