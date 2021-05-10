@@ -148,7 +148,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                           contentPadding: EdgeInsets.all(10.0)),
                       onChanged: (text) {
                         newMember =
-                            text; //will need to use email authentication here
+                            text; 
                       }),
                   Padding(padding: EdgeInsets.all(16.0)),
                   Container(

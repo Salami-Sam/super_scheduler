@@ -44,8 +44,10 @@ class _EditIndividualMemberAdminWidgetState
   String selectedRole,
       selectedPermission,
       currentGroupId,
-      currentPermission; //these strings are used by the drop menu, will see similar strings in other widgets
+      currentPermission,
+      currentRole; //these strings are used by the drop menu, will see similar strings in other widgets
   int index;
+  GlobalKey<ScaffoldState> _key = new GlobalKey<ScaffoldState>();
   _EditIndividualMemberAdminWidgetState(
       this.members, this.index, this.currentGroupId, this.uids);
 
@@ -82,7 +84,6 @@ class _EditIndividualMemberAdminWidgetState
 
   Future<Map> getManagers(String currentGroupId) async {
     Map returnMap;
-    print('in Get managers');
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         returnMap = docref['Managers'];
@@ -95,7 +96,6 @@ class _EditIndividualMemberAdminWidgetState
 
   Future<Map> getAdmins(String currentGroupId) async {
     Map returnMap;
-    print('in Get admins');
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         returnMap = docref['Admins'];
@@ -108,11 +108,10 @@ class _EditIndividualMemberAdminWidgetState
 
 //first finds if the member was a member, manager or admin, then deletes old
 //entry in database then replaces entry to the new permission level
-  changePermissions(var memberChosen, String newPermission) async {
+  changePermissions(var memberChosen, String newPermission, var key,
+      String currentRole) async {
     Map managersMap = await getManagers(currentGroupId);
     Map adminsMap = await getAdmins(currentGroupId);
-    print(managersMap);
-    print('new permission $newPermission');
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         if (adminsMap.containsKey(memberChosen)) {
@@ -121,33 +120,33 @@ class _EditIndividualMemberAdminWidgetState
               .update({'Admins.$memberChosen': FieldValue.delete()});
           group
               .doc('$currentGroupId')
-              .update({'${newPermission}s.$memberChosen': 'N\A'});
+              .update({'${newPermission}s.$memberChosen': '$currentRole'});
         } else if (managersMap.containsKey(memberChosen)) {
           group
               .doc('$currentGroupId')
               .update({'Managers.$memberChosen': FieldValue.delete()});
           group
               .doc('$currentGroupId')
-              .update({'${newPermission}s.$memberChosen': 'N\A'});
+              .update({'${newPermission}s.$memberChosen': '$currentRole'});
         } else {
           group
               .doc('$currentGroupId')
               .update({'Members.$memberChosen': FieldValue.delete()});
           group
               .doc('$currentGroupId')
-              .update({'${newPermission}s.$memberChosen': 'N\A'});
+              .update({'${newPermission}s.$memberChosen': '$currentRole'});
         }
-      } else {
-        print("Error, name not found");
       }
     });
   }
 
   Future<void> editRole(
       var memberChosen, var newRole, String currentGroupId) async {
+    String currentPermission =
+        await getPermission(currentGroupId, memberChosen);
     await group
         .doc('$currentGroupId')
-        .update({'Members.$memberChosen': '$newRole'});
+        .update({'${currentPermission}s.$memberChosen': '$newRole'});
   }
 
   Drawer getUnifiedDrawerWidget() {
@@ -164,6 +163,7 @@ class _EditIndividualMemberAdminWidgetState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        key: _key,
         appBar: AppBar(
             title: getName(members),
             centerTitle: true,
@@ -204,8 +204,9 @@ class _EditIndividualMemberAdminWidgetState
                     value: selectedRole,
                     onChanged: (newRole) {
                       setState(() {
-                        editRole(uids[index], newRole, currentGroupId);
                         selectedRole = newRole;
+                        editRole(uids[index], newRole, currentGroupId);
+                        currentRole = newRole;
                       });
                     },
                     items: roles.map((role) {
@@ -214,7 +215,6 @@ class _EditIndividualMemberAdminWidgetState
                     }).toList(),
                   );
                 }),
-            // An invisible divider to provide space
             Divider(
                 height: 20.0, color: Theme.of(context).scaffoldBackgroundColor),
             ListTile(
@@ -240,7 +240,8 @@ class _EditIndividualMemberAdminWidgetState
                       onChanged: (newPermissions) {
                         setState(() {
                           selectedPermission = newPermissions;
-                          changePermissions(uids[index], selectedPermission);
+                          changePermissions(uids[index], selectedPermission,
+                              _key, currentRole);
                         });
                       },
                       items: permissions.map((permission) {
@@ -249,7 +250,7 @@ class _EditIndividualMemberAdminWidgetState
                       }).toList(),
                     );
                   }
-                })
+                }),
           ]),
         ));
   }
