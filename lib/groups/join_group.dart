@@ -12,7 +12,8 @@ CollectionReference users = db.collection('users');
 
 //query groups based on their group code
 Future<bool> findGroup(String groupCode) async {
-  QuerySnapshot query = await groups.where('group_code', isEqualTo: '$groupCode').get();
+  QuerySnapshot query =
+      await groups.where('group_code', isEqualTo: '$groupCode').get();
   if (query.size == 1) {
     //a group was found
     DocumentSnapshot document = query.docs.first;
@@ -21,7 +22,6 @@ Future<bool> findGroup(String groupCode) async {
       return joinGroup(docId);
     }
   } else {
-    print('Error');
     return false;
   }
   return true;
@@ -29,11 +29,21 @@ Future<bool> findGroup(String groupCode) async {
 
 Future<bool> joinGroup(var docId) async {
   var user = FirebaseAuth.instance.currentUser.uid;
-  await groups.doc('$docId').update({'Members.$user': 'NA'}); //adds yourself to new group, assigns NA as role
-  await users.doc('$user').update({
-    'userGroups': FieldValue.arrayUnion([docId])
-  });
-  return true;
+  var displayName = FirebaseAuth.instance.currentUser.displayName;
+  print(docId);
+  QuerySnapshot userGroupsQuery =
+      await users.where('userGroups', arrayContains: '$docId').where('displayName', isEqualTo: '$displayName').get();
+  if (userGroupsQuery.size == 1) {
+    return false;
+  } else {
+    await groups.doc('$docId').update({
+      'Members.$user': 'NA'
+    }); //adds yourself to new group, assigns NA as role
+    await users.doc('$user').update({
+      'userGroups': FieldValue.arrayUnion([docId])
+    });
+    return true;
+  }
 }
 
 class JoinGroupWidget extends StatefulWidget {
@@ -112,13 +122,14 @@ class _JoinGroupWidgetState extends State<JoinGroupWidget> {
                       bool goodJoin = await findGroup(groupCode);
                       if (goodJoin) {
                         var snackBar = SnackBar(
-                            content: Text('Join was successful! Welcome!')); //don't want to send to invaild email
+                            content: Text(
+                                'Join was successful! Welcome!')); //don't want to send to invaild email
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         Navigator.pop(context);
                       } else {
                         var snackBar = SnackBar(
-                            content:
-                                Text('Invalid code! Make sure code is correct')); //don't want to send to invaild email
+                            content: Text(
+                                'Error! Make sure code is correct and you are not in group already')); //don't want to send to invaild email
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       }
                     },

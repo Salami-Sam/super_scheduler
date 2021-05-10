@@ -16,7 +16,7 @@ import '../screen_title.dart';
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
 CollectionReference users = db.collection('users');
-List uids;
+List uids, names, roles;
 Map membersMap, managersMap, adminsMap;
 String currentPermission;
 
@@ -69,6 +69,7 @@ Map permissionAdder(Map map, int memberLength, int managerLength) {
 //on top, managers are in the middle and admins are on the bottom
 Future<Map> getAllMembers(String currentGroupId) async {
   Map allMembersMap;
+  print('inGetAllMembers\n');
   await group.doc('$currentGroupId').get().then((docref) async {
     if (docref.exists) {
       membersMap = docref['Members'];
@@ -94,6 +95,7 @@ Future<Map> getAllMembers(String currentGroupId) async {
       print("Error, name not found");
     }
   });
+  print('$allMembersMap + inGetAllMembers');
   return allMembersMap;
 }
 
@@ -169,6 +171,7 @@ class EditMemberAdminWidget extends StatefulWidget {
 class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
   Future<Map> futureMembers;
   String currentGroupId;
+  Map members;
   _EditMemberAdminWidgetState(this.currentGroupId);
 
   Drawer getUnifiedDrawerWidget() {
@@ -187,8 +190,7 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
 
   //deletes member from database
   Future<void> deleteMember(
-      String memberToRemove, String currentGroupId, String uidToRemove) async {
-    print(memberToRemove);
+      String currentGroupId, String uidToRemove, int index) async {
     print(uidToRemove);
     if (FirebaseAuth.instance.currentUser.uid == uidToRemove) {
       showSnackBar(
@@ -200,30 +202,15 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
       await group
           .doc('$currentGroupId')
           .update({'${currentPermission}s.$uidToRemove': FieldValue.delete()});
-      uids.remove(uidToRemove);
-      showSnackBar(message: '$memberToRemove was successfully removed');
+      await users.doc('$uidToRemove').update({
+        'userGroups': FieldValue.arrayRemove([currentGroupId])
+      });
+      showSnackBar(message:'${names[index]} was successfully removed');
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: getScreenTitle(
-              currentGroupRef: group.doc(currentGroupId),
-              screenName: 'Edit Current Members'),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context); //back to main group screen
-            },
-          ),
-          centerTitle: true,
-        ),
-        drawer: getUnifiedDrawerWidget(),
-        body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Expanded(
-              child: FutureBuilder<Map>(
+  Widget getList() {
+    return FutureBuilder<Map>(
                   future: futureMembers = getAllMembers(currentGroupId),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -232,21 +219,21 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
                     if (snapshot.hasError) {
                       return Text('Error');
                     }
-                    Map members = snapshot.data;
-                    List names =
-                        members.keys.toList(); //these are used for printing
-                    List roles = members.values
-                        .toList(); // easier to use than maps as Lists are naturally indexed
+                    members = snapshot.data ?? {};
+                    names = members.keys.toList();
+                    roles = members.values.toList();
+                    print('$members\n');
+                    print('$names\n');
+                    print('$roles\n');
                     return ListView.separated(
                         itemBuilder: (context, index) => ListTile(
                             leading: IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
-                                  deleteMember(names[index], currentGroupId,
-                                      uids[index]);
+                                  deleteMember(
+                                      currentGroupId, uids[index], index);
                                   setState(() {
-                                    //changes state to reflect any deleted member
-                                    uids.length;
+
                                   });
                                 }),
                             title: Text('${names[index]}'),
@@ -274,7 +261,28 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
                         separatorBuilder: (context, int) =>
                             Divider(thickness: 1.0, height: 1.0),
                         itemCount: names.length);
-                  })),
+                  });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: getScreenTitle(
+              currentGroupRef: group.doc(currentGroupId),
+              screenName: 'Edit Current Members'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context); //back to main group screen
+            },
+          ),
+          centerTitle: true,
+        ),
+        drawer: getUnifiedDrawerWidget(),
+        body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Expanded(
+              child: getList()),
           Container(
             margin: EdgeInsets.only(left: 8, right: 8, bottom: 8),
             child: ElevatedButton(

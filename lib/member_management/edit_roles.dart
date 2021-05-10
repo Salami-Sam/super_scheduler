@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:super_scheduler/member_management/member_managementMANAGER.dart';
 
 import '../screen_title.dart';
 
@@ -58,24 +59,52 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
   }
 
 //lists every member whose role has been deleted from deleteRoles
-  void currentMembersWithNowDeletedRoles(var roleToRemove, String currentGroupId) async {
+  void currentMembersWithNowDeletedRoles(
+      var roleToRemove, String currentGroupId) async {
     Map members = await getMembers(currentGroupId);
-    List currentMembers = members.keys.toList();
-    List currentRoles = members.values.toList();
-    List updateMembers = [];
+    Map managers = await getManagers(currentGroupId);
+    Map admins = await getAdmins(currentGroupId);
+    Map allMembers;
+
+    int membersLength;
+    if (members.length == null) {
+      membersLength = 0;
+    } else {
+      membersLength = members.length;
+    }
+    int managersLength;
+    if (managers.length == null) {
+      managersLength = 0;
+    } else {
+      managersLength = managers.length;
+    }
+
+    allMembers = members;
+    allMembers.addAll(managers);
+    allMembers.addAll(admins);
+
+    List currentMembers = allMembers.keys.toList();
+    List currentRoles = allMembers.values.toList();
     for (int i = 0; i < currentMembers.length; i++) {
       if (currentRoles[i] == roleToRemove) {
-        updateMembers.add(currentMembers[i]);
+        print(currentMembers[i]);
+        if (i < membersLength) {
+          correctRoles(currentMembers[i], currentGroupId, 'Members');
+        } else if (i < managersLength + membersLength) {
+          correctRoles(currentMembers[i], currentGroupId, 'Managers');
+        } else {
+          correctRoles(currentMembers[i], currentGroupId, 'Admins');
+        }
       }
     }
-    correctRoles(updateMembers, currentGroupId);
   }
 
 //assigns every member with a deleted role as NA
-  Future<void> correctRoles(var updateMembers, String currentGroupId) async {
-    for (int i = 0; i < updateMembers.length; i++) {
-      await group.doc('$currentGroupId').update({'Members.${updateMembers[i]}': 'N\A'});
-    }
+  Future<void> correctRoles(String updateMember, String currentGroupId,
+      String permissionLevel) async {
+    await group
+        .doc('$currentGroupId')
+        .update({'$permissionLevel.$updateMember': 'N\A'});
   }
 
 //standard function getting members from database
@@ -101,7 +130,9 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: getScreenTitle(currentGroupRef: group.doc(currentGroupId), screenName: 'Current Roles'),
+            title: getScreenTitle(
+                currentGroupRef: group.doc(currentGroupId),
+                screenName: 'Current Roles'),
             centerTitle: true,
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
@@ -124,18 +155,21 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
                     List roles = snapshot.data ?? [];
                     roles.sort((a, b) => a.toUpperCase() != b.toUpperCase()
                         ? a.toUpperCase().compareTo(b.toUpperCase())
-                        : a.compareTo(b)); //there is not ignoreCase in flutter so this fixes that issue
+                        : a.compareTo(
+                            b)); //there is not ignoreCase in flutter so this fixes that issue
                     return ListView.separated(
                         itemBuilder: (context, index) => ListTile(
                               leading: IconButton(
                                   icon: Icon(Icons.delete),
                                   onPressed: () {
                                     deleteRoles(roles[index], currentGroupId);
-                                    setState(() {}); //resets screen to reflect changes made to database roles array
+                                    setState(
+                                        () {}); //resets screen to reflect changes made to database roles array
                                   }),
                               title: Text('${roles[index]}'),
                             ),
-                        separatorBuilder: (context, int) => Divider(thickness: 1.0, height: 1.0),
+                        separatorBuilder: (context, int) =>
+                            Divider(thickness: 1.0, height: 1.0),
                         itemCount: roles.length);
                   })),
           Container(
@@ -153,7 +187,8 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
             margin: EdgeInsets.all(8),
             child: ElevatedButton(
                 onPressed: () {
-                  addRoles(newRole, currentGroupId); //sends new role to database
+                  addRoles(
+                      newRole, currentGroupId); //sends new role to database
                   setState(() {});
                 },
                 child: Text('Submit')),
