@@ -183,7 +183,7 @@ class _EditIndividualMemberAdminWidgetState
               Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
             ListTile(
               title: Center(
-                child: Text('Role',
+                child: Text('Change Assigned Role',
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
               ),
@@ -222,7 +222,7 @@ class _EditIndividualMemberAdminWidgetState
                 height: 20.0, color: Theme.of(context).scaffoldBackgroundColor),
             ListTile(
               title: Center(
-                child: Text('Permissions',
+                child: Text('Change Permission Level',
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
               ),

@@ -39,7 +39,7 @@ class _EditIndividualMemberManagerWidgetState
   Map members; //this map is used for the display of member in title box
   String selectedRole,
       selectedPermission,
-      currentGroupId; //these strings are used by the drop menu, will see similar strings in other widgets
+      currentGroupId, currentPermission; //these strings are used by the drop menu, will see similar strings in other widgets
   int index;
   _EditIndividualMemberManagerWidgetState(
       this.members, this.index, this.currentGroupId, this.uids);
@@ -62,54 +62,31 @@ class _EditIndividualMemberManagerWidgetState
     return returnList;
   }
 
-  //standard function to return members from database
-  Future<Map> getMembers(String currentGroupId) async {
-    Map returnMap;
+  Future<String> getPermission(String currentGroupId, var memberChosen) async {
+    Map membersMap, managersMap;
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
-        returnMap = docref['Members'];
-        uids = returnMap.keys.toList();
-      } else {
-        print("Error, name not found");
+        membersMap = docref['Members'];
+        managersMap = docref['Managers'];
+        if (membersMap.containsKey(memberChosen)) {
+          currentPermission = 'Member';
+        } else if (managersMap.containsKey(memberChosen)) {
+          currentPermission = 'Manager';
+        } else {
+          currentPermission = 'Admin';
+        }
       }
     });
-    return uidToMembers(returnMap);
-  }
-
-  //fetches username from users collection
-  //(users collection is collection that stores members from firebase auth)
-  Future<String> uidToMembersHelper(var key) async {
-    String returnString;
-    await users.doc(key).get().then((docref) {
-      if (docref.exists) {
-        returnString = docref['displayName'];
-      } else {
-        print("Error, name not found");
-      }
-    });
-    return returnString;
-  }
-
-  //converts database map uids to names
-  Future<Map> uidToMembers(Map members) async {
-    List keys = members.keys.toList();
-    String displayName = '';
-    for (int i = 0; i < keys.length; i++) {
-      if (members.containsKey(keys[i])) {
-        displayName = await uidToMembersHelper(keys[i]);
-        String role = members[keys[i]];
-        members.remove(keys[i]);
-        members['$displayName'] = role;
-      }
-    }
-    return members;
+    return currentPermission;
   }
 
   Future<void> editRole(
       var memberChosen, var newRole, String currentGroupId) async {
+    String currentPermission =
+        await getPermission(currentGroupId, memberChosen);
     await group
         .doc('$currentGroupId')
-        .update({'Members.$memberChosen': '$newRole'});
+        .update({'${currentPermission}s.$memberChosen': '$newRole'});
   }
 
   Drawer getUnifiedDrawerWidget() {
@@ -118,23 +95,16 @@ class _EditIndividualMemberManagerWidgetState
     );
   }
 
+   Widget getName(Map members) {
+    names = members.keys.toList();
+    return Text('${names[index]}');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: FutureBuilder<Map>(
-                future: futureMembers = getMembers(currentGroupId),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  }
-                  if (snapshot.hasError) {
-                    return Text('Error');
-                  }
-                  members = snapshot.data;
-                  names = members.keys.toList();
-                  return Text('${names[index]}');
-                }),
+            title: getName(members),
             centerTitle: true,
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),
