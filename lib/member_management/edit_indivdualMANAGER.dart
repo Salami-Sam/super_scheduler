@@ -22,32 +22,32 @@ class EditIndividualMemberManagerWidget extends StatefulWidget {
   final Map members;
   final int index;
   final String currentGroupId;
+  final List uids;
   EditIndividualMemberManagerWidget(
-      {this.members, this.index, this.currentGroupId});
+      {this.members, this.index, this.currentGroupId, this.uids});
 
   @override
   _EditIndividualMemberManagerWidgetState createState() =>
-      _EditIndividualMemberManagerWidgetState(members, index, currentGroupId);
+      _EditIndividualMemberManagerWidgetState(members, index, currentGroupId, uids);
 }
 
 class _EditIndividualMemberManagerWidgetState
     extends State<EditIndividualMemberManagerWidget> {
   Future<Map> futureMembers;
   Future<List> futureRoles;
-  List names, roles;
+  List names, roles, uids;
   Map members; //this map is used for the display of member in title box
   String selectedRole,
       selectedPermission,
       currentGroupId; //these strings are used by the drop menu, will see similar strings in other widgets
   int index;
   _EditIndividualMemberManagerWidgetState(
-      this.members, this.index, this.currentGroupId);
+      this.members, this.index, this.currentGroupId, this.uids);
   //this members map is used for the dropdown menu
   //for some reason the dropdown kept returning null
   //the only way around it was to have two different maps
   //this is fine as the first members map is only used for printing
 
-  List uids; //this stores any uids before they are converted into display names
 
   //standard function to return roles from database
   Future<List> getRoles(String currentGroupId) async {
