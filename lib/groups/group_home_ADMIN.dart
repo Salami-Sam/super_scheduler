@@ -94,7 +94,7 @@ class _GroupHomeAdminWidgetState extends State<GroupHomeAdminWidget> {
                                   builder: (context) => MyScheduleWidget(
                                       currentGroupId: widget.groupId)));
                         },
-                        child: Text('My Schedules')),
+                        child: Text('My Schedule')),
                     ElevatedButton(
                         onPressed: () {
                           Navigator.push(

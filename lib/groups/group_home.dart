@@ -84,7 +84,7 @@ class GroupHomeWidget extends StatelessWidget {
                                 builder: (context) =>
                                     MyScheduleWidget(currentGroupId: groupId)));
                       },
-                      child: Text('My Schedules')),
+                      child: Text('My Schedule')),
                   ElevatedButton(
                       onPressed: () {
                         Navigator.push(
