@@ -32,90 +32,119 @@ class _ViewMembersWidgetState extends State<ViewMembersWidget> {
   String currentGroupId;
   _ViewMembersWidgetState(this.currentGroupId);
 
-  //standard function to return members + managers from database
-  Future<Map> getAllMembers(String currentGroupId) async {
-    Map membersMap, managersMap, adminsMap;
-    await group.doc('$currentGroupId').get().then((docref) {
-      if (docref.exists) {
-        membersMap = docref['Members'];
-        managersMap = docref['Managers'];
-        adminsMap = docref['Admins'];
-        membersMap.addAll(managersMap);
-        membersMap.addAll(adminsMap);
-      } else {
-        print("Error, name not found");
-      }
-    });
-    return uidToMembers(membersMap);
+//this method adds permission level to end of display name for displaying on screen
+Map permissionAdder(Map map, int memberLength, int managerLength) {
+  List keys = map.keys.toList();
+  List values = map.values
+      .toList(); //convert to lists so its easier to index into from a for loop (for me at least)
+  map.clear();
+  for (int i = 0; i < keys.length; i++) {
+    if (i < memberLength) {
+      //if i < the number of members, we must be looking at a member
+      keys[i] = keys[i] + ' (Member)';
+      map[keys[i]] = values[i];
+    } else if (i < managerLength + memberLength) {
+      keys[i] = keys[i] +
+          ' (Manager)'; //if i < the number of members + managers, we must be looking at a manager
+      map[keys[i]] = values[i];
+    } else {
+      keys[i] = keys[i] +
+          ' (Admin)'; //if i > the number of members + managers, we must be looking at an admin
+      map[keys[i]] = values[i];
+    }
   }
+  return map;
+}
 
-  Future<Map> getManagers(String currentGroupId) async {
-    Map returnMap;
-    print('in Get managers');
-    await group.doc('$currentGroupId').get().then((docref) {
-      if (docref.exists) {
-        returnMap = docref['Managers'];
-      } else {
-        print("Error, name not found");
-      }
-    });
-    return returnMap;
-  }
+//gets all members+managers+admins, saves their uids, converts their uids to their
+//display names and then adds what permission level they are next to their name
+//the resulting map is sent back to the future builder so it can be listed out.
+//also the way this is implemented all members are
+//on top, managers are in the middle and admins are on the bottom
+Future<Map> getAllMembers(String currentGroupId) async {
+  Map allMembersMap, membersMap, managersMap, adminsMap;
+  await group.doc('$currentGroupId').get().then((docref) async {
+    if (docref.exists) {
+      membersMap = docref['Members'];
+      managersMap = docref['Managers'];
+      adminsMap =
+          docref['Admins']; //get every group member in their respective map
+      int membersLength = membersMap.length;
+      int managersLength =
+          managersMap.length; //save number of people in each permission level
 
-  Future<Map> getAdmins(String currentGroupId) async {
-    Map returnMap;
-    print('in Get admins');
-    await group.doc('$currentGroupId').get().then((docref) {
-      if (docref.exists) {
-        returnMap = docref['Admins'];
-      } else {
-        print("Error, name not found");
-      }
-    });
-    return returnMap;
-  }
+      allMembersMap = membersMap;
+      allMembersMap.addAll(managersMap);
+      allMembersMap
+          .addAll(adminsMap); //combine all members/managers/admins into one map
+      allMembersMap =
+          await uidToNames(allMembersMap); //convert uids to display names
 
-  //standard function to return members from database
-  Future<Map> getMembers(String currentGroupId) async {
-    Map returnMap;
-    await group.doc('$currentGroupId').get().then((docref) {
-      if (docref.exists) {
-        returnMap = docref['Members'];
-      } else {
-        print("Error, name not found");
-      }
-    });
-    return uidToMembers(returnMap);
-  }
+      allMembersMap =
+          permissionAdder(allMembersMap, membersLength, managersLength);
+      //convert all display names to display names + permission level
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return allMembersMap;
+}
 
 //fetches username from users collection
 //(users collection is collection that stores members from firebase auth)
-  Future<String> uidToMembersHelper(var key) async {
-    String returnString;
-    await users.doc(key).get().then((docref) {
-      if (docref.exists) {
-        returnString = docref['displayName'];
-      } else {
-        print("Error, name not found");
-      }
-    });
-    return returnString;
-  }
+Future<String> uidToNamesHelper(var key) async {
+  String returnString;
+  await users.doc(key).get().then((docref) {
+    if (docref.exists) {
+      returnString = docref['displayName'];
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnString;
+}
 
 //converts database map uids to names
-  Future<Map> uidToMembers(Map members) async {
-    List keys = members.keys.toList();
-    String displayName = '';
-    for (int i = 0; i < keys.length; i++) {
-      if (members.containsKey(keys[i])) {
-        displayName = await uidToMembersHelper(keys[i]);
-        String role = members[keys[i]];
-        members.remove(keys[i]);
-        members['$displayName'] = role;
-      }
+Future<Map> uidToNames(Map members) async {
+  List keys = members.keys.toList();
+  String displayName = '';
+  for (int i = 0; i < keys.length; i++) {
+    if (members.containsKey(keys[i])) {
+      displayName = await uidToNamesHelper(keys[i]);
+      String role = members[keys[i]];
+      members.remove(keys[i]);
+      members['$displayName'] = role;
     }
-    return members;
   }
+  return members;
+}
+
+//gets managers from database
+Future<Map> getManagers(String currentGroupId) async {
+  Map returnMap;
+  print('in Get managers');
+  await group.doc('$currentGroupId').get().then((docref) {
+    if (docref.exists) {
+      returnMap = docref['Managers'];
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnMap;
+}
+
+Future<Map> getAdmins(String currentGroupId) async {
+  Map returnMap;
+  print('in Get admins');
+  await group.doc('$currentGroupId').get().then((docref) {
+    if (docref.exists) {
+      returnMap = docref['Admins'];
+    } else {
+      print("Error, name not found");
+    }
+  });
+  return returnMap;
+}
 
   Drawer getUnifiedDrawerWidget() {
     return Drawer(
