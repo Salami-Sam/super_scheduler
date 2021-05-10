@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 /* Screen:
@@ -103,6 +104,14 @@ class _EditIndividualMemberAdminWidgetState
       }
     });
     return returnMap;
+  }
+
+  void showSnackBar({String message}) {
+    SnackBar snackbar = SnackBar(
+      content: Text(message),
+      duration: Duration(seconds: 7),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
 //first finds if the member was a member, manager or admin, then deletes old
@@ -243,11 +252,18 @@ class _EditIndividualMemberAdminWidgetState
                       hint: Text('$currentPermission'),
                       value: selectedPermission,
                       onChanged: (newPermissions) {
-                        setState(() {
-                          selectedPermission = newPermissions;
-                          changePermissions(
-                              uids[index], selectedPermission, currentRole);
-                        });
+                        if (FirebaseAuth.instance.currentUser.uid ==
+                            uids[index]) {
+                          showSnackBar(
+                              message:
+                                  'Cannot demote yourself, another admin must demote you');
+                        } else {
+                          setState(() {
+                            selectedPermission = newPermissions;
+                            changePermissions(
+                                uids[index], selectedPermission, currentRole);
+                          });
+                        }
                       },
                       items: permissions.map((permission) {
                         return DropdownMenuItem(
