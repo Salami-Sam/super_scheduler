@@ -234,7 +234,7 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
                                                   members: members,
                                                   currentGroupId:
                                                       currentGroupId,
-                                                  uids: uids))).then((value) {
+                                                  uids: uids, role: roles[index]))).then((value) {
                                     setState(
                                         () {}); //this is here to ensure any change on EditIndividualMemberWidget is reflected back here
                                   });

@@ -42,17 +42,21 @@ Future<String> getPermission(String currentGroupId, var memberChosen) async {
 //this method adds permission level to end of display name for displaying on screen
 Map permissionAdder(Map map, int memberLength, int managerLength) {
   List keys = map.keys.toList();
-  List values = map.values.toList(); //convert to lists so its easier to index into from a for loop (for me at least)
+  List values = map.values
+      .toList(); //convert to lists so its easier to index into from a for loop (for me at least)
   map.clear();
   for (int i = 0; i < keys.length; i++) {
-    if (i < memberLength) { //if i < the number of members, we must be looking at a member
+    if (i < memberLength) {
+      //if i < the number of members, we must be looking at a member
       keys[i] = keys[i] + ' (Member)';
       map[keys[i]] = values[i];
     } else if (i < managerLength + memberLength) {
-      keys[i] = keys[i] + ' (Manager)'; //if i < the number of members + managers, we must be looking at a manager
+      keys[i] = keys[i] +
+          ' (Manager)'; //if i < the number of members + managers, we must be looking at a manager
       map[keys[i]] = values[i];
     } else {
-      keys[i] = keys[i] + ' (Admin)'; //if i > the number of members + managers, we must be looking at an admin
+      keys[i] = keys[i] +
+          ' (Admin)'; //if i > the number of members + managers, we must be looking at an admin
       map[keys[i]] = values[i];
     }
   }
@@ -61,7 +65,7 @@ Map permissionAdder(Map map, int memberLength, int managerLength) {
 
 //gets all members+managers+admins, saves their uids, converts their uids to their
 //display names and then adds what permission level they are next to their name
-//the resulting map is sent back to the future builder so it can be listed out. 
+//the resulting map is sent back to the future builder so it can be listed out.
 //also the way this is implemented all members are
 //on top, managers are in the middle and admins are on the bottom
 Future<Map> getAllMembers(String currentGroupId) async {
@@ -70,19 +74,23 @@ Future<Map> getAllMembers(String currentGroupId) async {
     if (docref.exists) {
       membersMap = docref['Members'];
       managersMap = docref['Managers'];
-      adminsMap = docref['Admins']; //get every group member in their respective map
+      adminsMap =
+          docref['Admins']; //get every group member in their respective map
       int membersLength = membersMap.length;
-      int managersLength = managersMap.length; //save number of people in each permission level
+      int managersLength =
+          managersMap.length; //save number of people in each permission level
 
-      allMembersMap = membersMap; 
+      allMembersMap = membersMap;
       allMembersMap.addAll(managersMap);
-      allMembersMap.addAll(adminsMap); //combine all members/managers/admins into one map
+      allMembersMap
+          .addAll(adminsMap); //combine all members/managers/admins into one map
       uids = allMembersMap.keys.toList(); //save uids before conversion
-      allMembersMap = await uidToNames(allMembersMap); //convert uids to display names
+      allMembersMap =
+          await uidToNames(allMembersMap); //convert uids to display names
 
-      allMembersMap = permissionAdder(
-          allMembersMap, membersLength, managersLength); 
-          //convert all display names to display names + permission level 
+      allMembersMap =
+          permissionAdder(allMembersMap, membersLength, managersLength);
+      //convert all display names to display names + permission level
     } else {
       print("Error, name not found");
     }
@@ -119,15 +127,6 @@ Future<Map> uidToNames(Map members) async {
   return members;
 }
 
-//deletes member from database
-Future<void> deleteMember(var memberToRemove, String currentGroupId) async {
-  String currentPermission =
-      await getPermission(currentGroupId, memberToRemove);
-  await group
-      .doc('$currentGroupId')
-      .update({'${currentPermission}s.$memberToRemove': FieldValue.delete()});
-}
-
 Future<Map> getManagers(String currentGroupId) async {
   Map returnMap;
   print('in Get managers');
@@ -158,13 +157,13 @@ Future<Map> getAdmins(String currentGroupId) async {
  * screens as it acts as a jumping off point to all other member management screens
  * EditMemberWidget can also allow admins to be able to delete members from group
  * 
- * todo: Should NOT be able to be accessed by members, only admins 
 */
 class EditMemberManagerWidget extends StatefulWidget {
   final String currentGroupId;
-  EditMemberManagerWidget({this.currentGroupId = 'RsTjd6INQsNa6RvSTeUX'});
+  EditMemberManagerWidget({this.currentGroupId});
   @override
-  _EditMemberManagerWidgetState createState() => _EditMemberManagerWidgetState(currentGroupId);
+  _EditMemberManagerWidgetState createState() =>
+      _EditMemberManagerWidgetState(currentGroupId);
 }
 
 class _EditMemberManagerWidgetState extends State<EditMemberManagerWidget> {
@@ -182,7 +181,9 @@ class _EditMemberManagerWidgetState extends State<EditMemberManagerWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: getScreenTitle(currentGroupRef: group.doc(currentGroupId), screenName: 'Edit Current Members'),
+          title: getScreenTitle(
+              currentGroupRef: group.doc(currentGroupId),
+              screenName: 'Edit Current Members'),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -204,19 +205,12 @@ class _EditMemberManagerWidgetState extends State<EditMemberManagerWidget> {
                       return Text('Error');
                     }
                     Map members = snapshot.data;
-                    List names = members.keys.toList(); //these are used for printing
-                    List roles = members.values.toList(); // easier to use than maps as Lists are naturally indexed
+                    List names =
+                        members.keys.toList(); //these are used for printing
+                    List roles = members.values
+                        .toList(); // easier to use than maps as Lists are naturally indexed
                     return ListView.separated(
                         itemBuilder: (context, index) => ListTile(
-                            leading: IconButton(
-                                icon: Icon(Icons.delete),
-                                onPressed: () {
-                                  deleteMember(names[index], currentGroupId);
-                                  setState(() {
-                                    //changes state to reflect any deleted member
-                                    names.length;
-                                  });
-                                }),
                             title: Text('${names[index]}'),
                             subtitle: Text('${roles[index]}'),
                             trailing: IconButton(
@@ -225,15 +219,20 @@ class _EditMemberManagerWidgetState extends State<EditMemberManagerWidget> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => EditIndividualMemberManagerWidget(
-                                              index: index, //index of which member is clicked on
-                                              members: members,
-                                              currentGroupId: currentGroupId, uids: uids))).then((value) {
+                                          builder: (context) =>
+                                              EditIndividualMemberManagerWidget(
+                                                  index:
+                                                      index, //index of which member is clicked on
+                                                  members: members,
+                                                  currentGroupId:
+                                                      currentGroupId,
+                                                  uids: uids))).then((value) {
                                     setState(
                                         () {}); //this is here to ensure any change on EditIndividualMemberWidget is reflected back here
                                   });
                                 })),
-                        separatorBuilder: (context, int) => Divider(thickness: 1.0, height: 1.0),
+                        separatorBuilder: (context, int) =>
+                            Divider(thickness: 1.0, height: 1.0),
                         itemCount: names.length);
                   })),
           Container(
@@ -242,7 +241,9 @@ class _EditMemberManagerWidgetState extends State<EditMemberManagerWidget> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => InviteMemberWidget(currentGroupId: currentGroupId)),
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            InviteMemberWidget(currentGroupId: currentGroupId)),
                   );
                 },
                 child: Text('Invite New Members')),

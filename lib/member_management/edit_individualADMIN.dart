@@ -23,15 +23,15 @@ List permissions = ['Member', 'Manager', 'Admin']; //tmp
 class EditIndividualMemberAdminWidget extends StatefulWidget {
   final Map members;
   final int index;
-  final String currentGroupId;
+  final String currentGroupId, role;
   final List uids;
   EditIndividualMemberAdminWidget(
-      {this.members, this.index, this.currentGroupId, this.uids});
+      {this.members, this.index, this.currentGroupId, this.uids, this.role});
 
   @override
   _EditIndividualMemberAdminWidgetState createState() =>
       _EditIndividualMemberAdminWidgetState(
-          members, index, currentGroupId, uids);
+          members, index, currentGroupId, uids, role);
 }
 
 class _EditIndividualMemberAdminWidgetState
@@ -49,7 +49,7 @@ class _EditIndividualMemberAdminWidgetState
   int index;
   GlobalKey<ScaffoldState> _key = new GlobalKey<ScaffoldState>();
   _EditIndividualMemberAdminWidgetState(
-      this.members, this.index, this.currentGroupId, this.uids);
+      this.members, this.index, this.currentGroupId, this.uids, this.currentRole);
 
   //standard function to return roles from database
   Future<List> getRoles(String currentGroupId) async {
@@ -113,6 +113,7 @@ class _EditIndividualMemberAdminWidgetState
     if (currentRole == 'null') {
       currentRole = 'NA';
     }
+    print(currentRole);
     Map managersMap = await getManagers(currentGroupId);
     Map adminsMap = await getAdmins(currentGroupId);
     await group.doc('$currentGroupId').get().then((docref) {
@@ -222,7 +223,7 @@ class _EditIndividualMemberAdminWidgetState
                 height: 20.0, color: Theme.of(context).scaffoldBackgroundColor),
             ListTile(
               title: Center(
-                child: Text('Change Permission Level',
+                child: Text('Change Permissions',
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
               ),
@@ -243,9 +244,6 @@ class _EditIndividualMemberAdminWidgetState
                       onChanged: (newPermissions) {
                         setState(() {
                           selectedPermission = newPermissions;
-                          if (currentRole == null) {
-                            currentRole = 'NA';
-                          }
                           changePermissions(uids[index], selectedPermission,
                               _key, currentRole);
                         });
