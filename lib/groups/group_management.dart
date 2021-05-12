@@ -43,6 +43,10 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
           List allGroups = snapshot.data.docs;
           Map curUsersGroups = {};
 
+          //searches through all groups of the app
+          //if the group contains the members uid, if it does
+          //find if they are a member, manager or admin and save it in 
+          //curUsersGroups
           for (QueryDocumentSnapshot group in allGroups) {
             if (group['Members'].containsKey(uid)) {
               curUsersGroups[group] = 'Member';
@@ -65,36 +69,6 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
             );
           }
 
-          // An alternative way to display the groups:
-
-          // return ListView.builder(
-          //   itemCount: curUsersGroups.length,
-          //   itemBuilder: (context, index) {
-          //     String groupName = curUsersGroups.keys.elementAt(index)['name'];
-          //     return Container(
-          //       margin: EdgeInsets.only(top: 4, bottom: 4),
-          //       child: ElevatedButton(
-          //         child: Row(
-          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //           children: [
-          //             Expanded(child: Text(groupName)),
-          //             Icon(Icons.arrow_right, size: 45),
-          //           ],
-          //         ),
-          //         onPressed: () {
-          //           QueryDocumentSnapshot group = curUsersGroups.keys.elementAt(index);
-          //           if (curUsersGroups.values.elementAt(index) == 'Admin') {
-          //             Navigator.push(
-          //                 context, MaterialPageRoute(builder: (context) => GroupHomeAdminWidget(group.id, groupName)));
-          //           } else if (curUsersGroups.values.elementAt(index) == 'Manager') {
-          //             Navigator.push(context,
-          //                 MaterialPageRoute(builder: (context) => GroupHomeManagerWidget(group.id, groupName)));
-          //           } else {
-          //             Navigator.push(
-          //                 context, MaterialPageRoute(builder: (context) => GroupHomeWidget(group.id, groupName)));
-          //           }
-          //         },
-          //       ),
           return ListView.separated(
             itemCount: curUsersGroups.length,
             itemBuilder: (context, index) {
@@ -108,6 +82,7 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
                     color: Colors.white,
                   ),
                   onTap: () {
+                    //if curUsersGroups value is an admin, then they are an admin
                     QueryDocumentSnapshot group =
                         curUsersGroups.keys.elementAt(index);
                     if (curUsersGroups.values.elementAt(index) == 'Admin') {
@@ -116,6 +91,7 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
                           MaterialPageRoute(
                               builder: (context) =>
                                   GroupHomeAdminWidget(group.id)));
+                                  //if curUsersGroups value is a manager, then they are a manager
                     } else if (curUsersGroups.values.elementAt(index) ==
                         'Manager') {
                       Navigator.push(
@@ -123,6 +99,7 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
                           MaterialPageRoute(
                               builder: (context) =>
                                   GroupHomeManagerWidget(group.id)));
+                                  //if not either, they are a member
                     } else {
                       Navigator.push(
                           context,
@@ -143,54 +120,6 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-        // An alternative way to display the list of groups
-
-        // body: Container(
-        //     margin: EdgeInsets.all(8),
-        //     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
-        //       ElevatedButton(
-        //           onPressed: () {
-        //             Navigator.push(context, MaterialPageRoute(builder: (context) => JoinGroupWidget()));
-        //           },
-        //           child: Text('Join Group')),
-        //       ElevatedButton(
-        //         onPressed: () {
-        //           Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateGroupWidget()));
-        //         },
-        //         child: Text('Create Group'),
-        //       ),
-        //       Container(
-        //         margin: EdgeInsets.only(top: 8),
-        //         child: Divider(
-        //           color: Colors.black,
-        //           thickness: 1.0,
-        //           height: 1.0,
-        //         ),
-        //       ),
-        //       Center(
-        //         child: ListTile(
-        //           title: Text(
-        //             'Your Groups',
-        //             textAlign: TextAlign.center,
-        //             style: TextStyle(
-        //               fontWeight: FontWeight.bold,
-        //             ),
-        //           ),
-        //         ),
-        //       ),
-        //       Container(
-        //         margin: EdgeInsets.only(bottom: 8),
-        //         child: Divider(
-        //           color: Colors.black,
-        //           thickness: 1.0,
-        //           height: 1.0,
-        //         ),
-        //       ),
-        //       Expanded(
-        //         child: _getAllGroups(),
-        //       ),
-        //     ])));
         body: Center(
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -249,53 +178,6 @@ class _MyGroupsWidgetState extends State<MyGroupsWidget> {
         ])));
   }
 }
-
-/* The test groups:
-
-Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[Text("TEST Groups:")],
-            ),
-          ),
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => GroupHomeWidget(
-                                  'RsTjd6INQsNa6RvSTeUX',
-                                  'Pawnee Parks Dept.')));
-                    },
-                    child: Text('Group Home (Member)')),
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => GroupHomeAdminWidget(
-                                  'RsTjd6INQsNa6RvSTeUX',
-                                  'Pawnee Parks Dept.')));
-                    },
-                    child: Text('Group Home (Admin)')),
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => GroupHomeManagerWidget(
-                                  'RsTjd6INQsNa6RvSTeUX',
-                                  'Pawnee Parks Dept.')));
-                    },
-                    child: Text('Group Home (Manager)')),
-              ],
-            ),
-          ),
-*/
 
 class EditGroupWidget extends StatefulWidget {
   final String currentGroupId;
@@ -385,11 +267,6 @@ class _EditGroupWidgetState extends State<EditGroupWidget> {
                             border: OutlineInputBorder(),
                             labelText: 'Group Name',
                           ),
-                          // onChanged: (text) {
-                          //   setState(() {
-                          //     groupName = text;
-                          //   });
-                          // },
                         ),
                       ),
                       Container(
@@ -401,11 +278,6 @@ class _EditGroupWidgetState extends State<EditGroupWidget> {
                             border: OutlineInputBorder(),
                             labelText: 'Group Description',
                           ),
-                          // onChanged: (text) {
-                          //   setState(() {
-                          //     groupDescription = text;
-                          //   });
-                          // },
                         ),
                       ),
                       ElevatedButton(

@@ -22,9 +22,6 @@ Random _rnd = Random();
 String getRandomString(int length) =>
     String.fromCharCodes(Iterable.generate(length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
-/* void addGrouptoUser() async {
-
-} */
 
 class _CreateGroupWidgetState extends State<CreateGroupWidget> {
   final groupNameController = new TextEditingController();
@@ -45,9 +42,6 @@ class _CreateGroupWidgetState extends State<CreateGroupWidget> {
   var uid = FirebaseAuth.instance.currentUser.uid;
 
   void addAGroup(newGroupName, newGroupDescription) async {
-    /* if (!newGroupName || !newGroupDescription) {
-      return;
-    } else */
     newGroupCode = getRandomString(6);
     db.collection("groups").doc().set({
       'name': newGroupName,

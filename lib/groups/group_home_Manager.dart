@@ -132,7 +132,6 @@ class GroupHomeManagerWidget extends StatelessWidget {
                             MaterialPageRoute(
                                 builder: (context) => ViewMembersWidget(
                                     currentGroupId: groupId)));
-                        //TO DO ?: submit the form
                       },
                       child: Text('View Members'))
                 ]))));

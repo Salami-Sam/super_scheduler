@@ -27,6 +27,7 @@ Future<bool> findGroup(String groupCode) async {
   return true;
 }
 
+//adds new user to a group
 Future<bool> joinGroup(var docId) async {
   var user = FirebaseAuth.instance.currentUser.uid;
   var displayName = FirebaseAuth.instance.currentUser.displayName;
@@ -34,6 +35,8 @@ Future<bool> joinGroup(var docId) async {
   QuerySnapshot userGroupsQuery =
       await users.where('userGroups', arrayContains: '$docId').where('displayName', isEqualTo: '$displayName').get();
   if (userGroupsQuery.size == 1) {
+    //if userGroups contains the group ID and the displayName is the same as the user who is currently signed in
+    //return false. this prevents users from joining a group twice. 
     return false;
   } else {
     await groups.doc('$docId').update({
@@ -50,49 +53,6 @@ class JoinGroupWidget extends StatefulWidget {
   @override
   _JoinGroupWidgetState createState() => _JoinGroupWidgetState();
 }
-
-//var newGroupKey = firebase.database().ref().child('groups').push().key;
-
-/* Future<String> getAllGroups() async {
-  var snapshot = groups.get();
-  print(snapshot);
-  return snapshot.toString();
-} */
-
-/* void joinAGroup(groupCode) async {
-  //get group code
-  //add member to group
-}
-
-Future<Map> getGroups() async {
-  Map returnMap;
-  await groups.where('name').get().then((docref) {
-    if (docref.exists) {
-      returnMap = docref['name'];
-      print("in getGroups()");
-      print(returnMap);
-    } else {
-      print("Error, groups not found");
-    }
-  });
-  return uidToGroups(returnMap);
-}
-
-Future<Map> uidToGroups(Map groups) async {
-  List keys = members.keys.toList();
-  String displayName = '';
-  for (int i = 0; i < keys.length; i++) {
-    if (members.containsKey(keys[i])) {
-      displayName = await uidToMembersHelper(keys[i]);
-      String role = members[keys[i]];
-      members.remove(keys[i]);
-      members['$displayName'] = role;
-    }
-  }
-  print(members);
-  return members;
-}
- */
 
 class _JoinGroupWidgetState extends State<JoinGroupWidget> {
   @override
@@ -123,13 +83,13 @@ class _JoinGroupWidgetState extends State<JoinGroupWidget> {
                       if (goodJoin) {
                         var snackBar = SnackBar(
                             content: Text(
-                                'Join was successful! Welcome!')); //don't want to send to invaild email
+                                'Join was successful! Welcome!')); 
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         Navigator.pop(context);
                       } else {
                         var snackBar = SnackBar(
                             content: Text(
-                                'Error! Make sure code is correct and you are not in group already')); //don't want to send to invaild email
+                                'Error! Make sure code is correct and you are not in group already')); 
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       }
                     },
