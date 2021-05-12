@@ -46,8 +46,6 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
       if (docref.exists) {
         groupCode = docref['group_code'];
         groupName = docref['name'];
-      } else {
-        print("Error, name not found");
       }
     });
     Email email = Email(
@@ -64,12 +62,11 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
   //finds unique join code from database
   Future<String> getJoinCode(String currentGroupId) {
     return group.doc('$currentGroupId').get().then((docref) {
+      String returnString = 'NA';
       if (docref.exists) {
-        return docref['group_code'];
-      } else {
-        print("Error, name not found");
-        return '[Error]';
+        returnString = docref['group_code'];
       }
+      return returnString;
     });
   }
 
@@ -155,7 +152,6 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                       child: ElevatedButton(
                           onPressed: () {
                             if (EmailValidator.validate(newMember)) {
-                              print(currentGroupId);
                               send(newMember, currentGroupId);
                             } else {
                               var snackBar = SnackBar(

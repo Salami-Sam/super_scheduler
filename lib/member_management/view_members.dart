@@ -83,8 +83,6 @@ Future<Map> getAllMembers(String currentGroupId) async {
       allMembersMap =
           permissionAdder(allMembersMap, membersLength, managersLength);
       //convert all display names to display names + permission level
-    } else {
-      print("Error, name not found");
     }
   });
   return allMembersMap;
@@ -97,8 +95,6 @@ Future<String> uidToNamesHelper(var key) async {
   await users.doc(key).get().then((docref) {
     if (docref.exists) {
       returnString = docref['displayName'];
-    } else {
-      print("Error, name not found");
     }
   });
   return returnString;
@@ -122,12 +118,9 @@ Future<Map> uidToNames(Map members) async {
 //gets managers from database
 Future<Map> getManagers(String currentGroupId) async {
   Map returnMap;
-  print('in Get managers');
   await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Managers'];
-    } else {
-      print("Error, name not found");
     }
   });
   return returnMap;
@@ -136,12 +129,9 @@ Future<Map> getManagers(String currentGroupId) async {
 //gets admins from database
 Future<Map> getAdmins(String currentGroupId) async {
   Map returnMap;
-  print('in Get admins');
   await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Admins'];
-    } else {
-      print("Error, name not found");
     }
   });
   return returnMap;

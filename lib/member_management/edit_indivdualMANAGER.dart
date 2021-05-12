@@ -56,8 +56,6 @@ class _EditIndividualMemberManagerWidgetState
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         returnList = docref['roles'];
-      } else {
-        print("Error, name not found");
       }
     });
     return returnList;

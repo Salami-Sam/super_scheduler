@@ -36,8 +36,6 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         returnList = docref['roles'];
-      } else {
-        print("Error, name not found");
       }
     });
     return returnList;
@@ -117,8 +115,6 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         returnMap = docref['Members'];
-      } else {
-        print("Error, name not found");
       }
     });
     return returnMap;
@@ -151,7 +147,6 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
                       return Text('Error');
                     }
                     List roles = snapshot.data ?? [];
-                    print(roles);
                     roles.sort((a, b) => a.toUpperCase() != b.toUpperCase()
                         ? a.toUpperCase().compareTo(b.toUpperCase())
                         : a.compareTo(

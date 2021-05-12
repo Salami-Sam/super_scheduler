@@ -58,8 +58,6 @@ class _EditIndividualMemberAdminWidgetState
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         returnList = docref['roles'];
-      } else {
-        print("Error, name not found");
       }
     });
     return returnList;
@@ -90,8 +88,6 @@ class _EditIndividualMemberAdminWidgetState
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         returnMap = docref['Managers'];
-      } else {
-        print("Error, name not found");
       }
     });
     return returnMap;
@@ -103,8 +99,6 @@ class _EditIndividualMemberAdminWidgetState
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         returnMap = docref['Admins'];
-      } else {
-        print("Error, name not found");
       }
     });
     return returnMap;

@@ -69,7 +69,6 @@ Map permissionAdder(Map map, int memberLength, int managerLength) {
 //also the way this is implemented all members are going to be displayed on screen
 //on top, managers are in the middle and admins are on the bottom
 Future<Map> getAllMembers(String currentGroupId) async {
-  print('inGetAllMembers\n');
   await group.doc('$currentGroupId').get().then((docref) async {
     if (docref.exists) {
       membersMap = docref['Members'];
@@ -91,8 +90,6 @@ Future<Map> getAllMembers(String currentGroupId) async {
       allMembersMap =
           permissionAdder(allMembersMap, membersLength, managersLength);
       //convert all display names to display names + permission level
-    } else {
-      print("Error, name not found");
     }
   });
   return allMembersMap;
@@ -105,8 +102,6 @@ Future<String> uidToNamesHelper(var key) async {
   await users.doc(key).get().then((docref) {
     if (docref.exists) {
       returnString = docref['displayName'];
-    } else {
-      print("Error, name not found");
     }
   });
   return returnString;
@@ -130,12 +125,9 @@ Future<Map> uidToNames(Map members) async {
 //gets managers from database
 Future<Map> getManagers(String currentGroupId) async {
   Map returnMap;
-  print('in Get managers');
   await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Managers'];
-    } else {
-      print("Error, name not found");
     }
   });
   return returnMap;
@@ -144,12 +136,9 @@ Future<Map> getManagers(String currentGroupId) async {
 //gets admins from database
 Future<Map> getAdmins(String currentGroupId) async {
   Map returnMap;
-  print('in Get admins');
   await group.doc('$currentGroupId').get().then((docref) {
     if (docref.exists) {
       returnMap = docref['Admins'];
-    } else {
-      print("Error, name not found");
     }
   });
   return returnMap;
@@ -185,7 +174,6 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
   //deletes member from database
   Future<void> deleteMember(
       String currentGroupId, String uidToRemove, int index) async {
-    print(uidToRemove);
     if (FirebaseAuth.instance.currentUser.uid == uidToRemove) {
       showSnackBar(
           message: 'Cannot delete yourself, another admin must delete you');
@@ -219,9 +207,6 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
             Map members = snapshot.data;
             List names = members.keys.toList();
             List roles = members.values.toList();
-            print('$members\n');
-            print('$names\n');
-            print('$roles\n');
             return ListView.separated(
                 itemBuilder: (context, index) => ListTile(
                     leading: IconButton(
