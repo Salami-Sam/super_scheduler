@@ -171,7 +171,7 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 
-  //deletes member from database
+  //deletes member from database and rebuilds the screen
   Future<void> deleteMember(
       String currentGroupId, String uidToRemove, int index) async {
     if (FirebaseAuth.instance.currentUser.uid == uidToRemove) {
@@ -191,6 +191,7 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
         'userGroups': FieldValue.arrayRemove([currentGroupId])
         //deletes group from users currents groups list
       });
+      setState(() {});
     }
   }
 
@@ -216,7 +217,6 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
                           showSnackBar(
                               message:
                                   '${names[index]} was successfully removed');
-                          setState(() {});
                         }),
                     title: Text('${names[index]}'),
                     subtitle: Text('${roles[index]}'),
