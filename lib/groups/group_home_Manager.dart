@@ -125,15 +125,6 @@ class GroupHomeManagerWidget extends StatelessWidget {
                                     EditRolesWidget(currentGroupId: groupId)));
                       },
                       child: Text('Edit Group Roles')),
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ViewMembersWidget(
-                                    currentGroupId: groupId)));
-                      },
-                      child: Text('View Members'))
                 ]))));
   }
 }
