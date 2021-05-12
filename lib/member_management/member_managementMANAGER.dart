@@ -8,8 +8,8 @@ import '../screen_title.dart';
  * Edit Members
  * 
  * @author Mike Schommer
- * @version 3.0
- * 4/28/21
+ * @version 4.0
+ * 5/12/21
  */
 
 List permissions = ['Member', 'Manager', 'Admin'];
@@ -21,6 +21,7 @@ Map membersMap, managersMap, adminsMap;
 String currentPermission;
 List uids;
 
+//get current permission of a particular member
 Future<String> getPermission(String currentGroupId, var memberChosen) async {
   Map membersMap, managersMap;
   await group.doc('$currentGroupId').get().then((docref) {
@@ -63,10 +64,10 @@ Map permissionAdder(Map map, int memberLength, int managerLength) {
   return map;
 }
 
-//gets all members+managers+admins, saves their uids, converts their uids to their
+//gets all members+managers+admins, saves their uids in a list, converts their uids to their
 //display names and then adds what permission level they are next to their name
 //the resulting map is sent back to the future builder so it can be listed out.
-//also the way this is implemented all members are
+//also the way this is implemented all members are going to be displayed on screen
 //on top, managers are in the middle and admins are on the bottom
 Future<Map> getAllMembers(String currentGroupId) async {
   Map allMembersMap;
@@ -127,6 +128,7 @@ Future<Map> uidToNames(Map members) async {
   return members;
 }
 
+//gets managers from database
 Future<Map> getManagers(String currentGroupId) async {
   Map returnMap;
   print('in Get managers');
@@ -140,6 +142,7 @@ Future<Map> getManagers(String currentGroupId) async {
   return returnMap;
 }
 
+//gets admins from database
 Future<Map> getAdmins(String currentGroupId) async {
   Map returnMap;
   print('in Get admins');
@@ -171,12 +174,6 @@ class _EditMemberManagerWidgetState extends State<EditMemberManagerWidget> {
   String currentGroupId;
   _EditMemberManagerWidgetState(this.currentGroupId);
 
-  Drawer getUnifiedDrawerWidget() {
-    return Drawer(
-      child: Text('Drawer placeholder'),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,7 +189,6 @@ class _EditMemberManagerWidgetState extends State<EditMemberManagerWidget> {
           ),
           centerTitle: true,
         ),
-        drawer: getUnifiedDrawerWidget(),
         body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Expanded(
               child: FutureBuilder<Map>(

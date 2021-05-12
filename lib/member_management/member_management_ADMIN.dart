@@ -9,17 +9,18 @@ import '../screen_title.dart';
  * Edit Members
  * 
  * @author Mike Schommer
- * @version 3.0
- * 4/28/21
+ * @version 4.0
+ * 5/12/21
  */
 
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
 CollectionReference users = db.collection('users');
 List uids, names, roles;
-Map membersMap, managersMap, adminsMap;
+Map membersMap, managersMap, adminsMap, allMembersMap;
 String currentPermission;
 
+//gets permission of current group member
 Future<String> getPermission(String currentGroupId, var memberChosen) async {
   Map membersMap, managersMap;
   await group.doc('$currentGroupId').get().then((docref) {
@@ -62,13 +63,12 @@ Map permissionAdder(Map map, int memberLength, int managerLength) {
   return map;
 }
 
-//gets all members+managers+admins, saves their uids, converts their uids to their
+//gets all members+managers+admins, saves their uids in a list, converts their uids to their
 //display names and then adds what permission level they are next to their name
 //the resulting map is sent back to the future builder so it can be listed out.
-//also the way this is implemented all members are
+//also the way this is implemented all members are going to be displayed on screen
 //on top, managers are in the middle and admins are on the bottom
 Future<Map> getAllMembers(String currentGroupId) async {
-  Map allMembersMap;
   print('inGetAllMembers\n');
   await group.doc('$currentGroupId').get().then((docref) async {
     if (docref.exists) {
@@ -95,7 +95,6 @@ Future<Map> getAllMembers(String currentGroupId) async {
       print("Error, name not found");
     }
   });
-  print('$allMembersMap + inGetAllMembers');
   return allMembersMap;
 }
 
@@ -142,6 +141,7 @@ Future<Map> getManagers(String currentGroupId) async {
   return returnMap;
 }
 
+//gets admins from database
 Future<Map> getAdmins(String currentGroupId) async {
   Map returnMap;
   print('in Get admins');
@@ -158,7 +158,6 @@ Future<Map> getAdmins(String currentGroupId) async {
 /* EditMemberWidget screen acts like the "main" screen for most member management 
  * screens as it acts as a jumping off point to all other member management screens
  * EditMemberWidget can also allow admins to be able to delete members from group
- * 
 */
 class EditMemberAdminWidget extends StatefulWidget {
   final String currentGroupId;
@@ -174,12 +173,7 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
   Map members;
   _EditMemberAdminWidgetState(this.currentGroupId);
 
-  Drawer getUnifiedDrawerWidget() {
-    return Drawer(
-      child: Text('Drawer placeholder'),
-    );
-  }
-
+  //shows snackbar without having to be in scaffold
   void showSnackBar({String message}) {
     SnackBar snackbar = SnackBar(
       content: Text(message),
@@ -195,73 +189,75 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
     if (FirebaseAuth.instance.currentUser.uid == uidToRemove) {
       showSnackBar(
           message: 'Cannot delete yourself, another admin must delete you');
+      //prevents user from deleting themself
     } else {
       String currentPermission =
           await getPermission(currentGroupId, uidToRemove);
-      print(currentPermission);
+      //get current permssion of the deleted member
+      //helps finding database much easier
       await group
           .doc('$currentGroupId')
           .update({'${currentPermission}s.$uidToRemove': FieldValue.delete()});
+      //deletes user from the group
       await users.doc('$uidToRemove').update({
         'userGroups': FieldValue.arrayRemove([currentGroupId])
+        //deletes group from users currents groups list
       });
-      showSnackBar(message:'${names[index]} was successfully removed');
     }
   }
 
   Widget getList() {
     return FutureBuilder<Map>(
-                  future: futureMembers = getAllMembers(currentGroupId),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    }
-                    if (snapshot.hasError) {
-                      return Text('Error');
-                    }
-                    members = snapshot.data ?? {};
-                    names = members.keys.toList();
-                    roles = members.values.toList();
-                    print('$members\n');
-                    print('$names\n');
-                    print('$roles\n');
-                    return ListView.separated(
-                        itemBuilder: (context, index) => ListTile(
-                            leading: IconButton(
-                                icon: Icon(Icons.delete),
-                                onPressed: () {
-                                  deleteMember(
-                                      currentGroupId, uids[index], index);
-                                  setState(() {
-
-                                  });
-                                }),
-                            title: Text('${names[index]}'),
-                            subtitle: Text('${roles[index]}'),
-                            trailing: IconButton(
-                                icon: Icon(Icons.more_vert),
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              EditIndividualMemberAdminWidget(
-                                                  index:
-                                                      index, //index of which member is clicked on
-                                                  members: members,
-                                                  currentGroupId:
-                                                      currentGroupId,
-                                                  uids: uids,
-                                                  role: roles[index]))).then(
-                                      (value) {
-                                    setState(
-                                        () {}); //this is here to ensure any change on EditIndividualMemberWidget is reflected back here
-                                  });
-                                })),
-                        separatorBuilder: (context, int) =>
-                            Divider(thickness: 1.0, height: 1.0),
-                        itemCount: names.length);
-                  });
+        future: futureMembers = getAllMembers(currentGroupId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Text('Error');
+          } else {
+            Map members = snapshot.data;
+            List names = members.keys.toList();
+            List roles = members.values.toList();
+            print('$members\n');
+            print('$names\n');
+            print('$roles\n');
+            return ListView.separated(
+                itemBuilder: (context, index) => ListTile(
+                    leading: IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          deleteMember(currentGroupId, uids[index], index);
+                          showSnackBar(
+                              message:
+                                  '${names[index]} was successfully removed');
+                          setState(() {});
+                        }),
+                    title: Text('${names[index]}'),
+                    subtitle: Text('${roles[index]}'),
+                    trailing: IconButton(
+                        icon: Icon(Icons.more_vert),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      EditIndividualMemberAdminWidget(
+                                          index:
+                                              index, //index of which member is clicked on
+                                          members: members,
+                                          currentGroupId: currentGroupId,
+                                          uids: uids,
+                                          role: roles[index]))).then((value) {
+                            setState(
+                                () {}); //this is here to ensure any change on EditIndividualMemberWidget is reflected back here
+                          });
+                        })),
+                separatorBuilder: (context, int) =>
+                    Divider(thickness: 1.0, height: 1.0),
+                itemCount: names.length);
+          }
+        });
   }
 
   @override
@@ -279,10 +275,8 @@ class _EditMemberAdminWidgetState extends State<EditMemberAdminWidget> {
           ),
           centerTitle: true,
         ),
-        drawer: getUnifiedDrawerWidget(),
         body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Expanded(
-              child: getList()),
+          Expanded(child: getList()),
           Container(
             margin: EdgeInsets.only(left: 8, right: 8, bottom: 8),
             child: ElevatedButton(

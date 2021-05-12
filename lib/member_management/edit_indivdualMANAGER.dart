@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
  * Edit Individual Member
  * 
  * @author Mike Schommer
- * @version 3.0
- * 4/28/21
+ * @version 4.0
+ * 5/12/21
  */
 
 var db = FirebaseFirestore.instance;
@@ -28,7 +28,8 @@ class EditIndividualMemberManagerWidget extends StatefulWidget {
 
   @override
   _EditIndividualMemberManagerWidgetState createState() =>
-      _EditIndividualMemberManagerWidgetState(members, index, currentGroupId, uids);
+      _EditIndividualMemberManagerWidgetState(
+          members, index, currentGroupId, uids);
 }
 
 class _EditIndividualMemberManagerWidgetState
@@ -36,10 +37,11 @@ class _EditIndividualMemberManagerWidgetState
   Future<Map> futureMembers;
   Future<List> futureRoles;
   List names, roles, uids;
-  Map members; //this map is used for the display of member in title box
+  Map members;
   String selectedRole,
       selectedPermission,
-      currentGroupId, currentPermission; //these strings are used by the drop menu, will see similar strings in other widgets
+      currentGroupId,
+      currentPermission; //these strings are used by the drop menu, will see similar strings in other widgets
   int index;
   _EditIndividualMemberManagerWidgetState(
       this.members, this.index, this.currentGroupId, this.uids);
@@ -47,7 +49,6 @@ class _EditIndividualMemberManagerWidgetState
   //for some reason the dropdown kept returning null
   //the only way around it was to have two different maps
   //this is fine as the first members map is only used for printing
-
 
   //standard function to return roles from database
   Future<List> getRoles(String currentGroupId) async {
@@ -62,6 +63,7 @@ class _EditIndividualMemberManagerWidgetState
     return returnList;
   }
 
+  //gets current permission of a particular group member
   Future<String> getPermission(String currentGroupId, var memberChosen) async {
     Map membersMap, managersMap;
     await group.doc('$currentGroupId').get().then((docref) {
@@ -80,6 +82,7 @@ class _EditIndividualMemberManagerWidgetState
     return currentPermission;
   }
 
+  //changes role of a particular group member
   Future<void> editRole(
       var memberChosen, var newRole, String currentGroupId) async {
     String currentPermission =
@@ -89,17 +92,11 @@ class _EditIndividualMemberManagerWidgetState
         .update({'${currentPermission}s.$memberChosen': '$newRole'});
   }
 
-  Drawer getUnifiedDrawerWidget() {
-    return Drawer(
-      child: Text('Drawer placeholder'),
-    );
-  }
-
-   String getName(Map members) {
+  //gets displayname of current member, I made it seperate method just to make
+  //code a little cleaner
+  String getName(Map members) {
     names = members.keys.toList();
-    String longName = '${names[index]}';
-    int indexOfParenthesis = longName.indexOf("(");
-    String name = longName.substring(0, indexOfParenthesis);
+    String name = names[index];
     return name;
   }
 
@@ -112,10 +109,9 @@ class _EditIndividualMemberManagerWidgetState
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),
                 onPressed: () {
-                  //back to edit member screen screen
+                  //back to member_managemnetMANAGER screen
                   Navigator.pop(context);
                 })),
-        drawer: getUnifiedDrawerWidget(),
         body: Container(
           margin: EdgeInsets.only(top: 20, bottom: 20, left: 40, right: 40),
           child:
@@ -139,7 +135,8 @@ class _EditIndividualMemberManagerWidgetState
                   List roles = snapshot.data;
                   roles.sort((a, b) => a.toUpperCase() != b.toUpperCase()
                       ? a.toUpperCase().compareTo(b.toUpperCase())
-                      : a.compareTo(b));
+                      : a.compareTo(
+                          b)); //sorts roles alphabetically and ignores case
                   names = members.keys.toList();
                   return DropdownButton(
                     hint: Text(members['${names[index]}']),

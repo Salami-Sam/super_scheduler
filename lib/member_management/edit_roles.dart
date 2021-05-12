@@ -8,8 +8,8 @@ import '../screen_title.dart';
  * Edit Roles
  * 
  * @author Mike Schommer
- * version 3.0
- * 4/28/21
+ * version 4.0
+ * 5/12/21
  */
 
 var db = FirebaseFirestore.instance;
@@ -43,7 +43,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
     return returnList;
   }
 
-//need to not have doc be a string, should be variable
+  //add roles to database arr
   Future<void> addRoles(var roleToAdd, String currentGroupId) async {
     await group.doc('$currentGroupId').update({
       'roles': FieldValue.arrayUnion([roleToAdd])
@@ -72,12 +72,15 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
     } else {
       membersLength = members.length;
     }
+    //find # of members
+
     int managersLength;
     if (managers.length == null) {
       managersLength = 0;
     } else {
       managersLength = managers.length;
     }
+    //find # of managers
 
     allMembers = members;
     allMembers.addAll(managers);
@@ -87,7 +90,8 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
     List currentRoles = allMembers.values.toList();
     for (int i = 0; i < currentMembers.length; i++) {
       if (currentRoles[i] == roleToRemove) {
-        print(currentMembers[i]);
+        //if the current group member has a role that has been deleted, find
+        //them in database and correct it
         if (i < membersLength) {
           correctRoles(currentMembers[i], currentGroupId, 'Members');
         } else if (i < managersLength + membersLength) {
@@ -104,7 +108,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
       String permissionLevel) async {
     await group
         .doc('$currentGroupId')
-        .update({'$permissionLevel.$updateMember': 'N\A'});
+        .update({'$permissionLevel.$updateMember': 'NA'});
   }
 
 //standard function getting members from database
@@ -120,12 +124,6 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
     return returnMap;
   }
 
-  Drawer getUnifiedDrawerWidget() {
-    return Drawer(
-      child: Text('Drawer placeholder'),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,10 +135,10 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
-                Navigator.pop(context); //back to edit member screen
+                Navigator.pop(
+                    context); //back to either member_managementADMIN or member_managementMANAGER
               },
             )),
-        drawer: getUnifiedDrawerWidget(),
         body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Expanded(
               child: FutureBuilder<List>(
@@ -153,6 +151,7 @@ class _EditRolesWidgetState extends State<EditRolesWidget> {
                       return Text('Error');
                     }
                     List roles = snapshot.data ?? [];
+                    print(roles);
                     roles.sort((a, b) => a.toUpperCase() != b.toUpperCase()
                         ? a.toUpperCase().compareTo(b.toUpperCase())
                         : a.compareTo(

@@ -7,8 +7,8 @@ import '../screen_title.dart';
  * View Members
  * 
  * @author Mike Schommer
- * @version 3.0
- * 4/28/21
+ * @version 4.0
+ * 5/12/21
  */
 
 var db = FirebaseFirestore.instance;
@@ -56,10 +56,10 @@ Map permissionAdder(Map map, int memberLength, int managerLength) {
   return map;
 }
 
-//gets all members+managers+admins, saves their uids, converts their uids to their
+//gets all members+managers+admins, saves their uids in a list, converts their uids to their
 //display names and then adds what permission level they are next to their name
 //the resulting map is sent back to the future builder so it can be listed out.
-//also the way this is implemented all members are
+//also the way this is implemented all members are going to be displayed on screen
 //on top, managers are in the middle and admins are on the bottom
 Future<Map> getAllMembers(String currentGroupId) async {
   Map allMembersMap, membersMap, managersMap, adminsMap;
@@ -133,6 +133,7 @@ Future<Map> getManagers(String currentGroupId) async {
   return returnMap;
 }
 
+//gets admins from database
 Future<Map> getAdmins(String currentGroupId) async {
   Map returnMap;
   print('in Get admins');
@@ -145,12 +146,6 @@ Future<Map> getAdmins(String currentGroupId) async {
   });
   return returnMap;
 }
-
-  Drawer getUnifiedDrawerWidget() {
-    return Drawer(
-      child: Text('Drawer placeholder'),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +163,6 @@ Future<Map> getAdmins(String currentGroupId) async {
           ),
           centerTitle: true,
         ),
-        drawer: getUnifiedDrawerWidget(),
         body: FutureBuilder<Map>(
             future: futureMembers = getAllMembers(currentGroupId),
             builder: (context, snapshot) {

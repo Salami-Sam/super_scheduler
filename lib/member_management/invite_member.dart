@@ -9,8 +9,8 @@ import '../screen_title.dart';
  * Invite Members
  * 
  * @author Mike Schommer
- * @version 3.0
- * 4/28/21
+ * @version 4.0
+ * 5/12/21
  */
 
 var db = FirebaseFirestore.instance;
@@ -61,6 +61,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
     }
   }
 
+  //finds unique join code from database
   Future<String> getJoinCode(String currentGroupId) {
     return group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
@@ -70,12 +71,6 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
         return '[Error]';
       }
     });
-  }
-
-  Drawer getUnifiedDrawerWidget() {
-    return Drawer(
-      child: Text('Drawer placeholder'),
-    );
   }
 
   @override
@@ -89,9 +84,9 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),
                 onPressed: () {
-                  Navigator.pop(context); //back to edit member screen
+                  Navigator.pop(
+                      context); //back to either member_managementMANAGER or member_managerADMIN
                 })),
-        drawer: getUnifiedDrawerWidget(),
         body: Container(
             margin: EdgeInsets.all(8),
             child: SingleChildScrollView(
@@ -109,6 +104,8 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                     child: Text(
                         'Your group\'s join code is below. Share it with others so they can join your group!',
                         style: TextStyle(fontSize: 16.0)),
+                    //group code is displayed on the screen too just incase someone already has the app
+                    //and doesn't need an email
                   ),
                   ListTile(
                     title: Center(
@@ -140,6 +137,8 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                     child: Text(
                         'Enter someone\'s email address and we will prepare an invite email to send using your default email app.',
                         style: TextStyle(fontSize: 16.0)),
+                    //just lets the user know that the app uses their email and not thru the app
+                    //makes it less jaring when app changes screen
                   ),
                   Padding(padding: EdgeInsets.all(8.0)),
                   TextField(
@@ -147,8 +146,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
                           hintText: 'spongebob123@bikinimail.com',
                           contentPadding: EdgeInsets.all(10.0)),
                       onChanged: (text) {
-                        newMember =
-                            text; 
+                        newMember = text;
                       }),
                   Padding(padding: EdgeInsets.all(16.0)),
                   Container(

@@ -6,15 +6,15 @@ import 'package:flutter/material.dart';
  * Edit Individual Member
  * 
  * @author Mike Schommer
- * @version 3.0
- * 4/28/21
+ * @version 4.0
+ * 5/12/21
  */
 
 var db = FirebaseFirestore.instance;
 CollectionReference group = db.collection('groups');
 CollectionReference users = db.collection('users');
 
-List permissions = ['Member', 'Manager', 'Admin']; //tmp
+List permissions = ['Member', 'Manager', 'Admin'];
 
 /*
  * EditIndividualMember is a screen that allows an admin to change a role and 
@@ -41,6 +41,7 @@ class _EditIndividualMemberAdminWidgetState
   Future<List> futureRoles;
   Future<String> futurePermission;
   List names, roles, uids;
+  //uids is a list of group members uids instead of names, makes it easier to query database
   Map members;
   String selectedRole,
       selectedPermission,
@@ -51,7 +52,7 @@ class _EditIndividualMemberAdminWidgetState
   _EditIndividualMemberAdminWidgetState(this.members, this.index,
       this.currentGroupId, this.uids, this.currentRole);
 
-  //standard function to return roles from database
+  //standard function to return all roles from database
   Future<List> getRoles(String currentGroupId) async {
     List returnList = [];
     await group.doc('$currentGroupId').get().then((docref) {
@@ -64,6 +65,7 @@ class _EditIndividualMemberAdminWidgetState
     return returnList;
   }
 
+  //gets current permission of a particular member
   Future<String> getPermission(String currentGroupId, var memberChosen) async {
     Map membersMap, managersMap;
     await group.doc('$currentGroupId').get().then((docref) {
@@ -82,6 +84,7 @@ class _EditIndividualMemberAdminWidgetState
     return currentPermission;
   }
 
+  //gets all the managers from database
   Future<Map> getManagers(String currentGroupId) async {
     Map returnMap;
     await group.doc('$currentGroupId').get().then((docref) {
@@ -94,6 +97,7 @@ class _EditIndividualMemberAdminWidgetState
     return returnMap;
   }
 
+  //gets all admins from database
   Future<Map> getAdmins(String currentGroupId) async {
     Map returnMap;
     await group.doc('$currentGroupId').get().then((docref) {
@@ -106,6 +110,7 @@ class _EditIndividualMemberAdminWidgetState
     return returnMap;
   }
 
+  //shows snackbar without having to be within a Scaffold
   void showSnackBar({String message}) {
     SnackBar snackbar = SnackBar(
       content: Text(message),
@@ -121,9 +126,9 @@ class _EditIndividualMemberAdminWidgetState
     if (currentRole == 'null') {
       currentRole = 'NA';
     }
-    print(currentRole);
     Map managersMap = await getManagers(currentGroupId);
     Map adminsMap = await getAdmins(currentGroupId);
+    //I recheck all databases just to make sure all information is upto date
     await group.doc('$currentGroupId').get().then((docref) {
       if (docref.exists) {
         if (adminsMap.containsKey(memberChosen)) {
@@ -152,21 +157,22 @@ class _EditIndividualMemberAdminWidgetState
     });
   }
 
+  //edits role of a particular group member
   Future<void> editRole(
       var memberChosen, var newRole, String currentGroupId) async {
     String currentPermission =
         await getPermission(currentGroupId, memberChosen);
+    //check current permission to see what part of database the group member is in
     await group
         .doc('$currentGroupId')
         .update({'${currentPermission}s.$memberChosen': '$newRole'});
   }
 
-  Drawer getUnifiedDrawerWidget() {
-    return Drawer(
-      child: Text('Drawer placeholder'),
-    );
-  }
-
+  //gets displayname of current member. I made it seperate method and shortened
+  //the name without the permission at the end because I could not get the title
+  //to update when a new role is chosen. I think this choice is ok because
+  //the current permission is displayed in the dropdown menu and any
+  //changes are reflected there perfectly fine
   String getName(Map members) {
     names = members.keys.toList();
     String longName = '${names[index]}';
@@ -184,10 +190,9 @@ class _EditIndividualMemberAdminWidgetState
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),
                 onPressed: () {
-                  //back to edit member screen screen
+                  //back to member_managementADMIN screen
                   Navigator.pop(context);
                 })),
-        drawer: getUnifiedDrawerWidget(),
         body: Container(
           margin: EdgeInsets.only(top: 20, bottom: 20, left: 40, right: 40),
           child:
@@ -211,16 +216,22 @@ class _EditIndividualMemberAdminWidgetState
                   List roles = snapshot.data;
                   roles.sort((a, b) => a.toUpperCase() != b.toUpperCase()
                       ? a.toUpperCase().compareTo(b.toUpperCase())
-                      : a.compareTo(b)); //sorts roles in drop down menu
+                      : a.compareTo(
+                          b)); //sorts roles in drop down menu, ignores case
                   names = members.keys.toList();
                   return DropdownButton(
                     hint: Text(members['${names[index]}']),
                     value: selectedRole,
                     onChanged: (newRole) {
                       setState(() {
+                        //selected role from dropdown menu is new role
+                        //new role is sent to database to update members new role
                         selectedRole = newRole;
                         editRole(uids[index], newRole, currentGroupId);
                         currentRole = newRole;
+                        //current role is saved just in case their permission level is changed too
+                        //need this value because when member is moved into database, I need to
+                        //reassign their old role
                       });
                     },
                     items: roles.map((role) {
@@ -257,15 +268,17 @@ class _EditIndividualMemberAdminWidgetState
                           showSnackBar(
                               message:
                                   'Cannot demote yourself, another admin must demote you');
+                          //I have this check in here to avoid adminless groups
+                          //Adminless groups would cause a lot of problems,
+                          //best to avoid this
                         } else {
                           setState(() {
+                            //selected permission is new permission
                             selectedPermission = newPermissions;
                             changePermissions(
                                 uids[index], selectedPermission, currentRole);
                           });
-                          showSnackBar(
-                              message:
-                                  'Permission level changed!');
+                          showSnackBar(message: 'Permission level changed!');
                         }
                       },
                       items: permissions.map((permission) {
