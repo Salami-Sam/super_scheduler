@@ -46,7 +46,6 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
       );
       showSnackBar(message: 'Password reset email sent.');
     } on FirebaseAuthException catch (e) {
-      print(e.toString());
       if (e.code == 'user-not-found') {
         showSnackBar(message: 'No user found with that email.');
       } else if (e.code == 'invalid-email') {
@@ -126,7 +125,6 @@ class _MyAccountWidgetState extends State<MyAccountWidget> {
     return StreamBuilder<User>(
         stream: FirebaseAuth.instance.userChanges(),
         builder: (context, snapshot) {
-          print('I have been rebuilt and snapshot is $snapshot');
           if (snapshot.hasError) {
             return Center(child: Text('${snapshot.error}'));
           } else if (snapshot.hasData) {

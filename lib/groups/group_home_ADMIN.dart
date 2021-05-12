@@ -146,7 +146,6 @@ class _GroupHomeAdminWidgetState extends State<GroupHomeAdminWidget> {
                             // So, if changes were made, rebuild this screen to update the app bar title
                             // that is the name of the group
                             if (value != null) {
-                              print(value);
                               setState(() {});
                             }
                           });

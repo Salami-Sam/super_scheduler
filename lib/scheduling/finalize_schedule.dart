@@ -300,8 +300,6 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                           assigneesWithRole.removeWhere(
                               (element) => !assignees.contains(element));
 
-                          print(assigneesWithRole);
-
                           return ListView.builder(
                             itemCount: usersWithRole.length,
                             itemBuilder: (context, index) {
@@ -334,9 +332,6 @@ class _FinalizeScheduleWidgetState extends State<FinalizeScheduleWidget> {
                                 child: CheckboxListTile(
                                   value: assignees.contains(userMapEntry.key),
                                   onChanged: (isSelected) {
-                                    print(assigneesWithRole);
-                                    print(selectedRowNumNeeded);
-                                    print(isSelected);
                                     if (isSelected == true &&
                                         assigneesWithRole.length ==
                                             selectedRowNumNeeded) {

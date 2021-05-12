@@ -27,7 +27,6 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
       await emailSender.sendPasswordResetEmail(email: email);
       showSnackBar(message: 'Password reset email sent to $email');
     } on FirebaseAuthException catch (e) {
-      print(e.toString());
       if (e.code == 'user-not-found') {
         showSnackBar(message: 'No user found with that email.');
       } else if (e.code == 'invalid-email') {

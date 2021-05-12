@@ -20,9 +20,7 @@ class AboutWidget extends StatelessWidget {
       } else {
         throw 'Could not launch $privacyPolicyUrl';
       }
-    } catch (e) {
-      print(e);
-    }
+    } catch (e) {}
   }
 
   @override

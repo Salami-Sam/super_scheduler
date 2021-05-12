@@ -54,9 +54,7 @@ class _InviteMemberWidgetState extends State<InviteMemberWidget> {
         recipients: recipientList);
     try {
       await FlutterEmailSender.send(email);
-    } catch (error) {
-      print('Error, something went wrong!');
-    }
+    } catch (error) {}
   }
 
   //finds unique join code from database

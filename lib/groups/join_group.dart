@@ -31,12 +31,13 @@ Future<bool> findGroup(String groupCode) async {
 Future<bool> joinGroup(var docId) async {
   var user = FirebaseAuth.instance.currentUser.uid;
   var displayName = FirebaseAuth.instance.currentUser.displayName;
-  print(docId);
-  QuerySnapshot userGroupsQuery =
-      await users.where('userGroups', arrayContains: '$docId').where('displayName', isEqualTo: '$displayName').get();
+  QuerySnapshot userGroupsQuery = await users
+      .where('userGroups', arrayContains: '$docId')
+      .where('displayName', isEqualTo: '$displayName')
+      .get();
   if (userGroupsQuery.size == 1) {
     //if userGroups contains the group ID and the displayName is the same as the user who is currently signed in
-    //return false. this prevents users from joining a group twice. 
+    //return false. this prevents users from joining a group twice.
     return false;
   } else {
     await groups.doc('$docId').update({
@@ -82,14 +83,13 @@ class _JoinGroupWidgetState extends State<JoinGroupWidget> {
                       bool goodJoin = await findGroup(groupCode);
                       if (goodJoin) {
                         var snackBar = SnackBar(
-                            content: Text(
-                                'Join was successful! Welcome!')); 
+                            content: Text('Join was successful! Welcome!'));
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         Navigator.pop(context);
                       } else {
                         var snackBar = SnackBar(
                             content: Text(
-                                'Error! Make sure code is correct and you are not in group already')); 
+                                'Error! Make sure code is correct and you are not in group already'));
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       }
                     },

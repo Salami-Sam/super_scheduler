@@ -32,7 +32,6 @@ class SchedulingStateModel extends ChangeNotifier {
 DateTime _getSundayMidnightOfThisWeek() {
   var correctDay = DateTime.now().toUtc();
   while (correctDay.weekday != DateTime.sunday) {
-    print(correctDay);
     correctDay = correctDay.subtract(Duration(days: 1));
   }
   return DateTime(correctDay.year, correctDay.month, correctDay.day).toUtc();
