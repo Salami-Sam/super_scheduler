@@ -25,6 +25,8 @@ class GroupHomeAdminWidget extends StatefulWidget {
 }
 
 class _GroupHomeAdminWidgetState extends State<GroupHomeAdminWidget> {
+  // A FutureBuilder for the description of the current group
+  // Author: Dylan Schulz
   Widget getDescriptionWidget() {
     return Container(
       margin: EdgeInsets.all(8),

@@ -18,6 +18,7 @@ class GroupHomeManagerWidget extends StatelessWidget {
   GroupHomeManagerWidget(this.groupId);
 
   // A StreamBuilder for the description of the current group
+  // Author: Dylan Schulz
   Widget getDescriptionWidget() {
     return Container(
       margin: EdgeInsets.all(8),
