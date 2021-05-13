@@ -40,7 +40,8 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
         stream: curWeekScheduleDocRef.collection('Shifts').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text('There was an error in retrieving the schedule.'));
+            return Center(
+                child: Text('There was an error in retrieving the schedule.'));
           } else if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else {
@@ -48,8 +49,9 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
             var thisUsersId = FirebaseAuth.instance.currentUser.uid;
 
             // Get a list of shifts where the current user is in the list of assignees
-            List<QueryDocumentSnapshot> thisUsersShifts =
-                shiftDocsList.where((element) => element['assignees'].contains(thisUsersId)).toList();
+            List<QueryDocumentSnapshot> thisUsersShifts = shiftDocsList
+                .where((element) => element['assignees'].contains(thisUsersId))
+                .toList();
 
             // Sort the shifts in order of start date and time
             thisUsersShifts.sort((shift1, shift2) {
@@ -65,16 +67,19 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
             // Separate shifts out by day and get the desired output format
 
             List<String> listViewTitles = [];
-            int lastInputWeekday = -1; // Keeps track of when headers were stored into listViewTitles
+            int lastInputWeekday =
+                -1; // Keeps track of when headers were stored into listViewTitles
             List<String> shiftStrings = [];
 
             for (var shift in thisUsersShifts) {
               var shiftDocData = shift.data();
 
-              DateTime startDateTime = shiftDocData['startDateTime'].toDate().toLocal();
+              DateTime startDateTime =
+                  shiftDocData['startDateTime'].toDate().toLocal();
               var weekday = weekdayIntConversion(startDateTime.weekday);
               var startTime = dateTimeToTimeString(startDateTime);
-              var endTime = dateTimeToTimeString(shiftDocData['endDateTime'].toDate().toLocal());
+              var endTime = dateTimeToTimeString(
+                  shiftDocData['endDateTime'].toDate().toLocal());
 
               // If we skipped a day of the week, add a line for it
               // If the compared ints are larger than 1 apart, then we skipped at least one day
@@ -120,20 +125,21 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
               separatorBuilder: (context, index) {
                 // Return a different divider between days than
                 // between shifts on the same day
-                // If this divider will come after the final shift of a day,
-                // then that shift will either have no title or have OFF as the shift time
-                if (listViewTitles.elementAt(index) == '' || shiftStrings.elementAt(index) == 'OFF') {
-                  // Between days
-                  return Divider(
-                    color: Colors.black,
-                    thickness: 1.0,
-                    height: 1.0,
-                  );
-                } else {
+                // If this divider comes before a row with no day title,
+                // then have an invisible divider
+                if (listViewTitles.length > index + 1 &&
+                    listViewTitles.elementAt(index + 1) == '') {
                   // Between same day shifts
                   return Divider(
                     // Blend in with the background
                     color: Theme.of(context).scaffoldBackgroundColor,
+                    thickness: 1.0,
+                    height: 1.0,
+                  );
+                } else {
+                  // Between days
+                  return Divider(
+                    color: Colors.black,
                     thickness: 1.0,
                     height: 1.0,
                   );
@@ -164,6 +170,7 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
           children: [
             Text(
               '${FirebaseAuth.instance.currentUser.displayName}\'s Schedule',
+              textAlign: TextAlign.center,
               style: TextStyle(fontSize: 26),
             ),
             Divider(
@@ -173,28 +180,37 @@ class _MyScheduleWidgetState extends State<MyScheduleWidget> {
             ),
             Expanded(
               child: Consumer<SchedulingStateModel>(
-                builder: (context, schedulingStateModel, child) => FutureBuilder<SchedulePublishedPair>(
+                builder: (context, schedulingStateModel, child) =>
+                    FutureBuilder<SchedulePublishedPair>(
                   future: getWeeklyScheduleDoc(
                     groupRef: currentGroupRef,
                     weekStartDate: schedulingStateModel.curWeekStartDate,
                   ),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
-                      return Center(child: Text('There was an error in checking this week\'s schedule.'));
-                    } else if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                          child: Text(
+                              'There was an error in checking this week\'s schedule.'));
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator());
                     } else {
                       // Check the schedule for this week
                       if (snapshot.data == null) {
                         // Did not exist when checked
-                        return Center(child: Text('There is no schedule created for this week.'));
+                        return Center(
+                            child: Text(
+                                'There is no schedule created for this week.'));
                       } else if (snapshot.data.isPublished == false) {
                         // The schedule for this week is not published
-                        return Center(child: Text('The schedule for this week is not published.'));
+                        return Center(
+                            child: Text(
+                                'The schedule for this week is not published.'));
                       } else {
                         // Did exist and is published, so save it in a variable and return screen contents
                         curWeekScheduleDocRef = snapshot.data.weeklySchedule;
-                        return _getScreenContents(schedulingStateModel.curWeekStartDate);
+                        return _getScreenContents(
+                            schedulingStateModel.curWeekStartDate);
                       }
                     }
                   },
