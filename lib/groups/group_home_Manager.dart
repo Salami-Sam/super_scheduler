@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:super_scheduler/member_management/edit_roles.dart';
-import 'package:super_scheduler/member_management/view_members.dart';
-
 import 'package:super_scheduler/scheduling/main_schedule.dart';
 import 'package:super_scheduler/member_management/member_managementMANAGER.dart';
 import 'package:super_scheduler/scheduling/my_availability.dart';
